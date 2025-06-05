@@ -47,7 +47,7 @@ const DataPipelineDesigner = () => {
       };
 
       // Create appropriate data based on node type
-      let nodeData = { label: `${type} node` };
+      let nodeData: any = { label: `${type} node` };
       if (type === 'paymentLegNode') {
         nodeData = { label: 'New Payment', type: Math.random() > 0.5 ? 'debit' : 'credit' };
       } else if (type === 'fundRecordNode') {
