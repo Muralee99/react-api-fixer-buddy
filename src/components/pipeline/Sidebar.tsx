@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Database, Settings, Server } from 'lucide-react';
+import { Database, Settings, Server, CreditCard, TrendingDown, TrendingUp, FileText, Wallet } from 'lucide-react';
 
 export const Sidebar = () => {
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
@@ -10,9 +10,53 @@ export const Sidebar = () => {
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 p-4">
-      <h2 className="text-lg font-semibold mb-4 text-gray-800">Pipeline Components</h2>
+      <h2 className="text-lg font-semibold mb-4 text-gray-800">Payment Pipeline Components</h2>
       
       <div className="space-y-3">
+        <div className="text-sm font-medium text-gray-600 mb-2">Deal Processing</div>
+        
+        <div
+          className="flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg cursor-grab hover:bg-orange-100 transition-colors"
+          draggable
+          onDragStart={(event) => onDragStart(event, 'dealBookingNode')}
+        >
+          <CreditCard className="mr-3 text-orange-600" size={20} />
+          <div>
+            <div className="font-medium text-orange-800">Deal Booking Card</div>
+            <div className="text-xs text-orange-600">Amount 1, Amount 2, Job Details</div>
+          </div>
+        </div>
+
+        <div className="text-sm font-medium text-gray-600 mb-2 mt-4">Payment Legs</div>
+
+        <div
+          className="flex items-center p-3 bg-red-50 border border-red-200 rounded-lg cursor-grab hover:bg-red-100 transition-colors"
+          draggable
+          onDragStart={(event) => onDragStart(event, 'paymentLegNode')}
+        >
+          <TrendingDown className="mr-3 text-red-600" size={20} />
+          <div>
+            <div className="font-medium text-red-800">Payment Leg</div>
+            <div className="text-xs text-red-600">Debit/Credit amounts and currencies</div>
+          </div>
+        </div>
+
+        <div className="text-sm font-medium text-gray-600 mb-2 mt-4">Fund Management</div>
+
+        <div
+          className="flex items-center p-3 bg-teal-50 border border-teal-200 rounded-lg cursor-grab hover:bg-teal-100 transition-colors"
+          draggable
+          onDragStart={(event) => onDragStart(event, 'fundRecordNode')}
+        >
+          <FileText className="mr-3 text-teal-600" size={20} />
+          <div>
+            <div className="font-medium text-teal-800">Fund Record</div>
+            <div className="text-xs text-teal-600">Amount and job details</div>
+          </div>
+        </div>
+
+        <div className="text-sm font-medium text-gray-600 mb-2 mt-4">Generic Components</div>
+
         <div
           className="flex items-center p-3 bg-blue-50 border border-blue-200 rounded-lg cursor-grab hover:bg-blue-100 transition-colors"
           draggable
@@ -51,10 +95,10 @@ export const Sidebar = () => {
       </div>
 
       <div className="mt-6 p-3 bg-gray-50 rounded-lg">
-        <h3 className="font-medium text-gray-700 mb-2">Instructions</h3>
+        <h3 className="font-medium text-gray-700 mb-2">Payment Flow Instructions</h3>
         <p className="text-xs text-gray-600">
-          Drag components from this panel onto the canvas to build your data pipeline. 
-          Connect nodes by dragging from output handles to input handles.
+          Drag payment components to build your deal processing pipeline. 
+          Start with Deal Booking Card, add Payment Legs, and finish with Fund Records.
         </p>
       </div>
     </div>

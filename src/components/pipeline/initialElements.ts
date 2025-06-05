@@ -3,36 +3,66 @@ import { Node, Edge } from '@xyflow/react';
 
 export const initialNodes: Node[] = [
   {
-    id: 'source-1',
-    type: 'sourceNode',
+    id: 'deal-1',
+    type: 'dealBookingNode',
     position: { x: 100, y: 100 },
-    data: { label: 'Database Source' },
+    data: { label: 'Payment Processing Job' },
   },
   {
-    id: 'transform-1',
-    type: 'transformNode',
-    position: { x: 400, y: 100 },
-    data: { label: 'Data Transform' },
+    id: 'debit-leg-1',
+    type: 'paymentLegNode',
+    position: { x: 400, y: 50 },
+    data: { label: 'USD-EUR Exchange', type: 'debit' },
   },
   {
-    id: 'destination-1',
-    type: 'destinationNode',
+    id: 'credit-leg-1',
+    type: 'paymentLegNode',
+    position: { x: 400, y: 150 },
+    data: { label: 'USD-EUR Exchange', type: 'credit' },
+  },
+  {
+    id: 'fund-record-1',
+    type: 'fundRecordNode',
     position: { x: 700, y: 100 },
-    data: { label: 'Data Warehouse' },
+    data: { label: 'Settlement Fund', type: 'initial' },
+  },
+  {
+    id: 'funding-records-1',
+    type: 'fundRecordNode',
+    position: { x: 1000, y: 100 },
+    data: { label: 'Wire Transfer Records', type: 'funding' },
   },
 ];
 
 export const initialEdges: Edge[] = [
   {
     id: 'e1-2',
-    source: 'source-1',
-    target: 'transform-1',
+    source: 'deal-1',
+    target: 'debit-leg-1',
     animated: true,
   },
   {
-    id: 'e2-3',
-    source: 'transform-1',
-    target: 'destination-1',
+    id: 'e1-3',
+    source: 'deal-1',
+    target: 'credit-leg-1',
+    animated: true,
+  },
+  {
+    id: 'e2-4',
+    source: 'debit-leg-1',
+    target: 'fund-record-1',
+    animated: true,
+  },
+  {
+    id: 'e3-4',
+    source: 'credit-leg-1',
+    target: 'fund-record-1',
+    animated: true,
+  },
+  {
+    id: 'e4-5',
+    source: 'fund-record-1',
+    target: 'funding-records-1',
     animated: true,
   },
 ];

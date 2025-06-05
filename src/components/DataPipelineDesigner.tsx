@@ -46,11 +46,19 @@ const DataPipelineDesigner = () => {
         y: event.clientY - 40,
       };
 
+      // Create appropriate data based on node type
+      let nodeData = { label: `${type} node` };
+      if (type === 'paymentLegNode') {
+        nodeData = { label: 'New Payment', type: Math.random() > 0.5 ? 'debit' : 'credit' };
+      } else if (type === 'fundRecordNode') {
+        nodeData = { label: 'New Fund Record', type: 'initial' };
+      }
+
       const newNode = {
         id: `${type}-${Date.now()}`,
         type,
         position,
-        data: { label: `${type} node` },
+        data: nodeData,
       };
 
       setNodes((nds) => nds.concat(newNode));
