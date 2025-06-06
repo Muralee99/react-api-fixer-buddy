@@ -3,7 +3,24 @@ import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { CreditCard, Clock, FileText, CheckCircle, XCircle } from 'lucide-react';
 
-export const DealBookingNode = memo(({ data }: { data: { label: string } }) => {
+interface DealBookingNodeData {
+  label: string;
+  pipelineData?: {
+    amount1: string;
+    amount2: string;
+    currency1: string;
+    currency2: string;
+    lastExecution: string;
+    status: 'success' | 'failure';
+    nextScheduled: string;
+    documentsProcessed: number;
+    documentsFailed: number;
+  };
+}
+
+export const DealBookingNode = memo(({ data }: { data: DealBookingNodeData }) => {
+  const pipelineData = data.pipelineData;
+
   return (
     <div className="px-4 py-3 shadow-md rounded-md bg-orange-500 text-white border-2 border-orange-600 min-w-[240px]">
       <div className="flex items-center mb-3">
@@ -15,10 +32,10 @@ export const DealBookingNode = memo(({ data }: { data: { label: string } }) => {
       <div className="bg-orange-600 rounded p-2 mb-2">
         <div className="text-xs font-semibold mb-1">Amounts & Currencies</div>
         <div className="text-xs space-y-1">
-          <div>Amount 1: $1,000</div>
-          <div>Amount 2: $2,500</div>
-          <div>Currency 1: USD</div>
-          <div>Currency 2: EUR</div>
+          <div>Amount 1: {pipelineData?.amount1 || '$1,000'}</div>
+          <div>Amount 2: {pipelineData?.amount2 || '$2,500'}</div>
+          <div>Currency 1: {pipelineData?.currency1 || 'USD'}</div>
+          <div>Currency 2: {pipelineData?.currency2 || 'EUR'}</div>
         </div>
       </div>
 
@@ -31,10 +48,14 @@ export const DealBookingNode = memo(({ data }: { data: { label: string } }) => {
         <div className="text-xs space-y-1">
           <div>Job: {data.label}</div>
           <div className="flex items-center">
-            <CheckCircle className="mr-1" size={10} />
-            <span>Last: Success (2024-01-20)</span>
+            {pipelineData?.status === 'success' ? (
+              <CheckCircle className="mr-1" size={10} />
+            ) : (
+              <XCircle className="mr-1" size={10} />
+            )}
+            <span>Last: {pipelineData?.status === 'success' ? 'Success' : 'Failed'} ({pipelineData?.lastExecution || '2024-01-20'})</span>
           </div>
-          <div>Next: 2024-01-25 09:00</div>
+          <div>Next: {pipelineData?.nextScheduled || '2024-01-25 09:00'}</div>
         </div>
       </div>
 
@@ -45,10 +66,10 @@ export const DealBookingNode = memo(({ data }: { data: { label: string } }) => {
           Document Processing
         </div>
         <div className="text-xs space-y-1">
-          <div>Processed: 1,245</div>
+          <div>Processed: {pipelineData?.documentsProcessed || 1245}</div>
           <div className="flex items-center">
             <XCircle className="mr-1" size={10} />
-            <span>Failed: 3</span>
+            <span>Failed: {pipelineData?.documentsFailed || 3}</span>
           </div>
         </div>
       </div>
