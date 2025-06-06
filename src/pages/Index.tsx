@@ -1,11 +1,11 @@
 
 import React from 'react';
-import DataPipelineDesigner from '@/components/DataPipelineDesigner';
+import PipelineData from './PipelineData';
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <DataPipelineDesigner />
+      <PipelineData />
     </div>
   );
 };

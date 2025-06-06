@@ -1,5 +1,6 @@
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ReactFlow,
   addEdge,
@@ -17,13 +18,22 @@ import '@xyflow/react/dist/style.css';
 import { initialNodes, initialEdges } from './pipeline/initialElements';
 import { nodeTypes } from './pipeline/nodeTypes';
 import { Sidebar } from './pipeline/Sidebar';
-import { FilterForm } from './pipeline/FilterForm';
-import { fetchPipelineData, PipelineData } from '@/services/mockDataService';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 const DataPipelineDesigner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Handle incoming pipeline data from navigation
+  useEffect(() => {
+    if (location.state?.pipelineData) {
+      const pipelineData = location.state.pipelineData;
+      updateNodesWithData(pipelineData);
+    }
+  }, [location.state]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -69,25 +79,7 @@ const DataPipelineDesigner = () => {
     [setNodes],
   );
 
-  const handleFormSubmit = async (filters: {
-    fromDate: string;
-    toDate: string;
-    merchantId: string;
-  }) => {
-    setIsLoading(true);
-    console.log('Form submitted with filters:', filters);
-
-    try {
-      const data = await fetchPipelineData(filters);
-      updateNodesWithData(data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateNodesWithData = (data: PipelineData) => {
+  const updateNodesWithData = (pipelineData: any) => {
     setNodes((nds) => 
       nds.map((node) => {
         switch (node.id) {
@@ -96,7 +88,7 @@ const DataPipelineDesigner = () => {
               ...node,
               data: {
                 ...node.data,
-                pipelineData: data.dealBooking,
+                pipelineData: pipelineData.dealBooking,
               },
             };
           case 'payment-debit-1':
@@ -104,7 +96,7 @@ const DataPipelineDesigner = () => {
               ...node,
               data: {
                 ...node.data,
-                pipelineData: data.paymentDebit,
+                pipelineData: pipelineData.paymentDebit,
               },
             };
           case 'payment-credit-1':
@@ -112,7 +104,7 @@ const DataPipelineDesigner = () => {
               ...node,
               data: {
                 ...node.data,
-                pipelineData: data.paymentCredit,
+                pipelineData: pipelineData.paymentCredit,
               },
             };
           case 'fund-initial-1':
@@ -120,7 +112,7 @@ const DataPipelineDesigner = () => {
               ...node,
               data: {
                 ...node.data,
-                pipelineData: data.fundInitial,
+                pipelineData: pipelineData.fundInitial,
               },
             };
           case 'fund-funding-1':
@@ -128,7 +120,7 @@ const DataPipelineDesigner = () => {
               ...node,
               data: {
                 ...node.data,
-                pipelineData: data.fundFunding,
+                pipelineData: pipelineData.fundFunding,
               },
             };
           default:
@@ -142,13 +134,17 @@ const DataPipelineDesigner = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-4 bg-white border-b">
-        <FilterForm onSubmit={handleFormSubmit} />
-        {isLoading && (
-          <div className="text-center text-blue-600 mt-2">
-            Loading pipeline data...
-          </div>
-        )}
+      <div className="p-4 bg-white border-b flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft size={16} />
+          Back to Data Table
+        </Button>
+        <h1 className="text-xl font-semibold">Pipeline Designer</h1>
+        <div></div>
       </div>
       <div className="flex-1 flex">
         <Sidebar />
