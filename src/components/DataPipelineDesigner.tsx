@@ -49,8 +49,8 @@ const DataPipelineDesigner = () => {
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      const type = event.dataTransfer.getData('application/reactflow');
-      if (typeof type === 'undefined' || !type) {
+      const nodeType = event.dataTransfer.getData('application/reactflow');
+      if (typeof nodeType === 'undefined' || !nodeType) {
         return;
       }
 
@@ -60,16 +60,33 @@ const DataPipelineDesigner = () => {
       };
 
       // Create appropriate data based on node type
-      let nodeData: any = { label: `${type} node` };
-      if (type === 'paymentLegNode') {
-        nodeData = { label: 'New Payment', type: Math.random() > 0.5 ? 'debit' : 'credit' };
-      } else if (type === 'fundRecordNode') {
-        nodeData = { label: 'New Fund Record', type: 'initial' };
+      let nodeData: any = { 
+        label: `${nodeType} node`,
+        nodeType: nodeType
+      };
+      
+      if (nodeType === 'paymentLegNode') {
+        nodeData = { 
+          label: 'New Payment',
+          nodeType: 'paymentLegNode',
+          type: Math.random() > 0.5 ? 'debit' : 'credit'
+        };
+      } else if (nodeType === 'fundRecordNode') {
+        nodeData = { 
+          label: 'New Fund Record',
+          nodeType: 'fundRecordNode',
+          type: 'initial'
+        };
+      } else if (nodeType === 'dealBookingNode') {
+        nodeData = {
+          label: 'New Deal Booking',
+          nodeType: 'dealBookingNode'
+        };
       }
 
       const newNode = {
-        id: `${type}-${Date.now()}`,
-        type,
+        id: `${nodeType}-${Date.now()}`,
+        type: 'universalNode',
         position,
         data: nodeData,
       };

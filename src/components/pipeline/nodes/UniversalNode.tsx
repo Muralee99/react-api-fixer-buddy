@@ -13,10 +13,11 @@ import {
 } from 'lucide-react';
 import { NodeConfig, FieldConfig } from '@/config/nodeConfig';
 
-interface ConfigurableNodeData {
+interface UniversalNodeData {
   label: string;
-  nodeConfig: NodeConfig;
+  nodeType: string;
   pipelineData?: Record<string, any>;
+  [key: string]: any;
 }
 
 const iconMap = {
@@ -73,8 +74,33 @@ const getDefaultValue = (field: FieldConfig) => {
   }
 };
 
-export const ConfigurableNode = memo(({ data }: { data: ConfigurableNodeData }) => {
-  const { nodeConfig, pipelineData } = data;
+export const UniversalNode = memo(({ data }: { data: UniversalNodeData }) => {
+  // Get node configuration based on nodeType from data
+  const getNodeConfig = (nodeType: string): NodeConfig | null => {
+    const { nodeConfigurations } = require('@/config/nodeConfig');
+    
+    // Map nodeType to configuration key
+    const configMap: Record<string, string> = {
+      'dealBookingNode': 'dealBooking',
+      'paymentLegNode': data.type === 'debit' ? 'paymentDebit' : 'paymentCredit',
+      'fundRecordNode': data.type === 'funding' ? 'fundFunding' : 'fundInitial',
+    };
+    
+    const configKey = configMap[nodeType];
+    return configKey ? nodeConfigurations[configKey] : null;
+  };
+
+  const nodeConfig = getNodeConfig(data.nodeType);
+  
+  if (!nodeConfig) {
+    return (
+      <div className="px-4 py-3 shadow-md rounded-md bg-gray-500 text-white border-2 border-gray-600 min-w-[240px]">
+        <div className="text-sm font-bold">Unknown Node Type: {data.nodeType}</div>
+      </div>
+    );
+  }
+
+  const { pipelineData } = data;
   const MainIcon = iconMap[nodeConfig.icon as keyof typeof iconMap];
 
   return (
@@ -130,4 +156,4 @@ export const ConfigurableNode = memo(({ data }: { data: ConfigurableNodeData }) 
   );
 });
 
-ConfigurableNode.displayName = 'ConfigurableNode';
+UniversalNode.displayName = 'UniversalNode';

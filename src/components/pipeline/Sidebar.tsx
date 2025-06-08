@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Database, Settings, Server, CreditCard, TrendingDown, TrendingUp, FileText, Wallet } from 'lucide-react';
 
@@ -10,7 +9,7 @@ export const Sidebar = () => {
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 p-4">
-      <h2 className="text-lg font-semibold mb-4 text-gray-800">Payment Pipeline Components</h2>
+      <h2 className="text-lg font-semibold mb-4 text-gray-800">Configurable Pipeline Components</h2>
       
       <div className="space-y-3">
         <div className="text-sm font-medium text-gray-600 mb-2">Deal Processing</div>
@@ -23,7 +22,7 @@ export const Sidebar = () => {
           <CreditCard className="mr-3 text-orange-600" size={20} />
           <div>
             <div className="font-medium text-orange-800">Deal Booking Card</div>
-            <div className="text-xs text-orange-600">Amount 1, Amount 2, Job Details</div>
+            <div className="text-xs text-orange-600">Configurable amounts and job details</div>
           </div>
         </div>
 
@@ -37,7 +36,7 @@ export const Sidebar = () => {
           <TrendingDown className="mr-3 text-red-600" size={20} />
           <div>
             <div className="font-medium text-red-800">Payment Leg</div>
-            <div className="text-xs text-red-600">Debit/Credit amounts and currencies</div>
+            <div className="text-xs text-red-600">Configurable debit/credit processing</div>
           </div>
         </div>
 
@@ -51,7 +50,7 @@ export const Sidebar = () => {
           <FileText className="mr-3 text-teal-600" size={20} />
           <div>
             <div className="font-medium text-teal-800">Fund Record</div>
-            <div className="text-xs text-teal-600">Amount and job details</div>
+            <div className="text-xs text-teal-600">Configurable fund management</div>
           </div>
         </div>
 
@@ -95,10 +94,10 @@ export const Sidebar = () => {
       </div>
 
       <div className="mt-6 p-3 bg-gray-50 rounded-lg">
-        <h3 className="font-medium text-gray-700 mb-2">Payment Flow Instructions</h3>
+        <h3 className="font-medium text-gray-700 mb-2">Universal Node System</h3>
         <p className="text-xs text-gray-600">
-          Drag payment components to build your deal processing pipeline. 
-          Start with Deal Booking Card, add Payment Legs, and finish with Fund Records.
+          All nodes are now configurable at runtime. Drag components to build your pipeline, 
+          and they will automatically configure based on your data and node type.
         </p>
       </div>
     </div>

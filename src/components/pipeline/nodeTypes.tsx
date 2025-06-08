@@ -1,16 +1,15 @@
-
 import { SourceNode } from './nodes/SourceNode';
 import { TransformNode } from './nodes/TransformNode';
 import { DestinationNode } from './nodes/DestinationNode';
-import { DealBookingNode } from './nodes/DealBookingNode';
-import { PaymentLegNode } from './nodes/PaymentLegNode';
-import { FundRecordNode } from './nodes/FundRecordNode';
+import { UniversalNode } from './nodes/UniversalNode';
 
 export const nodeTypes = {
   sourceNode: SourceNode,
   transformNode: TransformNode,
   destinationNode: DestinationNode,
-  dealBookingNode: DealBookingNode,
-  paymentLegNode: PaymentLegNode,
-  fundRecordNode: FundRecordNode,
+  universalNode: UniversalNode,
+  // Keep the original node types for backward compatibility
+  dealBookingNode: UniversalNode,
+  paymentLegNode: UniversalNode,
+  fundRecordNode: UniversalNode,
 };
