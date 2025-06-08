@@ -1,11 +1,11 @@
 
 import React from 'react';
-import PipelineData from './PipelineData';
+import PipelineDataPage from './PipelineData';
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <PipelineData />
+      <PipelineDataPage />
     </div>
   );
 };

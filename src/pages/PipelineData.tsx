@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
-import { fetchPipelineData, PipelineData } from '@/services/mockDataService';
+import { fetchPipelineData, type PipelineData } from '@/services/mockDataService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -34,7 +34,7 @@ interface PipelineRow {
   };
 }
 
-const PipelineData = () => {
+const PipelineDataPage = () => {
   const [pipelineRows, setPipelineRows] = useState<PipelineRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -189,4 +189,4 @@ const PipelineData = () => {
   );
 };
 
-export default PipelineData;
+export default PipelineDataPage;
