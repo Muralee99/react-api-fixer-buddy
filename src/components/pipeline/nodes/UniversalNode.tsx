@@ -11,7 +11,7 @@ import {
   CheckCircle, 
   XCircle 
 } from 'lucide-react';
-import { NodeConfig, FieldConfig } from '@/config/nodeConfig';
+import { NodeConfig, FieldConfig, nodeConfigurations } from '@/config/nodeConfig';
 
 interface UniversalNodeData {
   label: string;
@@ -77,8 +77,6 @@ const getDefaultValue = (field: FieldConfig) => {
 export const UniversalNode = memo(({ data }: { data: UniversalNodeData }) => {
   // Get node configuration based on nodeType from data
   const getNodeConfig = (nodeType: string): NodeConfig | null => {
-    const { nodeConfigurations } = require('@/config/nodeConfig');
-    
     // Map nodeType to configuration key
     const configMap: Record<string, string> = {
       'dealBookingNode': 'dealBooking',
