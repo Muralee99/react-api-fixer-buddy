@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { FilterForm } from '@/components/pipeline/FilterForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -162,24 +161,6 @@ const PipelineDataPage = () => {
               </Card>
             )}
 
-            {(selectedTable.includes('pipeline_infographics') || selectedTable.includes('pipeline_aggregates_table')) && pipelineAggregates.length > 0 && (
-              <div className="flex flex-col gap-6">
-                {selectedTable.includes('pipeline_aggregates_table') && (
-                  <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />
-                )}
-                {selectedTable.includes('pipeline_infographics') && (
-                  <AggregateChart
-                    title="Pipeline Data Infographics"
-                    description="Aggregated amounts for pipeline data by date and status."
-                    data={pipelineAggregatesForChart}
-                    chartConfig={chartConfig}
-                    dataKeys={[{ name: 'Amount 1', key: 'amount1' }, { name: 'Amount 2', key: 'amount2' }]}
-                    xAxisKey="Date"
-                  />
-                )}
-              </div>
-            )}
-            
             {selectedTable.includes('transactions') && transactionRows.length > 0 && (
               <Card>
                 <CardHeader>
@@ -212,6 +193,24 @@ const PipelineDataPage = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {(selectedTable.includes('pipeline_infographics') || selectedTable.includes('pipeline_aggregates_table')) && pipelineAggregates.length > 0 && (
+              <div className="flex flex-col gap-6">
+                {selectedTable.includes('pipeline_aggregates_table') && (
+                  <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />
+                )}
+                {selectedTable.includes('pipeline_infographics') && (
+                  <AggregateChart
+                    title="Pipeline Data Infographics"
+                    description="Aggregated amounts for pipeline data by date and status."
+                    data={pipelineAggregatesForChart}
+                    chartConfig={chartConfig}
+                    dataKeys={[{ name: 'Amount 1', key: 'amount1' }, { name: 'Amount 2', key: 'amount2' }]}
+                    xAxisKey="Date"
+                  />
+                )}
+              </div>
             )}
 
             {(selectedTable.includes('transaction_infographics') || selectedTable.includes('transaction_aggregates_table')) && transactionAggregates.length > 0 && (
