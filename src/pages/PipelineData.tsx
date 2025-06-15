@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -162,19 +161,10 @@ const PipelineDataPage = () => {
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
-                </Table>
-
-                {/* This wrapper div controls the scroll/virtual window */}
-                <div
-                  style={{
-                    height: Math.min(600, rowHeight * Math.min(50, pipelineRows.length)),
-                    overflowY: "auto",
-                    width: "100%",
-                  }}
-                >
-                  <Table>
+                  {/* Virtualized TableBody */}
+                  <TableBody>
                     <List
-                      height={Math.min(600, rowHeight * Math.min(50, pipelineRows.length))}
+                      height={Math.min(600, rowHeight * pipelineRows.length)}
                       itemCount={pipelineRows.length}
                       itemSize={rowHeight}
                       width={"100%"}
@@ -184,8 +174,8 @@ const PipelineDataPage = () => {
                     >
                       {Row}
                     </List>
-                  </Table>
-                </div>
+                  </TableBody>
+                </Table>
               </div>
             </CardContent>
           </Card>
