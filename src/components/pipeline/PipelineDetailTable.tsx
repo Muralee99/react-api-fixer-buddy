@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface PipelineDetail {
+  type?: string;
   amount1: string;
   amount2: string;
   currency1: string;
@@ -17,11 +18,11 @@ interface PipelineDetail {
 
 interface PipelineDetailTableProps {
   title: string;
-  data: PipelineDetail | null | undefined;
+  data: PipelineDetail[] | null | undefined;
 }
 
 const PipelineDetailTable: React.FC<PipelineDetailTableProps> = ({ title, data }) => {
-  if (!data) {
+  if (!data || data.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -34,6 +35,8 @@ const PipelineDetailTable: React.FC<PipelineDetailTableProps> = ({ title, data }
     );
   }
 
+  const showTypeColumn = data.length > 1;
+
   return (
     <Card>
       <CardHeader>
@@ -43,6 +46,7 @@ const PipelineDetailTable: React.FC<PipelineDetailTableProps> = ({ title, data }
         <Table>
           <TableHeader>
             <TableRow>
+              {showTypeColumn && <TableHead>Type</TableHead>}
               <TableHead>Amount 1</TableHead>
               <TableHead>Amount 2</TableHead>
               <TableHead>Currency 1</TableHead>
@@ -55,19 +59,22 @@ const PipelineDetailTable: React.FC<PipelineDetailTableProps> = ({ title, data }
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>{data.amount1}</TableCell>
-              <TableCell>{data.amount2}</TableCell>
-              <TableCell>{data.currency1}</TableCell>
-              <TableCell>{data.currency2}</TableCell>
-              <TableCell>{data.lastExecution}</TableCell>
-              <TableCell className={data.status === 'success' ? 'text-green-600' : 'text-red-600'}>
-                {data.status}
-              </TableCell>
-              <TableCell>{data.nextScheduled}</TableCell>
-              <TableCell>{data.documentsProcessed}</TableCell>
-              <TableCell>{data.documentsFailed}</TableCell>
-            </TableRow>
+            {data.map((item, index) => (
+              <TableRow key={index}>
+                {showTypeColumn && <TableCell>{item.type}</TableCell>}
+                <TableCell>{item.amount1}</TableCell>
+                <TableCell>{item.amount2}</TableCell>
+                <TableCell>{item.currency1}</TableCell>
+                <TableCell>{item.currency2}</TableCell>
+                <TableCell>{item.lastExecution}</TableCell>
+                <TableCell className={item.status === 'success' ? 'text-green-600' : 'text-red-600'}>
+                  {item.status}
+                </TableCell>
+                <TableCell>{item.nextScheduled}</TableCell>
+                <TableCell>{item.documentsProcessed}</TableCell>
+                <TableCell>{item.documentsFailed}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </CardContent>

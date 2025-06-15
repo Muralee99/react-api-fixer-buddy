@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -201,11 +200,21 @@ const DataPipelineDesigner = () => {
                 <ScrollArea className="h-full w-full p-4">
                   <h2 className="text-lg font-semibold mb-4 text-gray-800">Pipeline Details</h2>
                   <div className="space-y-6">
-                    <PipelineDetailTable title="Deal Booking Information" data={pipelineInfo.dealBooking} />
-                    <PipelineDetailTable title="Debit Leg Information" data={pipelineInfo.paymentDebit} />
-                    <PipelineDetailTable title="Credit Leg Information" data={pipelineInfo.paymentCredit} />
-                    <PipelineDetailTable title="Fund Record Information" data={pipelineInfo.fundInitial} />
-                    <PipelineDetailTable title="Funding Record Information" data={pipelineInfo.fundFunding} />
+                    <PipelineDetailTable title="Deal Booking Information" data={pipelineInfo.dealBooking ? [pipelineInfo.dealBooking] : []} />
+                    <PipelineDetailTable
+                      title="Payment Legs Information"
+                      data={[
+                        { ...pipelineInfo.paymentDebit, type: 'Debit Leg' },
+                        { ...pipelineInfo.paymentCredit, type: 'Credit Leg' },
+                      ]}
+                    />
+                    <PipelineDetailTable
+                      title="Fund Records Information"
+                      data={[
+                        { ...pipelineInfo.fundInitial, type: 'Initial Record' },
+                        { ...pipelineInfo.fundFunding, type: 'Funding Record' },
+                      ]}
+                    />
                   </div>
                 </ScrollArea>
               </div>
