@@ -56,6 +56,25 @@ export interface PipelineData {
   };
 }
 
+export interface PipelineRow {
+  id: string;
+  nodeType: string;
+  amount1: string;
+  amount2: string;
+  currency1: string;
+  currency2: string;
+  lastExecution: string;
+  status: 'success' | 'failure';
+  nextScheduled: string;
+  documentsProcessed: number;
+  documentsFailed: number;
+  filters: {
+    fromDate: string;
+    toDate: string;
+    merchantId: string;
+  };
+}
+
 export interface TransactionData {
   id: string;
   mid: string;

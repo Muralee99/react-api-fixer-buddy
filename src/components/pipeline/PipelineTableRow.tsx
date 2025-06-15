@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import type { PipelineRow } from "@/pages/PipelineData";
+import type { PipelineRow } from "@/services/mockDataService";
 
 interface PipelineTableRowProps {
   row: PipelineRow;

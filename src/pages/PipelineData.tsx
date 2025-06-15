@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState, useCallback } from 'react';
 import { FilterForm } from '@/components/pipeline/FilterForm';
-import { fetchPipelineData, fetchTransactionData, type TransactionData } from '@/services/mockDataService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -13,184 +12,30 @@ import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
 import AggregateTable from "@/components/pipeline/AggregateTable";
-import { toast } from "sonner";
 import { VisibilityControl, type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityControl';
-
-// Export this interface for usage in other files
-export interface PipelineRow {
-  id: string;
-  nodeType: string;
-  amount1: string;
-  amount2: string;
-  currency1: string;
-  currency2: string;
-  lastExecution: string;
-  status: 'success' | 'failure';
-  nextScheduled: string;
-  documentsProcessed: number;
-  documentsFailed: number;
-  filters: {
-    fromDate: string;
-    toDate: string;
-    merchantId: string;
-  };
-}
-
-const NODE_TYPES = [
-  { key: 'dealBooking', label: 'Deal Booking' }
-];
+import { usePipelineData } from '@/hooks/usePipelineData';
+import { type PipelineRow } from '@/services/mockDataService';
 
 const PipelineDataPage = () => {
-  const [pipelineRows, setPipelineRows] = useState<PipelineRow[]>([]);
-  const [transactionRows, setTransactionRows] = useState<TransactionData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
-  const navigate = useNavigate();
 
-  const handleFormSubmit = async (filters: {
-    fromDate: string;
-    toDate: string;
-    merchantId: string;
-  }) => {
-    setIsLoading(true);
-    console.log('Form submitted with filters:', filters);
-
-    try {
-      const pipelineDataPromise = fetchPipelineData(filters);
-      const transactionDataPromise = fetchTransactionData(filters);
-      const [data, transactions] = await Promise.all([pipelineDataPromise, transactionDataPromise]);
-
-
-      // Only generate Deal Booking rows
-      const rows: PipelineRow[] = [];
-      // Adjust the count as desired; here, still 350
-      for (let i = 0; i < 350; i++) {
-        const nodeTypeConfig = NODE_TYPES[0]; // Only Deal Booking
-        const dataKey = nodeTypeConfig.key as keyof typeof data;
-        rows.push({
-          id: `${nodeTypeConfig.key}-${i + 1}`,
-          nodeType: nodeTypeConfig.label,
-          ...(data[dataKey] as Omit<PipelineRow, "id" | "nodeType" | "filters">),
-          filters
-        });
-      }
-      setPipelineRows(rows);
-      setTransactionRows(transactions);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleViewFlow = (row: PipelineRow) => {
-    // Navigate to React Flow with the data
-    navigate('/pipeline-designer', { 
-      state: { 
-        pipelineData: {
-          dealBooking: pipelineRows.find(r => r.nodeType === 'Deal Booking'),
-          paymentDebit: pipelineRows.find(r => r.nodeType === 'Payment Debit'),
-          paymentCredit: pipelineRows.find(r => r.nodeType === 'Payment Credit'),
-          fundInitial: pipelineRows.find(r => r.nodeType === 'Fund Initial'),
-          fundFunding: pipelineRows.find(r => r.nodeType === 'Fund Funding'),
-        },
-        filters: row.filters
-      }
-    });
-  };
-
-  const handleTransactionViewFlow = (row: TransactionData) => {
-    toast.info("View Flow Clicked", {
-      description: `Transaction ID: ${row.id} for MID ${row.mid}`,
-    });
-    console.log('View flow for transaction:', row);
-  };
-
-  const parseAmount = (amount: string): number => {
-    return parseFloat(amount.replace(/[^0-9.-]+/g, '')) || 0;
-  };
-
-  const pipelineAggregates = useMemo(() => {
-    if (pipelineRows.length === 0) return [];
-
-    const groupedData = pipelineRows.reduce((acc, row) => {
-      const date = row.lastExecution.split(' ')[0];
-      const key = `${date}|${row.currency1}|${row.currency2}|${row.status}`;
-
-      if (!acc[key]) {
-        acc[key] = {
-          date,
-          currency1: row.currency1,
-          currency2: row.currency2,
-          status: row.status,
-          totalAmount1: 0,
-          totalAmount2: 0,
-        };
-      }
-
-      acc[key].totalAmount1 += parseAmount(row.amount1);
-      acc[key].totalAmount2 += parseAmount(row.amount2);
-
-      return acc;
-    }, {} as Record<string, { date: string; currency1: string; currency2: string; status: 'success' | 'failure'; totalAmount1: number; totalAmount2: number }>);
-
-    const formatOptions = (currency: string): Intl.NumberFormatOptions => ({
-      style: 'currency',
-      currency: currency,
-    });
-    
-    const aggregates = Object.values(groupedData).map(group => ({
-      'Date': group.date,
-      'Status': group.status.charAt(0).toUpperCase() + group.status.slice(1),
-      'Amount 1': group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency1)),
-      'Amount 2': group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency2)),
-    }));
-
-    return aggregates.sort((a, b) => a.Date.localeCompare(b.Date));
-  }, [pipelineRows]);
-
-  const transactionAggregates = useMemo(() => {
-    if (transactionRows.length === 0) return [];
-
-    const groupedData = transactionRows.reduce((acc, row) => {
-      const key = `${row.date}|${row.currency}`;
-
-      if (!acc[key]) {
-        acc[key] = {
-          date: row.date,
-          currency: row.currency,
-          totalAmount1: 0,
-          totalAmount2: 0,
-        };
-      }
-
-      acc[key].totalAmount1 += parseAmount(row.amount1);
-      acc[key].totalAmount2 += parseAmount(row.amount2);
-
-      return acc;
-    }, {} as Record<string, { date: string; currency: string; totalAmount1: number; totalAmount2: number }>);
-
-    const formatOptions = (currency: string): Intl.NumberFormatOptions => ({
-      style: 'currency',
-      currency: currency,
-    });
-
-    const aggregates = Object.values(groupedData).map(group => ({
-      'Date': group.date,
-      'Currency': group.currency,
-      'Amount 1': group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency)),
-      'Amount 2': group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency)),
-    }));
-
-    return aggregates.sort((a, b) => a.Date.localeCompare(b.Date) || a.Currency.localeCompare(b.Currency));
-  }, [transactionRows]);
+  const {
+    pipelineRows,
+    transactionRows,
+    isLoading,
+    handleFormSubmit,
+    handleViewFlow,
+    handleTransactionViewFlow,
+    pipelineAggregates,
+    transactionAggregates
+  } = usePipelineData();
 
   // Estimate row height, or measure empirically if styled otherwise
   const rowHeight = 80; // Increased to accommodate wrapped dates
   const transactionRowHeight = 56;
 
   // Memo row rendering for react-window
-  const Row = React.useCallback(
+  const Row = useCallback(
     ({ index, style }: ListChildComponentProps) => {
       const row = pipelineRows[index];
       // Pass rowIndex (1-based)
@@ -207,7 +52,7 @@ const PipelineDataPage = () => {
     [pipelineRows, handleViewFlow]
   );
 
-  const TransactionRow = React.useCallback(
+  const TransactionRow = useCallback(
     ({ index, style }: ListChildComponentProps) => {
       const row = transactionRows[index];
       return (
