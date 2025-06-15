@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -7,12 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Eye } from 'lucide-react';
 import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 
@@ -117,6 +116,7 @@ const PipelineDataPage = () => {
   const Row = React.useCallback(
     ({ index, style }: ListChildComponentProps) => {
       const row = pipelineRows[index];
+      // Need to combine the received style with minWidth 100% for better display
       return (
         <PipelineTableRow
           row={row}
@@ -127,6 +127,14 @@ const PipelineDataPage = () => {
       );
     },
     [pipelineRows, handleViewFlow]
+  );
+
+  // Custom outer/inner elements for react-window to match table semantics
+  const OuterElement = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
+    (props, ref) => <tbody ref={ref} {...props} />
+  );
+  const InnerElement = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
+    (props, ref) => <React.Fragment>{props.children}</React.Fragment>
   );
 
   return (
@@ -165,17 +173,18 @@ const PipelineDataPage = () => {
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    <List
-                      height={Math.min(600, rowHeight * Math.min(50, pipelineRows.length))}
-                      itemCount={pipelineRows.length}
-                      itemSize={rowHeight}
-                      width={"100%"}
-                      style={{overflowX: "hidden"}}
-                    >
-                      {Row}
-                    </List>
-                  </TableBody>
+                  {/* VIRTUALIZED BODY */}
+                  <List
+                    height={Math.min(600, rowHeight * Math.min(50, pipelineRows.length))}
+                    itemCount={pipelineRows.length}
+                    itemSize={rowHeight}
+                    width={"100%"}
+                    outerElementType={OuterElement}
+                    innerElementType={InnerElement}
+                    style={{overflowX: "hidden"}}
+                  >
+                    {Row}
+                  </List>
                 </Table>
               </div>
             </CardContent>
