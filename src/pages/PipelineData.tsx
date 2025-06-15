@@ -113,40 +113,86 @@ const PipelineDataPage = () => {
   const pipelineAggregates = useMemo(() => {
     if (pipelineRows.length === 0) return [];
 
-    const totalAmount1 = pipelineRows.reduce((sum, row) => sum + parseAmount(row.amount1), 0);
-    const totalAmount2 = pipelineRows.reduce((sum, row) => sum + parseAmount(row.amount2), 0);
+    const groupedData = pipelineRows.reduce((acc, row) => {
+      const date = row.lastExecution.split(' ')[0];
+      const key = `${date}|${row.currency1}|${row.currency2}|${row.status}`;
 
-    const currency1 = pipelineRows[0]?.currency1 || 'USD';
-    const currency2 = pipelineRows[0]?.currency2 || 'USD';
+      if (!acc[key]) {
+        acc[key] = {
+          date,
+          currency1: row.currency1,
+          currency2: row.currency2,
+          status: row.status,
+          totalAmount1: 0,
+          totalAmount2: 0,
+        };
+      }
+
+      acc[key].totalAmount1 += parseAmount(row.amount1);
+      acc[key].totalAmount2 += parseAmount(row.amount2);
+
+      return acc;
+    }, {} as Record<string, { date: string; currency1: string; currency2: string; status: 'success' | 'failure'; totalAmount1: number; totalAmount2: number }>);
 
     const formatOptions = (currency: string): Intl.NumberFormatOptions => ({
       style: 'currency',
       currency: currency,
     });
+    
+    const aggregates: { label: string; value: string }[] = [];
+    Object.values(groupedData).forEach(group => {
+      aggregates.push({
+        label: `[${group.status.toUpperCase()}] ${group.date} (${group.currency1}) - Amount 1`,
+        value: group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency1))
+      });
+      aggregates.push({
+        label: `[${group.status.toUpperCase()}] ${group.date} (${group.currency2}) - Amount 2`,
+        value: group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency2))
+      });
+    });
 
-    return [
-      { label: `Total Amount 1 (${currency1})`, value: totalAmount1.toLocaleString('en-US', formatOptions(currency1)) },
-      { label: `Total Amount 2 (${currency2})`, value: totalAmount2.toLocaleString('en-US', formatOptions(currency2)) },
-    ];
+    return aggregates.sort((a, b) => a.label.localeCompare(b.label));
   }, [pipelineRows]);
 
   const transactionAggregates = useMemo(() => {
     if (transactionRows.length === 0) return [];
 
-    const totalAmount1 = transactionRows.reduce((sum, row) => sum + parseAmount(row.amount1), 0);
-    const totalAmount2 = transactionRows.reduce((sum, row) => sum + parseAmount(row.amount2), 0);
+    const groupedData = transactionRows.reduce((acc, row) => {
+      const key = `${row.date}|${row.currency}`;
 
-    const currency = transactionRows[0]?.currency || 'USD';
+      if (!acc[key]) {
+        acc[key] = {
+          date: row.date,
+          currency: row.currency,
+          totalAmount1: 0,
+          totalAmount2: 0,
+        };
+      }
+
+      acc[key].totalAmount1 += parseAmount(row.amount1);
+      acc[key].totalAmount2 += parseAmount(row.amount2);
+
+      return acc;
+    }, {} as Record<string, { date: string; currency: string; totalAmount1: number; totalAmount2: number }>);
 
     const formatOptions = (currency: string): Intl.NumberFormatOptions => ({
       style: 'currency',
       currency: currency,
     });
 
-    return [
-      { label: `Total Amount 1 (${currency})`, value: totalAmount1.toLocaleString('en-US', formatOptions(currency)) },
-      { label: `Total Amount 2 (${currency})`, value: totalAmount2.toLocaleString('en-US', formatOptions(currency)) },
-    ];
+    const aggregates: { label: string; value: string }[] = [];
+    Object.values(groupedData).forEach(group => {
+      aggregates.push({
+        label: `${group.date} (${group.currency}) - Amount 1`,
+        value: group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency))
+      });
+      aggregates.push({
+        label: `${group.date} (${group.currency}) - Amount 2`,
+        value: group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency))
+      });
+    });
+
+    return aggregates.sort((a, b) => a.label.localeCompare(b.label));
   }, [transactionRows]);
 
   // Estimate row height, or measure empirically if styled otherwise
