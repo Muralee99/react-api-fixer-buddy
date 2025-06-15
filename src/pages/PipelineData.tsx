@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
 import { fetchPipelineData, fetchTransactionData, type TransactionData } from '@/services/mockDataService';
@@ -12,6 +12,7 @@ import {
 import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
+import AggregateTable from "@/components/pipeline/AggregateTable";
 import { toast } from "sonner";
 
 // Export this interface for usage in other files
@@ -103,6 +104,49 @@ const PipelineDataPage = () => {
     console.log('View flow for transaction:', row);
   };
 
+  const parseAmount = (amount: string): number => {
+    return parseFloat(amount.replace(/[^0-9.-]+/g, '')) || 0;
+  };
+
+  const pipelineAggregates = useMemo(() => {
+    if (pipelineRows.length === 0) return [];
+
+    const totalAmount1 = pipelineRows.reduce((sum, row) => sum + parseAmount(row.amount1), 0);
+    const totalAmount2 = pipelineRows.reduce((sum, row) => sum + parseAmount(row.amount2), 0);
+
+    const currency1 = pipelineRows[0]?.currency1 || 'USD';
+    const currency2 = pipelineRows[0]?.currency2 || 'USD';
+
+    const formatOptions = (currency: string) => ({
+      style: 'currency',
+      currency: currency,
+    });
+
+    return [
+      { label: `Total Amount 1 (${currency1})`, value: totalAmount1.toLocaleString('en-US', formatOptions(currency1)) },
+      { label: `Total Amount 2 (${currency2})`, value: totalAmount2.toLocaleString('en-US', formatOptions(currency2)) },
+    ];
+  }, [pipelineRows]);
+
+  const transactionAggregates = useMemo(() => {
+    if (transactionRows.length === 0) return [];
+
+    const totalAmount1 = transactionRows.reduce((sum, row) => sum + parseAmount(row.amount1), 0);
+    const totalAmount2 = transactionRows.reduce((sum, row) => sum + parseAmount(row.amount2), 0);
+
+    const currency = transactionRows[0]?.currency || 'USD';
+
+    const formatOptions = (currency: string) => ({
+      style: 'currency',
+      currency: currency,
+    });
+
+    return [
+      { label: `Total Amount 1 (${currency})`, value: totalAmount1.toLocaleString('en-US', formatOptions(currency)) },
+      { label: `Total Amount 2 (${currency})`, value: totalAmount2.toLocaleString('en-US', formatOptions(currency)) },
+    ];
+  }, [transactionRows]);
+
   // Estimate row height, or measure empirically if styled otherwise
   const rowHeight = 80; // Increased to accommodate wrapped dates
   const transactionRowHeight = 56;
@@ -191,6 +235,7 @@ const PipelineDataPage = () => {
             </CardContent>
           </Card>
         )}
+        {pipelineAggregates.length > 0 && <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />}
         
         {transactionRows.length > 0 && (
           <Card className="mt-6">
@@ -225,6 +270,7 @@ const PipelineDataPage = () => {
             </CardContent>
           </Card>
         )}
+        {transactionAggregates.length > 0 && <AggregateTable title="Transactional Data Aggregates" data={transactionAggregates} />}
       </div>
     </div>
   );
