@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -14,6 +13,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Eye } from 'lucide-react';
+import { FixedSizeList as List, ListChildComponentProps } from "react-window";
+import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 
 interface PipelineRow {
   id: string;
@@ -108,6 +109,25 @@ const PipelineDataPage = () => {
     });
   };
 
+  // Estimate row height, or measure empirically if styled otherwise
+  const rowHeight = 56;
+
+  // Memo row rendering for react-window
+  const Row = React.useCallback(
+    ({ index, style }: ListChildComponentProps) => {
+      const row = pipelineRows[index];
+      return (
+        <PipelineTableRow
+          row={row}
+          onViewFlow={handleViewFlow}
+          style={style}
+          key={row.id}
+        />
+      );
+    },
+    [pipelineRows, handleViewFlow]
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -127,60 +147,36 @@ const PipelineDataPage = () => {
               <CardTitle>Pipeline Data Results</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Node Type</TableHead>
-                    <TableHead>Amount 1</TableHead>
-                    <TableHead>Amount 2</TableHead>
-                    <TableHead>Currency 1</TableHead>
-                    <TableHead>Currency 2</TableHead>
-                    <TableHead>Last Execution</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Next Scheduled</TableHead>
-                    <TableHead>Docs Processed</TableHead>
-                    <TableHead>Docs Failed</TableHead>
-                    <TableHead>Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pipelineRows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell className="font-medium">{row.nodeType}</TableCell>
-                      <TableCell>{row.amount1}</TableCell>
-                      <TableCell>{row.amount2}</TableCell>
-                      <TableCell>{row.currency1}</TableCell>
-                      <TableCell>{row.currency2}</TableCell>
-                      <TableCell>{row.lastExecution}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            row.status === 'success'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {row.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{row.nextScheduled}</TableCell>
-                      <TableCell>{row.documentsProcessed}</TableCell>
-                      <TableCell>{row.documentsFailed}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewFlow(row)}
-                          className="flex items-center gap-2"
-                        >
-                          <Eye size={16} />
-                          View Flow
-                        </Button>
-                      </TableCell>
+              <div className="overflow-auto w-full">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Node Type</TableHead>
+                      <TableHead>Amount 1</TableHead>
+                      <TableHead>Amount 2</TableHead>
+                      <TableHead>Currency 1</TableHead>
+                      <TableHead>Currency 2</TableHead>
+                      <TableHead>Last Execution</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Next Scheduled</TableHead>
+                      <TableHead>Docs Processed</TableHead>
+                      <TableHead>Docs Failed</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    <List
+                      height={Math.min(600, rowHeight * Math.min(50, pipelineRows.length))}
+                      itemCount={pipelineRows.length}
+                      itemSize={rowHeight}
+                      width={"100%"}
+                      style={{overflowX: "hidden"}}
+                    >
+                      {Row}
+                    </List>
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         )}
