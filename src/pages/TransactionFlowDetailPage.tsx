@@ -63,7 +63,7 @@ const TransactionFlowDetailPage = () => {
         </div>
       </header>
       <main className="flex-1 overflow-hidden">
-        <ResizablePanelGroup direction="horizontal">
+        <ResizablePanelGroup direction="vertical">
           <ResizablePanel defaultSize={70}>
             <ReactFlow
               nodes={nodes}
