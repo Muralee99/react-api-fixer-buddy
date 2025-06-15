@@ -3,14 +3,16 @@ import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
-export type SelectedTable = 'all' | 'pipeline' | 'transactions' | 'pipeline_aggregates' | 'transaction_aggregates';
+export type SelectedTable = 'all' | 'pipeline' | 'transactions' | 'pipeline_infographics' | 'pipeline_aggregates_table' | 'transaction_infographics' | 'transaction_aggregates_table';
 
 export const SECTIONS: { id: SelectedTable; label: string }[] = [
   { id: 'all', label: 'All Tables' },
   { id: 'pipeline', label: 'Pipeline Data' },
   { id: 'transactions', label: 'Transactional Data' },
-  { id: 'pipeline_aggregates', label: 'Pipeline Aggregates' },
-  { id: 'transaction_aggregates', label: 'Transactional Aggregates' },
+  { id: 'pipeline_infographics', label: 'Pipeline Infographics' },
+  { id: 'pipeline_aggregates_table', label: 'Pipeline Aggregates' },
+  { id: 'transaction_infographics', label: 'Transactional Infographics' },
+  { id: 'transaction_aggregates_table', label: 'Transactional Aggregates' },
 ];
 
 interface VisibilityControlProps {
