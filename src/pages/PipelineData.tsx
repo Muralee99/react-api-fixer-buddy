@@ -143,7 +143,8 @@ const PipelineDataPage = () => {
               <CardTitle>Pipeline Data Results</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto w-full">
+              {/* Scrollable, fixed-height Table wrapper */}
+              <div className="overflow-x-auto w-full max-h-[600px] overflow-y-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -161,10 +162,9 @@ const PipelineDataPage = () => {
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
-                  {/* Virtualized TableBody */}
                   <TableBody>
                     <List
-                      height={Math.min(600, rowHeight * pipelineRows.length)}
+                      height={600}
                       itemCount={pipelineRows.length}
                       itemSize={rowHeight}
                       width={"100%"}
