@@ -35,11 +35,7 @@ export interface PipelineRow {
 }
 
 const NODE_TYPES = [
-  { key: 'dealBooking', label: 'Deal Booking' },
-  { key: 'paymentDebit', label: 'Payment Debit' },
-  { key: 'paymentCredit', label: 'Payment Credit' },
-  { key: 'fundInitial', label: 'Fund Initial' },
-  { key: 'fundFunding', label: 'Fund Funding' }
+  { key: 'dealBooking', label: 'Deal Booking' }
 ];
 
 const PipelineDataPage = () => {
@@ -58,11 +54,11 @@ const PipelineDataPage = () => {
     try {
       const data = await fetchPipelineData(filters);
 
-      // Generate 350 rows by cycling through the node types
+      // Only generate Deal Booking rows
       const rows: PipelineRow[] = [];
+      // Adjust the count as desired; here, still 350
       for (let i = 0; i < 350; i++) {
-        const nodeTypeIndex = i % NODE_TYPES.length;
-        const nodeTypeConfig = NODE_TYPES[nodeTypeIndex];
+        const nodeTypeConfig = NODE_TYPES[0]; // Only Deal Booking
         const dataKey = nodeTypeConfig.key as keyof typeof data;
         rows.push({
           id: `${nodeTypeConfig.key}-${i + 1}`,
