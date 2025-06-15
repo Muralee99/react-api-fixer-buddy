@@ -148,16 +148,14 @@ const PipelineDataPage = () => {
                     </TableRow>
                   </TableHeader>
                 </Table>
-                <div className="h-[600px] overflow-y-auto">
-                    <List
-                        height={600}
-                        itemCount={pipelineRows.length}
-                        itemSize={rowHeight}
-                        width="100%"
-                    >
-                        {Row}
-                    </List>
-                </div>
+                <List
+                    height={600}
+                    itemCount={pipelineRows.length}
+                    itemSize={rowHeight}
+                    width="100%"
+                >
+                    {Row}
+                </List>
               </div>
             </CardContent>
           </Card>

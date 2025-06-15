@@ -18,12 +18,12 @@ const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
       className="flex items-center border-b last:border-b-0 bg-white even:bg-gray-50"
     >
       <div className="p-4 align-middle whitespace-nowrap font-medium text-gray-500 w-[4%]">{rowIndex}</div>
-      <div className="p-4 align-middle whitespace-nowrap font-medium w-[12%]">{row.nodeType}</div>
+      <div className="p-4 align-middle whitespace-nowrap font-medium w-[12%] truncate">{row.nodeType}</div>
       <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.amount1}</div>
       <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.amount2}</div>
       <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.currency1}</div>
       <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.currency2}</div>
-      <div className="p-4 align-middle whitespace-nowrap w-[12%]">{row.lastExecution}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[12%] truncate">{row.lastExecution}</div>
       <div className="p-4 align-middle whitespace-nowrap w-[8%]">
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -35,7 +35,7 @@ const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
           {row.status}
         </span>
       </div>
-      <div className="p-4 align-middle whitespace-nowrap w-[12%]">{row.nextScheduled}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[12%] truncate">{row.nextScheduled}</div>
       <div className="p-4 align-middle w-[7%]">{row.documentsProcessed}</div>
       <div className="p-4 align-middle w-[7%]">{row.documentsFailed}</div>
       <div className="p-4 align-middle w-[10%]">
