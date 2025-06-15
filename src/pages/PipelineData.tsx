@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { FilterForm } from '@/components/pipeline/FilterForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,10 +13,12 @@ import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
 import AggregateTable from "@/components/pipeline/AggregateTable";
 import AggregateChart from "@/components/pipeline/AggregateChart";
-import { VisibilityControl, type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityControl';
+import { type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityControl';
 import { usePipelineData } from '@/hooks/usePipelineData';
 import { type PipelineRow } from '@/services/mockDataService';
 import { type ChartConfig } from '@/components/ui/chart';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { PipelineSidebar } from '@/components/pipeline/PipelineSidebar';
 
 const PipelineDataPage = () => {
   const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
@@ -93,21 +96,22 @@ const PipelineDataPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Pipeline Data Management</h1>
-        
-        <FilterForm onSubmit={handleFormSubmit} />
-        
-        <div className="flex flex-col lg:flex-row gap-6 mt-6">
-          <aside className="w-full lg:w-1/4">
-            <VisibilityControl
-              selected={selectedTable}
-              onSelect={setSelectedTable}
-              disabled={pipelineRows.length === 0 && transactionRows.length === 0}
-            />
-          </aside>
-          <main className="w-full lg:w-3/4 flex flex-col gap-6">
+    <SidebarProvider>
+      <PipelineSidebar
+        selected={selectedTable}
+        onSelect={setSelectedTable}
+        disabled={pipelineRows.length === 0 && transactionRows.length === 0}
+      />
+      <main className="flex-1 bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-4 mb-6">
+            <SidebarTrigger />
+            <h1 className="text-3xl font-bold">Pipeline Data Management</h1>
+          </div>
+          
+          <FilterForm onSubmit={handleFormSubmit} />
+          
+          <div className="flex flex-col gap-6 mt-6">
             {isLoading && (
               <div className="text-center text-blue-600 p-10">
                 Loading data...
@@ -227,10 +231,10 @@ const PipelineDataPage = () => {
                 )}
               </div>
             )}
-          </main>
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </SidebarProvider>
   );
 };
 
