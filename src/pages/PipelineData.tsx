@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
-import { fetchPipelineData, type PipelineData } from '@/services/mockDataService';
-import { Button } from '@/components/ui/button';
+import { fetchPipelineData } from '@/services/mockDataService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -13,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
+import type { PipelineRow } from "@/pages/PipelineData";
 
 // Export this interface for usage in other files
 export interface PipelineRow {
@@ -96,7 +96,7 @@ const PipelineDataPage = () => {
 
   // Memo row rendering for react-window
   const Row = React.useCallback(
-    ({ index, style }) => {
+    ({ index, style }: ListChildComponentProps) => {
       const row = pipelineRows[index];
       // Pass rowIndex (1-based)
       return (
@@ -110,14 +110,6 @@ const PipelineDataPage = () => {
       );
     },
     [pipelineRows, handleViewFlow]
-  );
-
-  // Custom outer/inner elements for react-window to match table semantics
-  const OuterElement = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
-    (props, ref) => <tbody ref={ref} {...props} />
-  );
-  const InnerElement = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
-    (props, ref) => <React.Fragment>{props.children}</React.Fragment>
   );
 
   return (
@@ -139,8 +131,7 @@ const PipelineDataPage = () => {
               <CardTitle>Pipeline Data Results</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Scrollable, fixed-height Table wrapper */}
-              <div className="overflow-x-auto w-full max-h-[600px] overflow-y-auto">
+              <div className="overflow-x-auto w-full">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -158,19 +149,17 @@ const PipelineDataPage = () => {
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    <List
-                      height={600}
-                      itemCount={pipelineRows.length}
-                      itemSize={rowHeight}
-                      width={"100%"}
-                      outerElementType={OuterElement}
-                      innerElementType={InnerElement}
-                      style={{ overflowX: "hidden" }}
-                    >
-                      {Row}
-                    </List>
-                  </TableBody>
+                  <List
+                    height={600}
+                    itemCount={pipelineRows.length}
+                    itemSize={rowHeight}
+                    width="100%"
+                    outerElementType={TableBody}
+                    innerElementType="div"
+                    style={{ overflowX: 'hidden' }}
+                  >
+                    {Row}
+                  </List>
                 </Table>
               </div>
             </CardContent>
