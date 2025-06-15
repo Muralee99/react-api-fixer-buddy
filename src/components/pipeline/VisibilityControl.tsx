@@ -1,7 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { ChevronDown, ListCollapse } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export type SelectedTable = 'all' | 'pipeline' | 'transactions' | 'pipeline_infographics' | 'pipeline_aggregates_table' | 'transaction_infographics' | 'transaction_aggregates_table';
 
@@ -22,6 +31,8 @@ interface VisibilityControlProps {
 }
 
 export const VisibilityControl: React.FC<VisibilityControlProps> = ({ selected, onSelect, disabled }) => {
+  const [isOpen, setIsOpen] = useState(true);
+  
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       onSelect(SECTIONS.map((s) => s.id));
@@ -47,27 +58,55 @@ export const VisibilityControl: React.FC<VisibilityControlProps> = ({ selected, 
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-card border rounded-lg shadow-sm h-fit">
-      <h3 className="font-semibold mb-2 text-lg">Display Options</h3>
-      {SECTIONS.map((section) => (
-        <div key={section.id} className="flex items-center space-x-2">
-          <Checkbox
-            id={section.id}
-            checked={selected.includes(section.id)}
-            onCheckedChange={(checked) => {
-              if (section.id === 'all') {
-                handleSelectAll(!!checked);
-              } else {
-                handleSelectOne(section.id, !!checked);
-              }
-            }}
-            disabled={disabled}
-          />
-          <Label htmlFor={section.id} className="font-normal cursor-pointer">
-            {section.label}
-          </Label>
-        </div>
-      ))}
-    </div>
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="w-full h-fit"
+    >
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+            <ListCollapse size={20} />
+            Display Options
+          </CardTitle>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="w-9 p-0">
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 transition-transform duration-200',
+                  isOpen && 'rotate-180'
+                )}
+              />
+              <span className="sr-only">Toggle</span>
+            </Button>
+          </CollapsibleTrigger>
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-4">
+              {SECTIONS.map((section) => (
+                <div key={section.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={section.id}
+                    checked={selected.includes(section.id)}
+                    onCheckedChange={(checked) => {
+                      if (section.id === 'all') {
+                        handleSelectAll(!!checked);
+                      } else {
+                        handleSelectOne(section.id, !!checked);
+                      }
+                    }}
+                    disabled={disabled}
+                  />
+                  <Label htmlFor={section.id} className="font-normal cursor-pointer">
+                    {section.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 };
