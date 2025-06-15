@@ -154,7 +154,6 @@ const PipelineDataPage = () => {
                         itemCount={pipelineRows.length}
                         itemSize={rowHeight}
                         width="100%"
-                        className="table-fixed"
                     >
                         {Row}
                     </List>
