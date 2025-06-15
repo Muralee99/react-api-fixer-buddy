@@ -1,4 +1,6 @@
+
 import React, { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -18,6 +20,8 @@ import { type PipelineRow } from '@/services/mockDataService';
 import { type ChartConfig } from '@/components/ui/chart';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { PipelineSidebar } from '@/components/pipeline/PipelineSidebar';
+import { Button } from '@/components/ui/button';
+import { Home } from 'lucide-react';
 
 const PipelineDataPage = () => {
   const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
@@ -105,6 +109,11 @@ const PipelineDataPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <SidebarTrigger />
+            <Link to="/" aria-label="Go to Dashboard">
+                <Button variant="ghost" size="icon">
+                    <Home className="h-5 w-5" />
+                </Button>
+            </Link>
             <h1 className="text-3xl font-bold">Pipeline Data Management</h1>
           </div>
           
