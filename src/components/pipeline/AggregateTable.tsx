@@ -1,22 +1,19 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
-
-interface AggregateData {
-  label: string;
-  value: string;
-}
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface AggregateTableProps {
   title: string;
-  data: AggregateData[];
+  data: Record<string, string | number>[];
 }
 
 const AggregateTable: React.FC<AggregateTableProps> = ({ title, data }) => {
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return null;
   }
+
+  const headers = Object.keys(data[0]);
 
   return (
     <Card>
@@ -25,11 +22,21 @@ const AggregateTable: React.FC<AggregateTableProps> = ({ title, data }) => {
       </CardHeader>
       <CardContent>
         <Table>
+          <TableHeader>
+            <TableRow>
+              {headers.map((header) => (
+                <TableHead key={header} className={header.includes('Amount') ? 'text-right' : ''}>{header}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
           <TableBody>
-            {data.map((item) => (
-              <TableRow key={item.label}>
-                <TableCell className="font-medium">{item.label}</TableCell>
-                <TableCell className="text-right">{item.value}</TableCell>
+            {data.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {headers.map((header) => (
+                  <TableCell key={`${rowIndex}-${header}`} className={header.includes('Amount') ? 'font-medium text-right' : 'font-medium'}>
+                    {row[header]}
+                  </TableCell>
+                ))}
               </TableRow>
             ))}
           </TableBody>

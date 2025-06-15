@@ -139,19 +139,14 @@ const PipelineDataPage = () => {
       currency: currency,
     });
     
-    const aggregates: { label: string; value: string }[] = [];
-    Object.values(groupedData).forEach(group => {
-      aggregates.push({
-        label: `[${group.status.toUpperCase()}] ${group.date} (${group.currency1}) - Amount 1`,
-        value: group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency1))
-      });
-      aggregates.push({
-        label: `[${group.status.toUpperCase()}] ${group.date} (${group.currency2}) - Amount 2`,
-        value: group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency2))
-      });
-    });
+    const aggregates = Object.values(groupedData).map(group => ({
+      'Date': group.date,
+      'Status': group.status.charAt(0).toUpperCase() + group.status.slice(1),
+      'Amount 1': group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency1)),
+      'Amount 2': group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency2)),
+    }));
 
-    return aggregates.sort((a, b) => a.label.localeCompare(b.label));
+    return aggregates.sort((a, b) => a.Date.localeCompare(b.Date));
   }, [pipelineRows]);
 
   const transactionAggregates = useMemo(() => {
@@ -180,19 +175,14 @@ const PipelineDataPage = () => {
       currency: currency,
     });
 
-    const aggregates: { label: string; value: string }[] = [];
-    Object.values(groupedData).forEach(group => {
-      aggregates.push({
-        label: `${group.date} (${group.currency}) - Amount 1`,
-        value: group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency))
-      });
-      aggregates.push({
-        label: `${group.date} (${group.currency}) - Amount 2`,
-        value: group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency))
-      });
-    });
+    const aggregates = Object.values(groupedData).map(group => ({
+      'Date': group.date,
+      'Currency': group.currency,
+      'Amount 1': group.totalAmount1.toLocaleString('en-US', formatOptions(group.currency)),
+      'Amount 2': group.totalAmount2.toLocaleString('en-US', formatOptions(group.currency)),
+    }));
 
-    return aggregates.sort((a, b) => a.label.localeCompare(b.label));
+    return aggregates.sort((a, b) => a.Date.localeCompare(b.Date) || a.Currency.localeCompare(b.Currency));
   }, [transactionRows]);
 
   // Estimate row height, or measure empirically if styled otherwise
