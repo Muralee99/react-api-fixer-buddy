@@ -58,9 +58,9 @@ const PipelineDataPage = () => {
     try {
       const data = await fetchPipelineData(filters);
 
-      // Generate 250 rows by cycling through the node types
+      // Generate 350 rows by cycling through the node types
       const rows: PipelineRow[] = [];
-      for (let i = 0; i < 250; i++) {
+      for (let i = 0; i < 350; i++) {
         const nodeTypeIndex = i % NODE_TYPES.length;
         const nodeTypeConfig = NODE_TYPES[nodeTypeIndex];
         const dataKey = nodeTypeConfig.key as keyof typeof data;
