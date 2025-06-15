@@ -16,7 +16,8 @@ import { Eye } from 'lucide-react';
 import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 
-interface PipelineRow {
+// Export this interface for usage in other files
+export interface PipelineRow {
   id: string;
   nodeType: string;
   amount1: string;

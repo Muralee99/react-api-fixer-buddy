@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { PipelineRow } from "@/pages/PipelineData";
+import type { PipelineRow } from "@/pages/PipelineData"; // Change import to type
 
 interface PipelineTableRowProps {
   row: PipelineRow;
@@ -50,3 +50,4 @@ const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
 
 PipelineTableRow.displayName = "PipelineTableRow";
 export default PipelineTableRow;
+
