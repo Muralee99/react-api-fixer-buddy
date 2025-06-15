@@ -8,14 +8,16 @@ interface PipelineTableRowProps {
   row: PipelineRow;
   onViewFlow: (row: PipelineRow) => void;
   style?: React.CSSProperties;
+  rowIndex: number; // new prop
 }
 
 const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
-  ({ row, onViewFlow, style }) => (
+  ({ row, onViewFlow, style, rowIndex }) => (
     <tr
       style={style}
       className="border-b last:border-b-0 bg-white even:bg-gray-50"
     >
+      <td className="p-4 align-middle whitespace-nowrap font-medium text-gray-500">{rowIndex}</td>
       <td className="p-4 align-middle whitespace-nowrap font-medium">{row.nodeType}</td>
       <td className="p-4 align-middle whitespace-nowrap">{row.amount1}</td>
       <td className="p-4 align-middle whitespace-nowrap">{row.amount2}</td>
@@ -53,4 +55,3 @@ const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
 
 PipelineTableRow.displayName = "PipelineTableRow";
 export default PipelineTableRow;
-

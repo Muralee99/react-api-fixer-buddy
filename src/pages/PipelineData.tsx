@@ -100,12 +100,13 @@ const PipelineDataPage = () => {
 
   // Memo row rendering for react-window
   const Row = React.useCallback(
-    ({ index, style }: ListChildComponentProps) => {
+    ({ index, style }) => {
       const row = pipelineRows[index];
-      // Need to combine the received style with minWidth 100% for better display
+      // Pass rowIndex (1-based)
       return (
         <PipelineTableRow
           row={row}
+          rowIndex={index + 1}
           onViewFlow={handleViewFlow}
           style={style}
           key={row.id}
@@ -146,6 +147,7 @@ const PipelineDataPage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>No.</TableHead>
                       <TableHead>Node Type</TableHead>
                       <TableHead>Amount 1</TableHead>
                       <TableHead>Amount 2</TableHead>
