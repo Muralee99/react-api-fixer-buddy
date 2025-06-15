@@ -85,6 +85,16 @@ export interface TransactionData {
   account: string;
 }
 
+export interface Job {
+  id: string;
+  name: string;
+  lastExecution: string;
+  status: 'success' | 'failure' | 'running';
+  recordsProcessed: number;
+  pendingRecords: number;
+  exception?: string;
+}
+
 export const fetchPipelineData = async (filters: {
   fromDate: string;
   toDate: string;
@@ -188,4 +198,56 @@ export const fetchTransactionData = async (filters: {
   }
 
   return transactions;
+};
+
+export const fetchJobsForPipeline = async (
+  rowData: PipelineRow | TransactionData
+): Promise<Job[]> => {
+  // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 200));
+
+  const isPipelineRow = 'nodeType' in rowData;
+  const jobs: Job[] = [];
+
+  if (isPipelineRow) {
+    const baseStatus = rowData.status;
+    const jobNames = [
+      'Data Ingestion',
+      'Data Validation',
+      'Data Transformation',
+      'Enrichment',
+      'Data Loading'
+    ];
+    for (let i = 0; i < 5; i++) {
+      const status = (i < 3) ? 'success' : (i === 3 && baseStatus === 'failure') ? 'failure' : 'success';
+      jobs.push({
+        id: `job-p-${rowData.id}-${i}`,
+        name: jobNames[i],
+        lastExecution: rowData.lastExecution,
+        status: status,
+        recordsProcessed: Math.floor(rowData.documentsProcessed / 5),
+        pendingRecords: i === 4 ? 0 : Math.floor(Math.random() * 20),
+        exception: status === 'failure' ? 'Error code 502: Invalid data format' : undefined,
+      });
+    }
+  } else {
+    const jobNames = [
+      'Transaction Fetching',
+      'Transaction Aggregation',
+      'Reporting'
+    ];
+    for (let i = 0; i < 3; i++) {
+      const status = i < 2 ? 'success' : 'running';
+      jobs.push({
+        id: `job-t-${rowData.id}-${i}`,
+        name: jobNames[i],
+        lastExecution: rowData.date,
+        status: status as Job['status'],
+        recordsProcessed: Math.floor(Math.random() * 1000),
+        pendingRecords: i === 2 ? 50 : 0,
+        exception: undefined,
+      });
+    }
+  }
+  return jobs;
 };

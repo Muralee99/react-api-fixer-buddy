@@ -1,8 +1,7 @@
-
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { fetchPipelineData, fetchTransactionData, type TransactionData, type PipelineRow, PipelineData } from '@/services/mockDataService';
+import { fetchPipelineData, fetchTransactionData, type TransactionData, type PipelineRow, type PipelineData, fetchJobsForPipeline } from '@/services/mockDataService';
 import { calculatePipelineAggregates, calculateTransactionAggregates } from '@/lib/data-aggregation';
 
 const NODE_TYPES = [
@@ -51,7 +50,9 @@ export const usePipelineData = () => {
         }
     };
 
-    const handleViewFlow = (row: PipelineRow) => {
+    const handleViewFlow = async (row: PipelineRow) => {
+        toast.info("Loading flow and jobs...");
+        const jobs = await fetchJobsForPipeline(row);
         // Navigate to React Flow with the data
         navigate('/pipeline-designer', { 
             state: { 
@@ -62,16 +63,26 @@ export const usePipelineData = () => {
                     fundInitial: pipelineRows.find(r => r.nodeType === 'Fund Initial'),
                     fundFunding: pipelineRows.find(r => r.nodeType === 'Fund Funding'),
                 },
+                jobs,
                 filters: row.filters
             }
         });
     };
 
-    const handleTransactionViewFlow = (row: TransactionData) => {
-        toast.info("View Flow Clicked", {
-            description: `Transaction ID: ${row.id} for MID ${row.mid}`,
+    const handleTransactionViewFlow = async (row: TransactionData) => {
+        toast.info("Loading flow and jobs...");
+        const jobs = await fetchJobsForPipeline(row);
+        navigate('/pipeline-designer', {
+            state: {
+                jobs,
+                pipelineData: null,
+                filters: {
+                    fromDate: row.date,
+                    toDate: row.date,
+                    merchantId: row.mid
+                }
+            }
         });
-        console.log('View flow for transaction:', row);
     };
 
     const pipelineAggregates = useMemo(() => calculatePipelineAggregates(pipelineRows), [pipelineRows]);

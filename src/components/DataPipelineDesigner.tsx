@@ -18,12 +18,15 @@ import '@xyflow/react/dist/style.css';
 import { initialNodes, initialEdges } from './pipeline/initialElements';
 import { nodeTypes } from './pipeline/nodeTypes';
 import { Sidebar } from './pipeline/Sidebar';
+import JobsSidebar from './pipeline/JobsSidebar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import type { Job } from '@/services/mockDataService';
 
 const DataPipelineDesigner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [jobs, setJobs] = useState<Job[] | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -32,6 +35,11 @@ const DataPipelineDesigner = () => {
     if (location.state?.pipelineData) {
       const pipelineData = location.state.pipelineData;
       updateNodesWithData(pipelineData);
+    }
+    if (location.state?.jobs) {
+      setJobs(location.state.jobs);
+    } else {
+      setJobs(null);
     }
   }, [location.state]);
 
@@ -154,7 +162,7 @@ const DataPipelineDesigner = () => {
       <div className="p-4 bg-white border-b flex items-center justify-between">
         <Button
           variant="outline"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/pipeline-data')}
           className="flex items-center gap-2"
         >
           <ArrowLeft size={16} />
@@ -164,7 +172,7 @@ const DataPipelineDesigner = () => {
         <div></div>
       </div>
       <div className="flex-1 flex">
-        <Sidebar />
+        {jobs ? <JobsSidebar jobs={jobs} /> : <Sidebar />}
         <div className="flex-1">
           <ReactFlow
             nodes={nodes}
@@ -172,8 +180,8 @@ const DataPipelineDesigner = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
+            onDrop={jobs ? undefined : onDrop}
+            onDragOver={jobs ? undefined : onDragOver}
             nodeTypes={nodeTypes}
             fitView
             className="bg-gray-50"
