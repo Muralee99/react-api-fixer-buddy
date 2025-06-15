@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -20,7 +19,7 @@ import { nodeTypes } from './pipeline/nodeTypes';
 import { Sidebar } from './pipeline/Sidebar';
 import JobsSidebar from './pipeline/JobsSidebar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home } from 'lucide-react';
+import { ArrowLeft, Home, ChevronDown } from 'lucide-react';
 import type { Job, PipelineData } from '@/services/mockDataService';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PipelineDetailTable from './pipeline/PipelineDetailTable';
@@ -29,12 +28,18 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from '@/components/ui/resizable';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 const DataPipelineDesigner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [jobs, setJobs] = useState<Job[] | null>(null);
   const [pipelineInfo, setPipelineInfo] = useState<PipelineData | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -209,36 +214,56 @@ const DataPipelineDesigner = () => {
             {pipelineInfo && (
               <>
                 <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={33}>
-                  <ScrollArea className="h-full w-full p-4 bg-white">
-                    <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                      Pipeline Details
-                    </h2>
-                    <div className="space-y-6">
-                      <PipelineDetailTable
-                        title="Deal Booking Information"
-                        data={
-                          pipelineInfo.dealBooking
-                            ? [pipelineInfo.dealBooking]
-                            : []
-                        }
-                      />
-                      <PipelineDetailTable
-                        title="Payment Legs Information"
-                        data={[
-                          { ...pipelineInfo.paymentDebit, type: 'Debit Leg' },
-                          { ...pipelineInfo.paymentCredit, type: 'Credit Leg' },
-                        ]}
-                      />
-                      <PipelineDetailTable
-                        title="Fund Records Information"
-                        data={[
-                          { ...pipelineInfo.fundInitial, type: 'Initial Record' },
-                          { ...pipelineInfo.fundFunding, type: 'Funding Record' },
-                        ]}
-                      />
+                <ResizablePanel defaultSize={33} minSize={10}>
+                  <Collapsible
+                    open={isDetailsOpen}
+                    onOpenChange={setIsDetailsOpen}
+                    className="h-full w-full flex flex-col"
+                  >
+                    <div className="flex items-center justify-between p-4 border-b bg-white">
+                      <h2 className="text-lg font-semibold text-gray-800">
+                        Pipeline Details
+                      </h2>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm" className="w-9 p-0">
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform duration-200 ${
+                              isDetailsOpen && 'rotate-180'
+                            }`}
+                          />
+                          <span className="sr-only">Toggle</span>
+                        </Button>
+                      </CollapsibleTrigger>
                     </div>
-                  </ScrollArea>
+                    <CollapsibleContent className="flex-1 data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
+                      <ScrollArea className="h-full w-full p-4 bg-white">
+                        <div className="space-y-6">
+                          <PipelineDetailTable
+                            title="Deal Booking Information"
+                            data={
+                              pipelineInfo.dealBooking
+                                ? [pipelineInfo.dealBooking]
+                                : []
+                            }
+                          />
+                          <PipelineDetailTable
+                            title="Payment Legs Information"
+                            data={[
+                              { ...pipelineInfo.paymentDebit, type: 'Debit Leg' },
+                              { ...pipelineInfo.paymentCredit, type: 'Credit Leg' },
+                            ]}
+                          />
+                          <PipelineDetailTable
+                            title="Fund Records Information"
+                            data={[
+                              { ...pipelineInfo.fundInitial, type: 'Initial Record' },
+                              { ...pipelineInfo.fundFunding, type: 'Funding Record' },
+                            ]}
+                          />
+                        </div>
+                      </ScrollArea>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </ResizablePanel>
               </>
             )}
