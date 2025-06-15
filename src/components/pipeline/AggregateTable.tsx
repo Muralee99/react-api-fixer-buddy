@@ -19,7 +19,7 @@ const AggregateTable: React.FC<AggregateTableProps> = ({ title, data }) => {
   }
 
   return (
-    <Card className="mt-6">
+    <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

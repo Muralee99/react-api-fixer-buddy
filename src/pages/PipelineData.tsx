@@ -14,6 +14,7 @@ import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
 import AggregateTable from "@/components/pipeline/AggregateTable";
 import { toast } from "sonner";
+import { VisibilityControl, type SelectedTable } from '@/components/pipeline/VisibilityControl';
 
 // Export this interface for usage in other files
 export interface PipelineRow {
@@ -43,6 +44,7 @@ const PipelineDataPage = () => {
   const [pipelineRows, setPipelineRows] = useState<PipelineRow[]>([]);
   const [transactionRows, setTransactionRows] = useState<TransactionData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<SelectedTable>('all');
   const navigate = useNavigate();
 
   const handleFormSubmit = async (filters: {
@@ -117,7 +119,7 @@ const PipelineDataPage = () => {
     const currency1 = pipelineRows[0]?.currency1 || 'USD';
     const currency2 = pipelineRows[0]?.currency2 || 'USD';
 
-    const formatOptions = (currency: string) => ({
+    const formatOptions = (currency: string): Intl.NumberFormatOptions => ({
       style: 'currency',
       currency: currency,
     });
@@ -136,7 +138,7 @@ const PipelineDataPage = () => {
 
     const currency = transactionRows[0]?.currency || 'USD';
 
-    const formatOptions = (currency: string) => ({
+    const formatOptions = (currency: string): Intl.NumberFormatOptions => ({
       style: 'currency',
       currency: currency,
     });
@@ -192,85 +194,108 @@ const PipelineDataPage = () => {
         
         <FilterForm onSubmit={handleFormSubmit} />
         
-        {isLoading && (
-          <div className="text-center text-blue-600 mt-4 mb-4">
-            Loading data...
-          </div>
-        )}
+        <div className="flex flex-col lg:flex-row gap-6 mt-6">
+          <aside className="w-full lg:w-1/4">
+            <VisibilityControl
+              selected={selectedTable}
+              onSelect={setSelectedTable}
+              disabled={pipelineRows.length === 0 && transactionRows.length === 0}
+            />
+          </aside>
+          <main className="w-full lg:w-3/4 flex flex-col gap-6">
+            {isLoading && (
+              <div className="text-center text-blue-600 p-10">
+                Loading data...
+              </div>
+            )}
 
-        {pipelineRows.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Pipeline Data Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[4%]">No.</TableHead>
-                      <TableHead className="w-[12%]">Node Type</TableHead>
-                      <TableHead className="w-[7%]">Amount 1</TableHead>
-                      <TableHead className="w-[7%]">Amount 2</TableHead>
-                      <TableHead className="w-[7%]">Currency 1</TableHead>
-                      <TableHead className="w-[7%]">Currency 2</TableHead>
-                      <TableHead className="w-[12%]">Last Execution</TableHead>
-                      <TableHead className="w-[8%]">Status</TableHead>
-                      <TableHead className="w-[12%]">Next Scheduled</TableHead>
-                      <TableHead className="w-[7%]">Docs Processed</TableHead>
-                      <TableHead className="w-[7%]">Docs Failed</TableHead>
-                      <TableHead className="w-[10%]">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                </Table>
-                <List
-                    height={600}
-                    itemCount={pipelineRows.length}
-                    itemSize={rowHeight}
-                    width="100%"
-                >
-                    {Row}
-                </List>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        {pipelineAggregates.length > 0 && <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />}
-        
-        {transactionRows.length > 0 && (
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Transactional Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-               <div className="overflow-x-auto w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[5%]">No.</TableHead>
-                      <TableHead className="w-[15%]">MID</TableHead>
-                      <TableHead className="w-[10%]">Amount 1</TableHead>
-                      <TableHead className="w-[10%]">Amount 2</TableHead>
-                      <TableHead className="w-[10%]">Currency</TableHead>
-                      <TableHead className="w-[15%]">Date</TableHead>
-                      <TableHead className="w-[20%]">Account</TableHead>
-                      <TableHead className="w-[15%]">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                </Table>
-                <List
-                    height={600}
-                    itemCount={transactionRows.length}
-                    itemSize={transactionRowHeight}
-                    width="100%"
-                >
-                    {TransactionRow}
-                </List>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        {transactionAggregates.length > 0 && <AggregateTable title="Transactional Data Aggregates" data={transactionAggregates} />}
+            {!isLoading && pipelineRows.length === 0 && transactionRows.length === 0 && (
+                 <div className="text-center text-gray-500 p-10 bg-card border rounded-lg">
+                    Please submit the form to view data.
+                 </div>
+            )}
+            
+            {(selectedTable === 'all' || selectedTable === 'pipeline') && pipelineRows.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pipeline Data Results</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto w-full">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[4%]">No.</TableHead>
+                          <TableHead className="w-[12%]">Node Type</TableHead>
+                          <TableHead className="w-[7%]">Amount 1</TableHead>
+                          <TableHead className="w-[7%]">Amount 2</TableHead>
+                          <TableHead className="w-[7%]">Currency 1</TableHead>
+                          <TableHead className="w-[7%]">Currency 2</TableHead>
+                          <TableHead className="w-[12%]">Last Execution</TableHead>
+                          <TableHead className="w-[8%]">Status</TableHead>
+                          <TableHead className="w-[12%]">Next Scheduled</TableHead>
+                          <TableHead className="w-[7%]">Docs Processed</TableHead>
+                          <TableHead className="w-[7%]">Docs Failed</TableHead>
+                          <TableHead className="w-[10%]">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                    </Table>
+                    <List
+                        height={600}
+                        itemCount={pipelineRows.length}
+                        itemSize={rowHeight}
+                        width="100%"
+                    >
+                        {Row}
+                    </List>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {(selectedTable === 'all' || selectedTable === 'pipeline_aggregates') && pipelineAggregates.length > 0 && (
+              <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />
+            )}
+            
+            {(selectedTable === 'all' || selectedTable === 'transactions') && transactionRows.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Transactional Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto w-full">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[5%]">No.</TableHead>
+                          <TableHead className="w-[15%]">MID</TableHead>
+                          <TableHead className="w-[10%]">Amount 1</TableHead>
+                          <TableHead className="w-[10%]">Amount 2</TableHead>
+                          <TableHead className="w-[10%]">Currency</TableHead>
+                          <TableHead className="w-[15%]">Date</TableHead>
+                          <TableHead className="w-[20%]">Account</TableHead>
+                          <TableHead className="w-[15%]">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                    </Table>
+                    <List
+                        height={600}
+                        itemCount={transactionRows.length}
+                        itemSize={transactionRowHeight}
+                        width="100%"
+                    >
+                        {TransactionRow}
+                    </List>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {(selectedTable === 'all' || selectedTable === 'transaction_aggregates') && transactionAggregates.length > 0 && (
+              <AggregateTable title="Transactional Data Aggregates" data={transactionAggregates} />
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
