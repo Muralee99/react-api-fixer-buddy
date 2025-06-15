@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -90,7 +91,7 @@ const PipelineDataPage = () => {
   };
 
   // Estimate row height, or measure empirically if styled otherwise
-  const rowHeight = 56;
+  const rowHeight = 80; // Increased to accommodate wrapped dates
 
   // Memo row rendering for react-window
   const Row = React.useCallback(
