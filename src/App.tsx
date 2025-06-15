@@ -9,7 +9,8 @@ import NotFound from "./pages/NotFound";
 import DataPipelineDesigner from "./components/DataPipelineDesigner";
 import PipelineDataPage from "./pages/PipelineData";
 import JobsPage from "./pages/Jobs";
-import TransactionFlowPage from "./pages/TransactionFlow";
+import TransactionFlowPage from "./pages/TransactionFlowPage";
+import TransactionFlowDetailPage from "./pages/TransactionFlowDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/pipeline-data" element={<PipelineDataPage />} />
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/transaction-flow" element={<TransactionFlowPage />} />
+          <Route path="/transaction-flow/detail" element={<TransactionFlowDetailPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -21,18 +21,18 @@ const nodeTypes = {
   transactionNode: TransactionNode,
 };
 
-const TransactionFlowPage = () => {
+const TransactionFlowDetailPage = () => {
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-50">
       <header className="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-xl font-semibold">Transaction Flow</h1>
+        <h1 className="text-xl font-semibold">Transaction Flow Detail</h1>
         <div className="flex items-center gap-2">
-            <Link to="/">
+            <Link to="/transaction-flow">
                 <Button variant="outline">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Dashboard
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Transactions
                 </Button>
             </Link>
             <Link to="/" aria-label="Go to Dashboard">
@@ -60,4 +60,4 @@ const TransactionFlowPage = () => {
   );
 };
 
-export default TransactionFlowPage;
+export default TransactionFlowDetailPage;
