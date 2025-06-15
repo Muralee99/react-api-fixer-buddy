@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
-import { fetchPipelineData } from '@/services/mockDataService';
+import { fetchPipelineData, fetchTransactionData, type TransactionData } from '@/services/mockDataService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -12,6 +11,8 @@ import {
 } from '@/components/ui/table';
 import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
+import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
+import { toast } from "sonner";
 
 // Export this interface for usage in other files
 export interface PipelineRow {
@@ -39,6 +40,7 @@ const NODE_TYPES = [
 
 const PipelineDataPage = () => {
   const [pipelineRows, setPipelineRows] = useState<PipelineRow[]>([]);
+  const [transactionRows, setTransactionRows] = useState<TransactionData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -51,7 +53,10 @@ const PipelineDataPage = () => {
     console.log('Form submitted with filters:', filters);
 
     try {
-      const data = await fetchPipelineData(filters);
+      const pipelineDataPromise = fetchPipelineData(filters);
+      const transactionDataPromise = fetchTransactionData(filters);
+      const [data, transactions] = await Promise.all([pipelineDataPromise, transactionDataPromise]);
+
 
       // Only generate Deal Booking rows
       const rows: PipelineRow[] = [];
@@ -67,6 +72,7 @@ const PipelineDataPage = () => {
         });
       }
       setPipelineRows(rows);
+      setTransactionRows(transactions);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -90,8 +96,16 @@ const PipelineDataPage = () => {
     });
   };
 
+  const handleTransactionViewFlow = (row: TransactionData) => {
+    toast.info("View Flow Clicked", {
+      description: `Transaction ID: ${row.id} for MID ${row.mid}`,
+    });
+    console.log('View flow for transaction:', row);
+  };
+
   // Estimate row height, or measure empirically if styled otherwise
   const rowHeight = 80; // Increased to accommodate wrapped dates
+  const transactionRowHeight = 56;
 
   // Memo row rendering for react-window
   const Row = React.useCallback(
@@ -111,6 +125,22 @@ const PipelineDataPage = () => {
     [pipelineRows, handleViewFlow]
   );
 
+  const TransactionRow = React.useCallback(
+    ({ index, style }: ListChildComponentProps) => {
+      const row = transactionRows[index];
+      return (
+        <TransactionTableRow
+          row={row}
+          rowIndex={index + 1}
+          onViewFlow={handleTransactionViewFlow}
+          style={style}
+          key={row.id}
+        />
+      );
+    },
+    [transactionRows, handleTransactionViewFlow]
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -120,7 +150,7 @@ const PipelineDataPage = () => {
         
         {isLoading && (
           <div className="text-center text-blue-600 mt-4 mb-4">
-            Loading pipeline data...
+            Loading data...
           </div>
         )}
 
@@ -131,7 +161,7 @@ const PipelineDataPage = () => {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto w-full">
-                <Table className="table-fixed">
+                <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[4%]">No.</TableHead>
@@ -156,6 +186,40 @@ const PipelineDataPage = () => {
                     width="100%"
                 >
                     {Row}
+                </List>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {transactionRows.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Transactional Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+               <div className="overflow-x-auto w-full">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[5%]">No.</TableHead>
+                      <TableHead className="w-[15%]">MID</TableHead>
+                      <TableHead className="w-[10%]">Amount 1</TableHead>
+                      <TableHead className="w-[10%]">Amount 2</TableHead>
+                      <TableHead className="w-[10%]">Currency</TableHead>
+                      <TableHead className="w-[15%]">Date</TableHead>
+                      <TableHead className="w-[20%]">Account</TableHead>
+                      <TableHead className="w-[15%]">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                </Table>
+                <List
+                    height={600}
+                    itemCount={transactionRows.length}
+                    itemSize={transactionRowHeight}
+                    width="100%"
+                >
+                    {TransactionRow}
                 </List>
               </div>
             </CardContent>

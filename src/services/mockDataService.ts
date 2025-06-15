@@ -1,4 +1,3 @@
-
 export interface PipelineData {
   dealBooking: {
     amount1: string;
@@ -55,6 +54,16 @@ export interface PipelineData {
     documentsProcessed: number;
     documentsFailed: number;
   };
+}
+
+export interface TransactionData {
+  id: string;
+  mid: string;
+  amount1: string;
+  amount2: string;
+  currency: string;
+  date: string;
+  account: string;
 }
 
 export const fetchPipelineData = async (filters: {
@@ -129,4 +138,35 @@ export const fetchPipelineData = async (filters: {
   };
 
   return mockData;
+};
+
+export const fetchTransactionData = async (filters: {
+  fromDate: string;
+  toDate: string;
+  merchantId: string;
+}): Promise<TransactionData[]> => {
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+
+  console.log('Fetching transaction data with filters:', filters);
+
+  const transactions: TransactionData[] = [];
+  const count = 250; // Generate 250 mock transactions
+
+  for (let i = 0; i < count; i++) {
+    const merchantVariant = (parseInt(filters.merchantId) + i) % 4;
+    const date = new Date(new Date(filters.fromDate).getTime() + i * 86400000); // one per day
+    
+    transactions.push({
+      id: `txn-${i + 1}`,
+      mid: filters.merchantId,
+      amount1: `$${(1000 + merchantVariant * 150 + i * 10).toFixed(2)}`,
+      amount2: `$${(950 + merchantVariant * 150 + i * 5).toFixed(2)}`,
+      currency: 'USD',
+      date: date.toISOString().split('T')[0],
+      account: `**** **** **** ${1000 + i % 100}`,
+    });
+  }
+
+  return transactions;
 };
