@@ -21,20 +21,24 @@ import { Sidebar } from './pipeline/Sidebar';
 import JobsSidebar from './pipeline/JobsSidebar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import type { Job } from '@/services/mockDataService';
+import type { Job, PipelineData } from '@/services/mockDataService';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import PipelineDetailTable from './pipeline/PipelineDetailTable';
 
 const DataPipelineDesigner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [jobs, setJobs] = useState<Job[] | null>(null);
+  const [pipelineInfo, setPipelineInfo] = useState<PipelineData | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
   // Handle incoming pipeline data from navigation
   useEffect(() => {
     if (location.state?.pipelineData) {
-      const pipelineData = location.state.pipelineData;
+      const pipelineData = location.state.pipelineData as PipelineData;
       updateNodesWithData(pipelineData);
+      setPipelineInfo(pipelineData);
     }
     if (location.state?.jobs) {
       setJobs(location.state.jobs);
@@ -171,25 +175,41 @@ const DataPipelineDesigner = () => {
         <h1 className="text-xl font-semibold">Pipeline Designer</h1>
         <div></div>
       </div>
-      <div className="flex-1 flex">
+      <div className="flex-1 flex overflow-hidden">
         {jobs ? <JobsSidebar jobs={jobs} /> : <Sidebar />}
-        <div className="flex-1">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDrop={jobs ? undefined : onDrop}
-            onDragOver={jobs ? undefined : onDragOver}
-            nodeTypes={nodeTypes}
-            fitView
-            className="bg-gray-50"
-          >
-            <Controls />
-            <MiniMap nodeClassName={nodeClassName} />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-          </ReactFlow>
+        <div className="flex-1 flex flex-col">
+            <div className="flex-1">
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onConnect={onConnect}
+                    onDrop={jobs ? undefined : onDrop}
+                    onDragOver={jobs ? undefined : onDragOver}
+                    nodeTypes={nodeTypes}
+                    fitView
+                    className="bg-gray-50"
+                >
+                    <Controls />
+                    <MiniMap nodeClassName={nodeClassName} />
+                    <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+                </ReactFlow>
+            </div>
+            {pipelineInfo && (
+              <div className="h-1/2 lg:h-1/3 border-t bg-white">
+                <ScrollArea className="h-full w-full p-4">
+                  <h2 className="text-lg font-semibold mb-4 text-gray-800">Pipeline Details</h2>
+                  <div className="space-y-6">
+                    <PipelineDetailTable title="Deal Booking Information" data={pipelineInfo.dealBooking} />
+                    <PipelineDetailTable title="Debit Leg Information" data={pipelineInfo.paymentDebit} />
+                    <PipelineDetailTable title="Credit Leg Information" data={pipelineInfo.paymentCredit} />
+                    <PipelineDetailTable title="Fund Record Information" data={pipelineInfo.fundInitial} />
+                    <PipelineDetailTable title="Funding Record Information" data={pipelineInfo.fundFunding} />
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
         </div>
       </div>
     </div>

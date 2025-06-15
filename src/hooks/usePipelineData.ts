@@ -9,6 +9,7 @@ const NODE_TYPES = [
 ];
 
 export const usePipelineData = () => {
+    const [pipelineData, setPipelineData] = useState<PipelineData | null>(null);
     const [pipelineRows, setPipelineRows] = useState<PipelineRow[]>([]);
     const [transactionRows, setTransactionRows] = useState<TransactionData[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +28,7 @@ export const usePipelineData = () => {
             const transactionDataPromise = fetchTransactionData(filters);
             const [data, transactions] = await Promise.all([pipelineDataPromise, transactionDataPromise]);
 
+            setPipelineData(data);
 
             // Only generate Deal Booking rows
             const rows: PipelineRow[] = [];
@@ -56,13 +58,7 @@ export const usePipelineData = () => {
         // Navigate to React Flow with the data
         navigate('/pipeline-designer', { 
             state: { 
-                pipelineData: {
-                    dealBooking: pipelineRows.find(r => r.nodeType === 'Deal Booking'),
-                    paymentDebit: pipelineRows.find(r => r.nodeType === 'Payment Debit'),
-                    paymentCredit: pipelineRows.find(r => r.nodeType === 'Payment Credit'),
-                    fundInitial: pipelineRows.find(r => r.nodeType === 'Fund Initial'),
-                    fundFunding: pipelineRows.find(r => r.nodeType === 'Fund Funding'),
-                },
+                pipelineData: pipelineData,
                 jobs,
                 filters: row.filters
             }
