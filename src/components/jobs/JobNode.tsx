@@ -1,10 +1,10 @@
-
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, RefreshCw, CheckCircle, XCircle, Loader, Hourglass, Database } from 'lucide-react';
 
 export interface JobNodeData {
+  [key: string]: any;
   name: string;
   status: 'success' | 'failure' | 'running' | 'pending';
   lastExecutionTime: string;
