@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -143,7 +144,7 @@ const PipelineDataPage = () => {
               <CardTitle>Pipeline Data Results</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-auto w-full">
+              <div className="overflow-x-auto w-full">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -161,19 +162,30 @@ const PipelineDataPage = () => {
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
-                  {/* VIRTUALIZED BODY */}
-                  <List
-                    height={Math.min(600, rowHeight * Math.min(50, pipelineRows.length))}
-                    itemCount={pipelineRows.length}
-                    itemSize={rowHeight}
-                    width={"100%"}
-                    outerElementType={OuterElement}
-                    innerElementType={InnerElement}
-                    style={{overflowX: "hidden"}}
-                  >
-                    {Row}
-                  </List>
                 </Table>
+
+                {/* This wrapper div controls the scroll/virtual window */}
+                <div
+                  style={{
+                    height: Math.min(600, rowHeight * Math.min(50, pipelineRows.length)),
+                    overflowY: "auto",
+                    width: "100%",
+                  }}
+                >
+                  <Table>
+                    <List
+                      height={Math.min(600, rowHeight * Math.min(50, pipelineRows.length))}
+                      itemCount={pipelineRows.length}
+                      itemSize={rowHeight}
+                      width={"100%"}
+                      outerElementType={OuterElement}
+                      innerElementType={InnerElement}
+                      style={{ overflowX: "hidden" }}
+                    >
+                      {Row}
+                    </List>
+                  </Table>
+                </div>
               </div>
             </CardContent>
           </Card>
