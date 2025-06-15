@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -35,6 +34,14 @@ export interface PipelineRow {
   };
 }
 
+const NODE_TYPES = [
+  { key: 'dealBooking', label: 'Deal Booking' },
+  { key: 'paymentDebit', label: 'Payment Debit' },
+  { key: 'paymentCredit', label: 'Payment Credit' },
+  { key: 'fundInitial', label: 'Fund Initial' },
+  { key: 'fundFunding', label: 'Fund Funding' }
+];
+
 const PipelineDataPage = () => {
   const [pipelineRows, setPipelineRows] = useState<PipelineRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,41 +57,20 @@ const PipelineDataPage = () => {
 
     try {
       const data = await fetchPipelineData(filters);
-      
-      // Convert pipeline data to table rows
-      const rows: PipelineRow[] = [
-        {
-          id: 'deal-1',
-          nodeType: 'Deal Booking',
-          ...data.dealBooking,
-          filters,
-        },
-        {
-          id: 'payment-debit-1',
-          nodeType: 'Payment Debit',
-          ...data.paymentDebit,
-          filters,
-        },
-        {
-          id: 'payment-credit-1',
-          nodeType: 'Payment Credit',
-          ...data.paymentCredit,
-          filters,
-        },
-        {
-          id: 'fund-initial-1',
-          nodeType: 'Fund Initial',
-          ...data.fundInitial,
-          filters,
-        },
-        {
-          id: 'fund-funding-1',
-          nodeType: 'Fund Funding',
-          ...data.fundFunding,
-          filters,
-        },
-      ];
 
+      // Generate 250 rows by cycling through the node types
+      const rows: PipelineRow[] = [];
+      for (let i = 0; i < 250; i++) {
+        const nodeTypeIndex = i % NODE_TYPES.length;
+        const nodeTypeConfig = NODE_TYPES[nodeTypeIndex];
+        const dataKey = nodeTypeConfig.key as keyof typeof data;
+        rows.push({
+          id: `${nodeTypeConfig.key}-${i + 1}`,
+          nodeType: nodeTypeConfig.label,
+          ...(data[dataKey] as Omit<PipelineRow, "id" | "nodeType" | "filters">),
+          filters
+        });
+      }
       setPipelineRows(rows);
     } catch (error) {
       console.error('Error fetching data:', error);
