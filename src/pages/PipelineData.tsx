@@ -12,9 +12,11 @@ import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
 import AggregateTable from "@/components/pipeline/AggregateTable";
+import AggregateChart from "@/components/pipeline/AggregateChart";
 import { VisibilityControl, type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityControl';
 import { usePipelineData } from '@/hooks/usePipelineData';
 import { type PipelineRow } from '@/services/mockDataService';
+import { type ChartConfig } from '@/components/ui/chart';
 
 const PipelineDataPage = () => {
   const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
@@ -29,6 +31,29 @@ const PipelineDataPage = () => {
     pipelineAggregates,
     transactionAggregates
   } = usePipelineData();
+
+  const chartConfig: ChartConfig = {
+    amount1: {
+      label: "Amount 1",
+      color: "hsl(var(--chart-1))",
+    },
+    amount2: {
+      label: "Amount 2",
+      color: "hsl(var(--chart-2))",
+    },
+  };
+
+  const pipelineAggregatesForChart = pipelineAggregates.map(item => ({
+      ...item,
+      amount1: item['Amount 1'],
+      amount2: item['Amount 2'],
+  }));
+
+  const transactionAggregatesForChart = transactionAggregates.map(item => ({
+      ...item,
+      amount1: item['Amount 1'],
+      amount2: item['Amount 2'],
+  }));
 
   // Estimate row height, or measure empirically if styled otherwise
   const rowHeight = 80; // Increased to accommodate wrapped dates
@@ -135,7 +160,17 @@ const PipelineDataPage = () => {
             )}
 
             {selectedTable.includes('pipeline_aggregates') && pipelineAggregates.length > 0 && (
-              <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />
+              <div className="flex flex-col gap-6">
+                <AggregateChart
+                  title="Pipeline Data Infographics"
+                  description="Aggregated amounts for pipeline data by date and status."
+                  data={pipelineAggregatesForChart}
+                  chartConfig={chartConfig}
+                  dataKeys={[{ name: 'Amount 1', key: 'amount1' }, { name: 'Amount 2', key: 'amount2' }]}
+                  xAxisKey="Date"
+                />
+                <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />
+              </div>
             )}
             
             {selectedTable.includes('transactions') && transactionRows.length > 0 && (
@@ -173,7 +208,17 @@ const PipelineDataPage = () => {
             )}
 
             {selectedTable.includes('transaction_aggregates') && transactionAggregates.length > 0 && (
-              <AggregateTable title="Transactional Data Aggregates" data={transactionAggregates} />
+              <div className="flex flex-col gap-6">
+                <AggregateChart
+                  title="Transactional Data Infographics"
+                  description="Aggregated amounts for transactional data by date and currency."
+                  data={transactionAggregatesForChart}
+                  chartConfig={chartConfig}
+                  dataKeys={[{ name: 'Amount 1', key: 'amount1' }, { name: 'Amount 2', key: 'amount2' }]}
+                  xAxisKey="Date"
+                />
+                <AggregateTable title="Transactional Data Aggregates" data={transactionAggregates} />
+              </div>
             )}
           </main>
         </div>
