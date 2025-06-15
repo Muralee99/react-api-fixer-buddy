@@ -1,6 +1,6 @@
 
 import React, { useCallback, useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ReactFlow,
   addEdge,
@@ -20,7 +20,7 @@ import { nodeTypes } from './pipeline/nodeTypes';
 import { Sidebar } from './pipeline/Sidebar';
 import JobsSidebar from './pipeline/JobsSidebar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
 import type { Job, PipelineData } from '@/services/mockDataService';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PipelineDetailTable from './pipeline/PipelineDetailTable';
@@ -178,7 +178,11 @@ const DataPipelineDesigner = () => {
           Back to Data Table
         </Button>
         <h1 className="text-xl font-semibold">Pipeline Designer</h1>
-        <div></div>
+        <Link to="/" aria-label="Go to Dashboard">
+            <Button variant="ghost" size="icon">
+                <Home className="h-5 w-5" />
+            </Button>
+        </Link>
       </div>
       <div className="flex-1 flex overflow-hidden">
         {jobs ? <JobsSidebar jobs={jobs} /> : <Sidebar />}
