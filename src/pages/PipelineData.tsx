@@ -14,7 +14,7 @@ import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
 import AggregateTable from "@/components/pipeline/AggregateTable";
 import { toast } from "sonner";
-import { VisibilityControl, type SelectedTable } from '@/components/pipeline/VisibilityControl';
+import { VisibilityControl, type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityControl';
 
 // Export this interface for usage in other files
 export interface PipelineRow {
@@ -44,7 +44,7 @@ const PipelineDataPage = () => {
   const [pipelineRows, setPipelineRows] = useState<PipelineRow[]>([]);
   const [transactionRows, setTransactionRows] = useState<TransactionData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedTable, setSelectedTable] = useState<SelectedTable>('all');
+  const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
   const navigate = useNavigate();
 
   const handleFormSubmit = async (filters: {
@@ -215,7 +215,7 @@ const PipelineDataPage = () => {
                  </div>
             )}
             
-            {(selectedTable === 'all' || selectedTable === 'pipeline') && pipelineRows.length > 0 && (
+            {selectedTable.includes('pipeline') && pipelineRows.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Pipeline Data Results</CardTitle>
@@ -253,11 +253,11 @@ const PipelineDataPage = () => {
               </Card>
             )}
 
-            {(selectedTable === 'all' || selectedTable === 'pipeline_aggregates') && pipelineAggregates.length > 0 && (
+            {selectedTable.includes('pipeline_aggregates') && pipelineAggregates.length > 0 && (
               <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />
             )}
             
-            {(selectedTable === 'all' || selectedTable === 'transactions') && transactionRows.length > 0 && (
+            {selectedTable.includes('transactions') && transactionRows.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Transactional Data</CardTitle>
@@ -291,7 +291,7 @@ const PipelineDataPage = () => {
               </Card>
             )}
 
-            {(selectedTable === 'all' || selectedTable === 'transaction_aggregates') && transactionAggregates.length > 0 && (
+            {selectedTable.includes('transaction_aggregates') && transactionAggregates.length > 0 && (
               <AggregateTable title="Transactional Data Aggregates" data={transactionAggregates} />
             )}
           </main>
