@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -23,6 +24,11 @@ import { ArrowLeft } from 'lucide-react';
 import type { Job, PipelineData } from '@/services/mockDataService';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PipelineDetailTable from './pipeline/PipelineDetailTable';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '@/components/ui/resizable';
 
 const DataPipelineDesigner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -177,48 +183,62 @@ const DataPipelineDesigner = () => {
       <div className="flex-1 flex overflow-hidden">
         {jobs ? <JobsSidebar jobs={jobs} /> : <Sidebar />}
         <div className="flex-1 flex flex-col">
-            <div className="flex-1">
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onConnect={onConnect}
-                    onDrop={jobs ? undefined : onDrop}
-                    onDragOver={jobs ? undefined : onDragOver}
-                    nodeTypes={nodeTypes}
-                    fitView
-                    className="bg-gray-50"
-                >
-                    <Controls />
-                    <MiniMap nodeClassName={nodeClassName} />
-                    <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-                </ReactFlow>
-            </div>
+          <ResizablePanelGroup direction="vertical">
+            <ResizablePanel>
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onDrop={jobs ? undefined : onDrop}
+                onDragOver={jobs ? undefined : onDragOver}
+                nodeTypes={nodeTypes}
+                fitView
+                className="bg-gray-50 h-full"
+              >
+                <Controls />
+                <MiniMap nodeClassName={nodeClassName} />
+                <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+              </ReactFlow>
+            </ResizablePanel>
             {pipelineInfo && (
-              <div className="h-1/2 lg:h-1/3 border-t bg-white">
-                <ScrollArea className="h-full w-full p-4">
-                  <h2 className="text-lg font-semibold mb-4 text-gray-800">Pipeline Details</h2>
-                  <div className="space-y-6">
-                    <PipelineDetailTable title="Deal Booking Information" data={pipelineInfo.dealBooking ? [pipelineInfo.dealBooking] : []} />
-                    <PipelineDetailTable
-                      title="Payment Legs Information"
-                      data={[
-                        { ...pipelineInfo.paymentDebit, type: 'Debit Leg' },
-                        { ...pipelineInfo.paymentCredit, type: 'Credit Leg' },
-                      ]}
-                    />
-                    <PipelineDetailTable
-                      title="Fund Records Information"
-                      data={[
-                        { ...pipelineInfo.fundInitial, type: 'Initial Record' },
-                        { ...pipelineInfo.fundFunding, type: 'Funding Record' },
-                      ]}
-                    />
-                  </div>
-                </ScrollArea>
-              </div>
+              <>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={33}>
+                  <ScrollArea className="h-full w-full p-4 bg-white">
+                    <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                      Pipeline Details
+                    </h2>
+                    <div className="space-y-6">
+                      <PipelineDetailTable
+                        title="Deal Booking Information"
+                        data={
+                          pipelineInfo.dealBooking
+                            ? [pipelineInfo.dealBooking]
+                            : []
+                        }
+                      />
+                      <PipelineDetailTable
+                        title="Payment Legs Information"
+                        data={[
+                          { ...pipelineInfo.paymentDebit, type: 'Debit Leg' },
+                          { ...pipelineInfo.paymentCredit, type: 'Credit Leg' },
+                        ]}
+                      />
+                      <PipelineDetailTable
+                        title="Fund Records Information"
+                        data={[
+                          { ...pipelineInfo.fundInitial, type: 'Initial Record' },
+                          { ...pipelineInfo.fundFunding, type: 'Funding Record' },
+                        ]}
+                      />
+                    </div>
+                  </ScrollArea>
+                </ResizablePanel>
+              </>
             )}
+          </ResizablePanelGroup>
         </div>
       </div>
     </div>
