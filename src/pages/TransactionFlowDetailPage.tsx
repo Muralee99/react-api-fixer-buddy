@@ -27,6 +27,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 
 import { initialNodes, initialEdges } from '@/components/transactions/transaction-flow-initial-elements';
 import { TransactionNode } from '@/components/transactions/TransactionNode';
@@ -57,58 +62,61 @@ const TransactionFlowDetailPage = () => {
             </Link>
         </div>
       </header>
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <Controls />
-            <MiniMap />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-          </ReactFlow>
-        </div>
-        <div className="border-t bg-white">
-          <Accordion type="single" collapsible>
-            <AccordionItem value="item-1" className="border-b-0">
-              <AccordionTrigger className="px-6 py-4 font-semibold text-base">
-                View Transaction Details
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="max-h-64 overflow-y-auto">
-                  <Table>
-                    <TableHeader className="sticky top-0 bg-gray-50">
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Time</TableHead>
-                        <TableHead>State</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Currency</TableHead>
-                        <TableHead>Country</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transactionData.map((transaction, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{transaction.name}</TableCell>
-                          <TableCell>{transaction.time}</TableCell>
-                          <TableCell>{transaction.state}</TableCell>
-                          <TableCell>{transaction.amount}</TableCell>
-                          <TableCell>{transaction.currency}</TableCell>
-                          <TableCell>{transaction.country}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
+      <main className="flex-1 overflow-hidden">
+        <ResizablePanelGroup direction="vertical">
+          <ResizablePanel defaultSize={70}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              nodeTypes={nodeTypes}
+              fitView
+            >
+              <Controls />
+              <MiniMap />
+              <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            </ReactFlow>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={30}>
+            <div className="h-full overflow-y-auto">
+              <Accordion type="single" collapsible defaultValue="item-1">
+                <AccordionItem value="item-1" className="border-b-0">
+                  <AccordionTrigger className="px-6 py-4 font-semibold text-base sticky top-0 bg-white z-10 border-b">
+                    View Transaction Details
+                  </AccordionTrigger>
+                  <AccordionContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead>State</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Currency</TableHead>
+                            <TableHead>Country</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {transactionData.map((transaction, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">{transaction.name}</TableCell>
+                              <TableCell>{transaction.time}</TableCell>
+                              <TableCell>{transaction.state}</TableCell>
+                              <TableCell>{transaction.amount}</TableCell>
+                              <TableCell>{transaction.currency}</TableCell>
+                              <TableCell>{transaction.country}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </main>
     </div>
   );
