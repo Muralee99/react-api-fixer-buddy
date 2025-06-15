@@ -2,29 +2,60 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
+import {
+  ReactFlow,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  BackgroundVariant,
+  MiniMap,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import { initialNodes, initialEdges } from '@/components/jobs/jobs-initial-elements';
+import { JobNode } from '@/components/jobs/JobNode';
+
+const nodeTypes = {
+  jobNode: JobNode,
+};
 
 const JobsPage = () => {
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-      <Card className="w-full max-w-lg text-center shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-gray-800">
-            Jobs Execution
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600 mb-8">
-            This page is under construction. Check back later for job execution details!
-          </p>
-          <Link to="/">
-            <Button>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Dashboard
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+    <div className="h-screen w-screen flex flex-col bg-gray-50">
+      <header className="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-10">
+        <h1 className="text-xl font-semibold">Jobs Execution Flow</h1>
+        <div className="flex items-center gap-2">
+            <Link to="/">
+                <Button variant="outline">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Dashboard
+                </Button>
+            </Link>
+            <Link to="/" aria-label="Go to Dashboard">
+                <Button variant="ghost" size="icon">
+                    <Home className="h-5 w-5" />
+                </Button>
+            </Link>
+        </div>
+      </header>
+      <main className="flex-1">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          fitView
+        >
+          <Controls />
+          <MiniMap />
+          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+        </ReactFlow>
+      </main>
     </div>
   );
 };
