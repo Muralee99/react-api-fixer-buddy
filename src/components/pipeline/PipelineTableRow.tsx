@@ -13,18 +13,18 @@ interface PipelineTableRowProps {
 
 const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
   ({ row, onViewFlow, style, rowIndex }) => (
-    <tr
+    <div
       style={style}
-      className="border-b last:border-b-0 bg-white even:bg-gray-50"
+      className="flex items-center border-b last:border-b-0 bg-white even:bg-gray-50"
     >
-      <td className="p-4 align-middle whitespace-nowrap font-medium text-gray-500">{rowIndex}</td>
-      <td className="p-4 align-middle whitespace-nowrap font-medium">{row.nodeType}</td>
-      <td className="p-4 align-middle whitespace-nowrap">{row.amount1}</td>
-      <td className="p-4 align-middle whitespace-nowrap">{row.amount2}</td>
-      <td className="p-4 align-middle whitespace-nowrap">{row.currency1}</td>
-      <td className="p-4 align-middle whitespace-nowrap">{row.currency2}</td>
-      <td className="p-4 align-middle whitespace-nowrap">{row.lastExecution}</td>
-      <td className="p-4 align-middle whitespace-nowrap">
+      <div className="p-4 align-middle whitespace-nowrap font-medium text-gray-500 w-[4%]">{rowIndex}</div>
+      <div className="p-4 align-middle whitespace-nowrap font-medium w-[12%]">{row.nodeType}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.amount1}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.amount2}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.currency1}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[7%]">{row.currency2}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[12%]">{row.lastExecution}</div>
+      <div className="p-4 align-middle whitespace-nowrap w-[8%]">
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
             row.status === "success"
@@ -34,11 +34,11 @@ const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
         >
           {row.status}
         </span>
-      </td>
-      <td className="p-4 align-middle whitespace-nowrap">{row.nextScheduled}</td>
-      <td className="p-4 align-middle">{row.documentsProcessed}</td>
-      <td className="p-4 align-middle">{row.documentsFailed}</td>
-      <td className="p-4 align-middle">
+      </div>
+      <div className="p-4 align-middle whitespace-nowrap w-[12%]">{row.nextScheduled}</div>
+      <div className="p-4 align-middle w-[7%]">{row.documentsProcessed}</div>
+      <div className="p-4 align-middle w-[7%]">{row.documentsFailed}</div>
+      <div className="p-4 align-middle w-[10%]">
         <Button
           variant="outline"
           size="sm"
@@ -48,8 +48,8 @@ const PipelineTableRow: React.FC<PipelineTableRowProps> = React.memo(
           <Eye size={16} />
           View Flow
         </Button>
-      </td>
-    </tr>
+      </div>
+    </div>
   )
 );
 

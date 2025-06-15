@@ -5,14 +5,12 @@ import { fetchPipelineData } from '@/services/mockDataService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
-  TableBody,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
 import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
-import type { PipelineRow } from "@/pages/PipelineData";
 
 // Export this interface for usage in other files
 export interface PipelineRow {
@@ -132,35 +130,35 @@ const PipelineDataPage = () => {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto w-full">
-                <Table>
+                <Table className="table-fixed">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>No.</TableHead>
-                      <TableHead>Node Type</TableHead>
-                      <TableHead>Amount 1</TableHead>
-                      <TableHead>Amount 2</TableHead>
-                      <TableHead>Currency 1</TableHead>
-                      <TableHead>Currency 2</TableHead>
-                      <TableHead>Last Execution</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Next Scheduled</TableHead>
-                      <TableHead>Docs Processed</TableHead>
-                      <TableHead>Docs Failed</TableHead>
-                      <TableHead>Action</TableHead>
+                      <TableHead className="w-[4%]">No.</TableHead>
+                      <TableHead className="w-[12%]">Node Type</TableHead>
+                      <TableHead className="w-[7%]">Amount 1</TableHead>
+                      <TableHead className="w-[7%]">Amount 2</TableHead>
+                      <TableHead className="w-[7%]">Currency 1</TableHead>
+                      <TableHead className="w-[7%]">Currency 2</TableHead>
+                      <TableHead className="w-[12%]">Last Execution</TableHead>
+                      <TableHead className="w-[8%]">Status</TableHead>
+                      <TableHead className="w-[12%]">Next Scheduled</TableHead>
+                      <TableHead className="w-[7%]">Docs Processed</TableHead>
+                      <TableHead className="w-[7%]">Docs Failed</TableHead>
+                      <TableHead className="w-[10%]">Action</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <List
-                    height={600}
-                    itemCount={pipelineRows.length}
-                    itemSize={rowHeight}
-                    width="100%"
-                    outerElementType={TableBody}
-                    innerElementType="div"
-                    style={{ overflowX: 'hidden' }}
-                  >
-                    {Row}
-                  </List>
                 </Table>
+                <div className="h-[600px] overflow-y-auto">
+                    <List
+                        height={600}
+                        itemCount={pipelineRows.length}
+                        itemSize={rowHeight}
+                        width="100%"
+                        className="table-fixed"
+                    >
+                        {Row}
+                    </List>
+                </div>
               </div>
             </CardContent>
           </Card>
