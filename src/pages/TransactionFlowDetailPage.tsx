@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -73,43 +72,59 @@ const TransactionFlowDetailPage = () => {
       </header>
       <main className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={isStagesOpen ? 20 : 3} minSize={3} maxSize={30}>
-            <div className="h-full flex flex-col bg-gray-100/50 border-r">
-              <div className="flex items-center justify-between p-4 border-b">
-                {isStagesOpen && <h3 className="text-lg font-semibold">Stages</h3>}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-9 p-0"
-                  onClick={() => setIsStagesOpen(!isStagesOpen)}
-                >
-                  {isStagesOpen ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                  <span className="sr-only">Toggle Stages Panel</span>
-                </Button>
-              </div>
+          <ResizablePanel 
+            defaultSize={isStagesOpen ? 20 : 0} 
+            minSize={0} 
+            maxSize={30}
+            className={`transition-all duration-300 ${!isStagesOpen ? 'w-0 min-w-0' : ''}`}
+          >
+            <div className={`h-full flex flex-col bg-gray-100/50 border-r transition-all duration-300 ${!isStagesOpen ? 'w-0 overflow-hidden' : ''}`}>
               {isStagesOpen && (
-                <div className="flex-1 p-4 overflow-y-auto">
-                  <ul className="space-y-1">
-                    {transactionData.map((transaction, index) => {
-                      const Icon = iconMapping[transaction.name];
-                      return (
-                        <li key={index} className="p-2 rounded-lg hover:bg-gray-200/60 flex items-center gap-3 cursor-pointer">
-                          {Icon && <Icon className="h-5 w-5 text-gray-700" />}
-                          <span className="font-medium text-sm">{transaction.name}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
+                <>
+                  <div className="flex items-center justify-between p-4 border-b">
+                    <h3 className="text-lg font-semibold">Stages</h3>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-9 p-0"
+                      onClick={() => setIsStagesOpen(false)}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="sr-only">Collapse Stages Panel</span>
+                    </Button>
+                  </div>
+                  <div className="flex-1 p-4 overflow-y-auto">
+                    <ul className="space-y-1">
+                      {transactionData.map((transaction, index) => {
+                        const Icon = iconMapping[transaction.name];
+                        return (
+                          <li key={index} className="p-2 rounded-lg hover:bg-gray-200/60 flex items-center gap-3 cursor-pointer">
+                            {Icon && <Icon className="h-5 w-5 text-gray-700" />}
+                            <span className="font-medium text-sm">{transaction.name}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </>
               )}
             </div>
           </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={isStagesOpen ? 80 : 97}>
+          {!isStagesOpen && (
+            <div className="flex flex-col justify-start items-center py-2 bg-gray-100/50 border-r w-12">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-9 p-0"
+                onClick={() => setIsStagesOpen(true)}
+              >
+                <ChevronRight className="h-4 w-4" />
+                <span className="sr-only">Expand Stages Panel</span>
+              </Button>
+            </div>
+          )}
+          <ResizableHandle withHandle className={!isStagesOpen ? 'hidden' : ''} />
+          <ResizablePanel defaultSize={isStagesOpen ? 80 : 100}>
             <ResizablePanelGroup direction="vertical">
               <ResizablePanel defaultSize={70}>
                 <ReactFlow
