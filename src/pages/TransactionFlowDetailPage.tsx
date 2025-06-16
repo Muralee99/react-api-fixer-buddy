@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home, FilePlus, CreditCard, Undo2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Home, FilePlus, CreditCard, Undo2, ChevronDown } from 'lucide-react';
 import {
   ReactFlow,
   Controls,
@@ -31,6 +32,11 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 import { initialNodes, initialEdges } from '@/components/transactions/transaction-flow-initial-elements';
 import { TransactionNode } from '@/components/transactions/TransactionNode';
@@ -72,59 +78,44 @@ const TransactionFlowDetailPage = () => {
       </header>
       <main className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel 
-            defaultSize={isStagesOpen ? 20 : 0} 
-            minSize={0} 
-            maxSize={30}
-            className={`transition-all duration-300 ${!isStagesOpen ? 'w-0 min-w-0' : ''}`}
-          >
-            <div className={`h-full flex flex-col bg-gray-100/50 border-r transition-all duration-300 ${!isStagesOpen ? 'w-0 overflow-hidden' : ''}`}>
-              {isStagesOpen && (
-                <>
-                  <div className="flex items-center justify-between p-4 border-b">
-                    <h3 className="text-lg font-semibold">Stages</h3>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="w-9 p-0"
-                      onClick={() => setIsStagesOpen(false)}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      <span className="sr-only">Collapse Stages Panel</span>
-                    </Button>
-                  </div>
-                  <div className="flex-1 p-4 overflow-y-auto">
-                    <ul className="space-y-1">
-                      {transactionData.map((transaction, index) => {
-                        const Icon = iconMapping[transaction.name];
-                        return (
-                          <li key={index} className="p-2 rounded-lg hover:bg-gray-200/60 flex items-center gap-3 cursor-pointer">
-                            {Icon && <Icon className="h-5 w-5 text-gray-700" />}
-                            <span className="font-medium text-sm">{transaction.name}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </>
-              )}
-            </div>
+          <ResizablePanel defaultSize={20} minSize={15}>
+            <Collapsible
+              open={isStagesOpen}
+              onOpenChange={setIsStagesOpen}
+              className="h-full w-full flex flex-col"
+            >
+              <div className="flex items-center justify-between p-4 bg-gray-100/50 border-r border-b">
+                <h3 className="text-lg font-semibold">Stages</h3>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="w-9 p-0">
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isStagesOpen && 'rotate-180'
+                      }`}
+                    />
+                    <span className="sr-only">Toggle</span>
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="flex-1 data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
+                <div className="h-full p-4 bg-gray-100/50 border-r overflow-y-auto">
+                  <ul className="space-y-1">
+                    {transactionData.map((transaction, index) => {
+                      const Icon = iconMapping[transaction.name];
+                      return (
+                        <li key={index} className="p-2 rounded-lg hover:bg-gray-200/60 flex items-center gap-3 cursor-pointer">
+                          {Icon && <Icon className="h-5 w-5 text-gray-700" />}
+                          <span className="font-medium text-sm">{transaction.name}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </ResizablePanel>
-          {!isStagesOpen && (
-            <div className="flex flex-col justify-start items-center py-2 bg-gray-100/50 border-r w-12">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-9 p-0"
-                onClick={() => setIsStagesOpen(true)}
-              >
-                <ChevronRight className="h-4 w-4" />
-                <span className="sr-only">Expand Stages Panel</span>
-              </Button>
-            </div>
-          )}
-          <ResizableHandle withHandle className={!isStagesOpen ? 'hidden' : ''} />
-          <ResizablePanel defaultSize={isStagesOpen ? 80 : 100}>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={80}>
             <ResizablePanelGroup direction="vertical">
               <ResizablePanel defaultSize={70}>
                 <ReactFlow
