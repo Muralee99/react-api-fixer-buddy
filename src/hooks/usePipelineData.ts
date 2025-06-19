@@ -6,7 +6,7 @@ import { fetchPipelineData, fetchTransactionData, type TransactionData, type Pip
 import { calculatePipelineAggregates, calculateTransactionAggregates } from '@/lib/data-aggregation';
 
 const NODE_TYPES = [
-    { key: 'dealBooking', label: 'Deal Booking' }
+    { key: 'dealBooking', label: 'Booking' }
 ];
 
 export const usePipelineData = () => {
