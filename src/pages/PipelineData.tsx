@@ -1,6 +1,5 @@
-
-import React, { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -25,6 +24,7 @@ import { Home } from 'lucide-react';
 
 const PipelineDataPage = () => {
   const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
+  const location = useLocation();
 
   const {
     pipelineRows,
@@ -37,13 +37,21 @@ const PipelineDataPage = () => {
     transactionAggregates
   } = usePipelineData();
 
+  // Handle incoming state from navigation to preserve data
+  useEffect(() => {
+    if (location.state?.preserveData && location.state?.filters) {
+      console.log('Restoring data with filters:', location.state.filters);
+      handleFormSubmit(location.state.filters);
+    }
+  }, [location.state, handleFormSubmit]);
+
   const chartConfig: ChartConfig = {
     amount1: {
       label: "Amount 1",
       color: "hsl(var(--chart-1))",
     },
     amount2: {
-      label: "Amount 2",
+      label: "Amount 2", 
       color: "hsl(var(--chart-2))",
     },
   };

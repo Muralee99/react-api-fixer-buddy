@@ -9,7 +9,7 @@ import {
   useEdgesState,
   Connection,
   Edge,
-  BackgroundVariant,
+  BackgroundVariant,  
   MiniMap,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -40,6 +40,7 @@ const DataPipelineDesigner = () => {
   const [jobs, setJobs] = useState<Job[] | null>(null);
   const [pipelineInfo, setPipelineInfo] = useState<PipelineData | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(true);
+  const [currentFilters, setCurrentFilters] = useState<any>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -55,7 +56,20 @@ const DataPipelineDesigner = () => {
     } else {
       setJobs(null);
     }
+    if (location.state?.filters) {
+      setCurrentFilters(location.state.filters);
+    }
   }, [location.state]);
+
+  const handleBackToPipelineData = () => {
+    navigate('/pipeline-data', {
+      state: {
+        preserveData: true,
+        filters: currentFilters,
+        pipelineData: pipelineInfo
+      }
+    });
+  };
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -176,7 +190,7 @@ const DataPipelineDesigner = () => {
       <div className="p-4 bg-white border-b flex items-center justify-between">
         <Button
           variant="outline"
-          onClick={() => navigate('/pipeline-data')}
+          onClick={handleBackToPipelineData}
           className="flex items-center gap-2"
         >
           <ArrowLeft size={16} />
