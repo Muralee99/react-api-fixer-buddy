@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { fetchPipelineData, fetchTransactionData, type TransactionData, type PipelineRow, type PipelineData, fetchJobsForPipeline } from '@/services/mockDataService';
@@ -15,7 +16,7 @@ export const usePipelineData = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleFormSubmit = async (filters: {
+    const handleFormSubmit = useCallback(async (filters: {
         fromDate: string;
         toDate: string;
         merchantId: string;
@@ -50,7 +51,7 @@ export const usePipelineData = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     const handleViewFlow = async (row: PipelineRow) => {
         toast.info("Loading flow and jobs...");

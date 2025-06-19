@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +25,7 @@ import { Home } from 'lucide-react';
 const PipelineDataPage = () => {
   const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
   const location = useLocation();
+  const hasRestoredData = useRef(false);
 
   const {
     pipelineRows,
@@ -39,11 +40,12 @@ const PipelineDataPage = () => {
 
   // Handle incoming state from navigation to preserve data
   useEffect(() => {
-    if (location.state?.preserveData && location.state?.filters) {
+    if (location.state?.preserveData && location.state?.filters && !hasRestoredData.current) {
       console.log('Restoring data with filters:', location.state.filters);
       handleFormSubmit(location.state.filters);
+      hasRestoredData.current = true;
     }
-  }, [location.state, handleFormSubmit]);
+  }, [location.state?.preserveData, location.state?.filters, handleFormSubmit]);
 
   const chartConfig: ChartConfig = {
     amount1: {
