@@ -12,7 +12,26 @@ interface DashboardSidebarProps {
   onSubmit: (filters: DashboardFilters) => void;
 }
 
-const FILTER_DATA = {
+interface CurrencyData {
+  label: string;
+  statuses: string[];
+}
+
+interface PaymentMethodData {
+  label: string;
+  currencies: Record<string, CurrencyData>;
+}
+
+interface CountryData {
+  label: string;
+  paymentMethods: Record<string, PaymentMethodData>;
+}
+
+interface FilterData {
+  countries: Record<string, CountryData>;
+}
+
+const FILTER_DATA: FilterData = {
   countries: {
     US: {
       label: 'United States',
