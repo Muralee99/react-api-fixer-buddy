@@ -2,11 +2,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DashboardFilterForm } from '@/components/dashboard/DashboardFilterForm';
+import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { Briefcase, TrendingUp } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 export interface DashboardFilters {
   countries: string[];
@@ -52,8 +51,14 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="container mx-auto">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Left Sidebar */}
+      <div className="w-80 p-4 bg-white border-r">
+        <DashboardSidebar onSubmit={handleFormSubmit} />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
           <div className="flex gap-4">
@@ -66,9 +71,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <DashboardFilterForm onSubmit={handleFormSubmit} />
-
-        {showCharts && (
+        {showCharts ? (
           <div className="mt-8">
             {isLoading ? (
               <div className="text-center text-blue-600 p-10">
@@ -81,33 +84,16 @@ const Dashboard = () => {
               />
             )}
           </div>
-        )}
-
-        {!showCharts && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xl font-semibold">Pipeline Data</CardTitle>
-                <TrendingUp className="h-6 w-6 text-gray-500" />
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Visualize and manage your pipeline and transactional data.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xl font-semibold">Jobs Execution</CardTitle>
-                <Briefcase className="h-6 w-6 text-gray-500" />
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">
-                  Monitor and manage job executions and their statuses.
-                </p>
-              </CardContent>
-            </Card>
+        ) : (
+          <div className="flex items-center justify-center h-96 bg-white rounded-lg border-2 border-dashed border-gray-300">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-gray-600 mb-2">
+                Select filters and click Submit to view charts
+              </h2>
+              <p className="text-gray-500">
+                Use the filter panel on the left to configure your dashboard view
+              </p>
+            </div>
           </div>
         )}
       </div>
