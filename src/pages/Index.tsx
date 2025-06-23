@@ -52,7 +52,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <CardDescription>
-                Monitor and manage job executions and their statuses. (Coming Soon)
+                Monitor and manage job executions and their statuses.
               </CardDescription>
             </CardContent>
             <CardFooter>
