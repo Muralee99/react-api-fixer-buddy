@@ -42,6 +42,12 @@ const PipelineDataPage = () => {
   useEffect(() => {
     if (location.state?.preserveData && location.state?.filters && !hasRestoredData.current) {
       console.log('Restoring data with filters:', location.state.filters);
+      
+      // If coming from dashboard with chart context, show relevant message
+      if (location.state?.dashboardFilters) {
+        console.log('Dashboard context:', location.state.chartContext);
+      }
+      
       handleFormSubmit(location.state.filters);
       hasRestoredData.current = true;
     }
@@ -125,6 +131,11 @@ const PipelineDataPage = () => {
                 </Button>
             </Link>
             <h1 className="text-3xl font-bold">Pipeline Data Management</h1>
+            {location.state?.dashboardFilters && (
+              <div className="ml-auto text-sm text-gray-600 bg-blue-50 px-3 py-1 rounded-full">
+                Filtered from Dashboard: {location.state.chartContext?.type}
+              </div>
+            )}
           </div>
           
           <FilterForm onSubmit={handleFormSubmit} />

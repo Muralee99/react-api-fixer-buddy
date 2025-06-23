@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,7 @@ import PipelineDataPage from "./pages/PipelineData";
 import JobsPage from "./pages/Jobs";
 import TransactionFlowPage from "./pages/TransactionFlowPage";
 import TransactionFlowDetailPage from "./pages/TransactionFlowDetailPage";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +21,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/old-index" element={<Index />} />
           <Route path="/pipeline-designer" element={<DataPipelineDesigner />} />
           <Route path="/pipeline-data" element={<PipelineDataPage />} />
           <Route path="/jobs" element={<JobsPage />} />
