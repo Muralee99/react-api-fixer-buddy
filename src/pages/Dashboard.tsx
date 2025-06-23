@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
 import { DashboardForm } from '@/components/dashboard/DashboardForm';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Home } from 'lucide-react';
 
 export interface DashboardFilters {
   countries: string[];
@@ -83,6 +82,12 @@ const Dashboard = () => {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
           <div className="flex gap-4">
+            <Link to="/old-index">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+            </Link>
             <Link to="/pipeline-data">
               <Button variant="outline" className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
