@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
+import { DashboardForm } from '@/components/dashboard/DashboardForm';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { TrendingUp } from 'lucide-react';
 
@@ -14,6 +15,12 @@ export interface DashboardFilters {
   transactionStatuses: string[];
 }
 
+export interface DashboardFormData {
+  fromDate: string;
+  toDate: string;
+  merchantId: string;
+}
+
 const Dashboard = () => {
   const [filters, setFilters] = useState<DashboardFilters>({
     countries: [],
@@ -22,22 +29,32 @@ const Dashboard = () => {
     transactionStatuses: []
   });
   
+  const [formData, setFormData] = useState<DashboardFormData>({
+    fromDate: '',
+    toDate: '',
+    merchantId: ''
+  });
+  
   const [showCharts, setShowCharts] = useState(false);
   const navigate = useNavigate();
   
-  const { dashboardData, isLoading } = useDashboardData(filters, showCharts);
+  const { dashboardData, isLoading, availableFilters } = useDashboardData(filters, showCharts, formData);
 
-  const handleFormSubmit = (newFilters: DashboardFilters) => {
-    setFilters(newFilters);
+  const handleFormSubmit = (newFormData: DashboardFormData) => {
+    setFormData(newFormData);
     setShowCharts(true);
+  };
+
+  const handleFilterSubmit = (newFilters: DashboardFilters) => {
+    setFilters(newFilters);
   };
 
   const handleChartClick = (chartType: string, data: any) => {
     // Navigate to Pipeline Data Management with filters
     const pipelineFilters = {
-      fromDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
-      toDate: new Date().toISOString().split('T')[0], // today
-      merchantId: 'MERCHANT_001'
+      fromDate: formData.fromDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      toDate: formData.toDate || new Date().toISOString().split('T')[0],
+      merchantId: formData.merchantId || 'MERCHANT_001'
     };
     
     navigate('/pipeline-data', {
@@ -52,9 +69,13 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Left Sidebar */}
+      {/* Left Sidebar with Dynamic Filters */}
       <div className="w-80 p-4 bg-white border-r">
-        <DashboardSidebar onSubmit={handleFormSubmit} />
+        <DashboardSidebar 
+          onSubmit={handleFilterSubmit} 
+          availableFilters={availableFilters}
+          disabled={!showCharts}
+        />
       </div>
 
       {/* Main Content */}
@@ -70,6 +91,9 @@ const Dashboard = () => {
             </Link>
           </div>
         </div>
+
+        {/* Dashboard Form */}
+        <DashboardForm onSubmit={handleFormSubmit} />
 
         {showCharts ? (
           <div className="mt-8">
@@ -88,10 +112,10 @@ const Dashboard = () => {
           <div className="flex items-center justify-center h-96 bg-white rounded-lg border-2 border-dashed border-gray-300">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-gray-600 mb-2">
-                Select filters and click Submit to view charts
+                Select date range and merchant to view dashboard
               </h2>
               <p className="text-gray-500">
-                Use the filter panel on the left to configure your dashboard view
+                Use the form above to configure your dashboard view
               </p>
             </div>
           </div>

@@ -10,6 +10,8 @@ import type { DashboardFilters } from '@/pages/Dashboard';
 
 interface DashboardSidebarProps {
   onSubmit: (filters: DashboardFilters) => void;
+  availableFilters: FilterData;
+  disabled?: boolean;
 }
 
 interface CurrencyData {
@@ -31,74 +33,11 @@ interface FilterData {
   countries: Record<string, CountryData>;
 }
 
-const FILTER_DATA: FilterData = {
-  countries: {
-    US: {
-      label: 'United States',
-      paymentMethods: {
-        VISA: {
-          label: 'Visa',
-          currencies: {
-            USD: {
-              label: 'US Dollar',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            },
-            EUR: {
-              label: 'Euro',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            }
-          }
-        },
-        MASTERCARD: {
-          label: 'MasterCard',
-          currencies: {
-            USD: {
-              label: 'US Dollar',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            },
-            EUR: {
-              label: 'Euro',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            }
-          }
-        }
-      }
-    },
-    UK: {
-      label: 'United Kingdom',
-      paymentMethods: {
-        VISA: {
-          label: 'Visa',
-          currencies: {
-            GBP: {
-              label: 'British Pound',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            },
-            EUR: {
-              label: 'Euro',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            }
-          }
-        },
-        RUPAY: {
-          label: 'RuPay',
-          currencies: {
-            INR: {
-              label: 'Indian Rupee',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            },
-            GBP: {
-              label: 'British Pound',
-              statuses: ['SUCCESSFUL', 'PENDING', 'FAILED']
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
-export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onSubmit }) => {
+export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ 
+  onSubmit, 
+  availableFilters, 
+  disabled = false 
+}) => {
   const [expandedCountries, setExpandedCountries] = useState<Record<string, boolean>>({});
   const [expandedPaymentMethods, setExpandedPaymentMethods] = useState<Record<string, boolean>>({});
   const [expandedCurrencies, setExpandedCurrencies] = useState<Record<string, boolean>>({});
@@ -153,6 +92,25 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onSubmit }) 
     });
   };
 
+  // Show message if no data is available
+  if (disabled || Object.keys(availableFilters.countries).length === 0) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search size={20} />
+            Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-gray-500 py-8">
+            <p className="text-sm">Submit the form above to see available filters based on your data results.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -166,7 +124,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onSubmit }) 
           <div className="space-y-2">
             <Label className="text-base font-semibold">Countries</Label>
             
-            {Object.entries(FILTER_DATA.countries).map(([countryId, countryData]) => (
+            {Object.entries(availableFilters.countries).map(([countryId, countryData]) => (
               <div key={countryId} className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <button
@@ -285,7 +243,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onSubmit }) 
 
           <Button type="submit" className="w-full flex items-center gap-2">
             <Search size={16} />
-            Submit
+            Apply Filters
           </Button>
         </form>
       </CardContent>

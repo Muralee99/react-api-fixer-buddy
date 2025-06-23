@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import type { DashboardFilters } from '@/pages/Dashboard';
+import type { DashboardFilters, DashboardFormData } from '@/pages/Dashboard';
 
 export interface DashboardData {
   overviewData: Array<{
@@ -22,16 +22,42 @@ export interface DashboardData {
   }>;
 }
 
-export const useDashboardData = (filters: DashboardFilters, shouldFetch: boolean) => {
+interface CurrencyData {
+  label: string;
+  statuses: string[];
+}
+
+interface PaymentMethodData {
+  label: string;
+  currencies: Record<string, CurrencyData>;
+}
+
+interface CountryData {
+  label: string;
+  paymentMethods: Record<string, PaymentMethodData>;
+}
+
+interface FilterData {
+  countries: Record<string, CountryData>;
+}
+
+export const useDashboardData = (
+  filters: DashboardFilters, 
+  shouldFetch: boolean,
+  formData: DashboardFormData
+) => {
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     overviewData: [],
     paymentCurrencyData: [],
     currencyStatusData: []
   });
+  const [availableFilters, setAvailableFilters] = useState<FilterData>({
+    countries: {}
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!shouldFetch) return;
+    if (!shouldFetch || !formData.fromDate || !formData.toDate || !formData.merchantId) return;
 
     const fetchDashboardData = async () => {
       setIsLoading(true);
@@ -39,25 +65,80 @@ export const useDashboardData = (filters: DashboardFilters, shouldFetch: boolean
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Generate mock data based on filters
-      const mockData = generateMockData(filters);
+      // Generate mock data based on form data and filters
+      const { mockData, dynamicFilters } = generateMockDataWithFilters(formData, filters);
       setDashboardData(mockData);
+      setAvailableFilters(dynamicFilters);
       setIsLoading(false);
     };
 
     fetchDashboardData();
-  }, [filters, shouldFetch]);
+  }, [filters, shouldFetch, formData]);
 
-  return { dashboardData, isLoading };
+  return { dashboardData, isLoading, availableFilters };
 };
 
-const generateMockData = (filters: DashboardFilters): DashboardData => {
-  const selectedCountries = filters.countries.length > 0 ? filters.countries : ['US', 'UK'];
-  const selectedPaymentMethods = filters.paymentMethods.length > 0 ? filters.paymentMethods : ['VISA', 'MASTERCARD', 'RUPAY'];
-  const selectedCurrencies = filters.currencies.length > 0 ? filters.currencies : ['USD', 'EUR', 'GBP', 'INR'];
-  const selectedStatuses = filters.transactionStatuses.length > 0 ? filters.transactionStatuses : ['SUCCESSFUL', 'PENDING', 'FAILED'];
+const generateMockDataWithFilters = (
+  formData: DashboardFormData,
+  filters: DashboardFilters
+): { mockData: DashboardData; dynamicFilters: FilterData } => {
+  // Simulate dynamic filters based on "transaction results"
+  const availableCountries = ['US', 'UK'];
+  const availablePaymentMethods = ['VISA', 'MASTERCARD', 'RUPAY'];
+  const availableCurrencies = ['USD', 'EUR', 'GBP', 'INR'];
+  const availableStatuses = ['SUCCESSFUL', 'PENDING', 'FAILED'];
 
-  // Overview data - combining countries, payment methods, and currencies
+  // Generate dynamic filter structure based on "data results"
+  const dynamicFilters: FilterData = {
+    countries: {}
+  };
+
+  availableCountries.forEach(country => {
+    const countryLabel = country === 'US' ? 'United States' : 'United Kingdom';
+    dynamicFilters.countries[country] = {
+      label: countryLabel,
+      paymentMethods: {}
+    };
+
+    // Add payment methods based on country
+    const methodsForCountry = country === 'US' 
+      ? ['VISA', 'MASTERCARD'] 
+      : ['VISA', 'RUPAY'];
+
+    methodsForCountry.forEach(method => {
+      const methodLabel = method === 'VISA' ? 'Visa' : 
+                         method === 'MASTERCARD' ? 'MasterCard' : 'RuPay';
+      
+      dynamicFilters.countries[country].paymentMethods[method] = {
+        label: methodLabel,
+        currencies: {}
+      };
+
+      // Add currencies based on country and method
+      const currenciesForMethod = country === 'US' 
+        ? ['USD', 'EUR'] 
+        : method === 'VISA' ? ['GBP', 'EUR'] : ['INR', 'GBP'];
+
+      currenciesForMethod.forEach(currency => {
+        const currencyLabel = 
+          currency === 'USD' ? 'US Dollar' :
+          currency === 'EUR' ? 'Euro' :
+          currency === 'GBP' ? 'British Pound' : 'Indian Rupee';
+
+        dynamicFilters.countries[country].paymentMethods[method].currencies[currency] = {
+          label: currencyLabel,
+          statuses: availableStatuses
+        };
+      });
+    });
+  });
+
+  // Generate chart data
+  const selectedCountries = filters.countries.length > 0 ? filters.countries : availableCountries;
+  const selectedPaymentMethods = filters.paymentMethods.length > 0 ? filters.paymentMethods : availablePaymentMethods;
+  const selectedCurrencies = filters.currencies.length > 0 ? filters.currencies : availableCurrencies;
+
+  // Overview data
   const overviewData = [];
   selectedCountries.forEach(country => {
     selectedPaymentMethods.forEach(method => {
@@ -93,8 +174,11 @@ const generateMockData = (filters: DashboardFilters): DashboardData => {
   }));
 
   return {
-    overviewData: overviewData.slice(0, 15), // Limit for better visualization
-    paymentCurrencyData: paymentCurrencyData.slice(0, 8),
-    currencyStatusData
+    mockData: {
+      overviewData: overviewData.slice(0, 15),
+      paymentCurrencyData: paymentCurrencyData.slice(0, 8),
+      currencyStatusData
+    },
+    dynamicFilters
   };
 };
