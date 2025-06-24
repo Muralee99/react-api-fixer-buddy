@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { DataTrafficChart } from './DataTrafficChart';
 import type { DashboardData } from '@/hooks/useDashboardData';
 
 interface DashboardChartsProps {
@@ -26,6 +27,12 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ data, onChartC
 
   return (
     <div className="space-y-6">
+      {/* Data Traffic Chart */}
+      <DataTrafficChart 
+        data={data.trafficData} 
+        onChartClick={(chartData) => onChartClick('traffic', chartData)}
+      />
+
       {/* Chart 1: All Data Overview */}
       <Card className="cursor-pointer hover:shadow-lg transition-shadow" 
             onClick={() => onChartClick('overview', data.overviewData)}>

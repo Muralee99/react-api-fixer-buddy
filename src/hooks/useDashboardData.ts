@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import type { DashboardFilters, DashboardFormData } from '@/pages/Dashboard';
 
@@ -19,6 +18,12 @@ export interface DashboardData {
     successful: number;
     pending: number;
     failed: number;
+  }>;
+  trafficData: Array<{
+    time: string;
+    requests: number;
+    dataVolume: number;
+    errors: number;
   }>;
 }
 
@@ -49,7 +54,8 @@ export const useDashboardData = (
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     overviewData: [],
     paymentCurrencyData: [],
-    currencyStatusData: []
+    currencyStatusData: [],
+    trafficData: []
   });
   const [availableFilters, setAvailableFilters] = useState<FilterData>({
     countries: {}
@@ -133,6 +139,32 @@ const generateMockDataWithFilters = (
     });
   });
 
+  // Generate traffic data based on time range
+  const generateTrafficData = () => {
+    const startDate = new Date(formData.fromDate);
+    const endDate = new Date(formData.toDate);
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const trafficData = [];
+    const hoursToGenerate = Math.min(diffDays * 24, 168); // Max 7 days of hourly data
+    
+    for (let i = 0; i < hoursToGenerate; i++) {
+      const time = new Date(startDate.getTime() + i * 60 * 60 * 1000);
+      const baseRequests = 1000 + Math.sin(i / 4) * 300; // Simulate daily patterns
+      const variance = Math.random() * 200 - 100;
+      
+      trafficData.push({
+        time: time.toISOString(),
+        requests: Math.max(0, Math.floor(baseRequests + variance)),
+        dataVolume: Math.floor((baseRequests + variance) * 0.5 + Math.random() * 100),
+        errors: Math.floor(Math.random() * 50)
+      });
+    }
+    
+    return trafficData;
+  };
+
   // Generate chart data
   const selectedCountries = filters.countries.length > 0 ? filters.countries : availableCountries;
   const selectedPaymentMethods = filters.paymentMethods.length > 0 ? filters.paymentMethods : availablePaymentMethods;
@@ -177,7 +209,8 @@ const generateMockDataWithFilters = (
     mockData: {
       overviewData: overviewData.slice(0, 15),
       paymentCurrencyData: paymentCurrencyData.slice(0, 8),
-      currencyStatusData
+      currencyStatusData,
+      trafficData: generateTrafficData()
     },
     dynamicFilters
   };
