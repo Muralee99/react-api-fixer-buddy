@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -125,7 +126,7 @@ const PipelineDataPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <SidebarTrigger />
-            <Link to="/" aria-label="Go to Dashboard">
+            <Link to="/old-index" aria-label="Go to Home">
                 <Button variant="ghost" size="icon">
                     <Home className="h-5 w-5" />
                 </Button>
