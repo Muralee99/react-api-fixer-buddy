@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FilterForm } from '@/components/pipeline/FilterForm';
@@ -13,7 +12,7 @@ import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
 import AggregateTable from "@/components/pipeline/AggregateTable";
-import AggregateChart from "@/components/pipeline/AggregateChart";
+import SmartAggregateChart from "@/components/pipeline/SmartAggregateChart";
 import { type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityControl';
 import { usePipelineData } from '@/hooks/usePipelineData';
 import { type PipelineRow } from '@/services/mockDataService';
@@ -232,9 +231,9 @@ const PipelineDataPage = () => {
                   <AggregateTable title="Pipeline Data Aggregates" data={pipelineAggregates} />
                 )}
                 {selectedTable.includes('pipeline_infographics') && (
-                  <AggregateChart
-                    title="Pipeline Data Infographics"
-                    description="Aggregated amounts for pipeline data by date and status."
+                  <SmartAggregateChart
+                    title="Pipeline Data Analytics"
+                    description="Interactive visualization of aggregated pipeline data with smart insights and trend analysis."
                     data={pipelineAggregatesForChart}
                     chartConfig={chartConfig}
                     dataKeys={[{ name: 'Amount 1', key: 'amount1' }, { name: 'Amount 2', key: 'amount2' }]}
@@ -250,9 +249,9 @@ const PipelineDataPage = () => {
                   <AggregateTable title="Transactional Data Aggregates" data={transactionAggregates} />
                 )}
                 {selectedTable.includes('transaction_infographics') && (
-                  <AggregateChart
-                    title="Transactional Data Infographics"
-                    description="Aggregated amounts for transactional data by date and currency."
+                  <SmartAggregateChart
+                    title="Transaction Data Analytics"
+                    description="Advanced analytics for transactional data with multiple visualization modes and performance metrics."
                     data={transactionAggregatesForChart}
                     chartConfig={chartConfig}
                     dataKeys={[{ name: 'Amount 1', key: 'amount1' }, { name: 'Amount 2', key: 'amount2' }]}
