@@ -68,6 +68,53 @@ export const PaymentAnalytics: React.FC<PaymentAnalyticsProps> = ({ onChartClick
   const currentData = selectedCategory ? drillDownData[selectedCategory] : mainData;
   const chartTitle = selectedCategory ? `${selectedCategory} Breakdown` : 'Payment Overview';
 
+  // Calculate total for percentage calculations
+  const total = currentData.reduce((sum, item) => sum + item.value, 0);
+
+  // Custom label function for pie chart
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value, name }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        fontSize="12"
+        fontWeight="bold"
+      >
+        {`${(percent * 100).toFixed(1)}%`}
+      </text>
+    );
+  };
+
+  // Enhanced pie chart data with subdivisions
+  const getPieChartData = () => {
+    if (selectedCategory) {
+      return currentData;
+    }
+    
+    // For main view, show all subdivisions
+    const allSubdivisions: ChartData[] = [];
+    Object.entries(drillDownData).forEach(([category, subdivisions]) => {
+      subdivisions.forEach(sub => {
+        allSubdivisions.push({
+          ...sub,
+          name: `${category}: ${sub.name}`
+        });
+      });
+    });
+    return allSubdivisions;
+  };
+
+  const pieData = getPieChartData();
+  const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -112,31 +159,70 @@ export const PaymentAnalytics: React.FC<PaymentAnalyticsProps> = ({ onChartClick
           </CardContent>
         </Card>
 
-        {/* Pie Chart */}
+        {/* Enhanced Pie Chart */}
         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>{selectedCategory ? `${selectedCategory} Distribution` : 'Payment Distribution'}</CardTitle>
+            <CardTitle>
+              {selectedCategory ? `${selectedCategory} Distribution` : 'Complete Payment Breakdown'}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-80">
               <PieChart>
                 <Pie
-                  data={currentData}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={renderCustomizedLabel}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {currentData.map((entry, index) => (
+                  {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const percentage = ((data.value / pieTotal) * 100).toFixed(1);
+                      return (
+                        <div className="bg-white p-3 border rounded shadow-lg">
+                          <p className="font-semibold">{data.name}</p>
+                          <p className="text-sm">Amount: ${data.value.toLocaleString()}</p>
+                          <p className="text-sm">Percentage: {percentage}%</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
               </PieChart>
             </ChartContainer>
+            
+            {/* Legend with amounts and percentages */}
+            <div className="mt-4 space-y-2 max-h-32 overflow-y-auto">
+              {pieData.map((item, index) => {
+                const percentage = ((item.value / pieTotal) * 100).toFixed(1);
+                return (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded" 
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="font-medium">{item.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div>${item.value.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">{percentage}%</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -150,6 +236,9 @@ export const PaymentAnalytics: React.FC<PaymentAnalyticsProps> = ({ onChartClick
                 <div>
                   <p className="text-sm font-medium text-gray-500">{item.name}</p>
                   <p className="text-2xl font-bold">${item.value.toLocaleString()}</p>
+                  <p className="text-xs text-gray-400">
+                    {((item.value / total) * 100).toFixed(1)}% of total
+                  </p>
                 </div>
                 <div 
                   className="w-4 h-4 rounded" 
