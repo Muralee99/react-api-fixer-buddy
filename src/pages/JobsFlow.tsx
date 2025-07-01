@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Home, Play, Clock, CheckCircle } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { ArrowLeft, Home, Play, Clock, CheckCircle, Eye, Minimize, Maximize } from 'lucide-react';
 import {
   ReactFlow,
   Controls,
@@ -195,11 +197,11 @@ const JobsFlowPage = () => {
   const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [isTableMinimized, setIsTableMinimized] = useState(false);
 
   const handleFlowSelect = (flowKey: string) => {
     setSelectedFlow(flowKey);
     const flowData = flowsData[flowKey as keyof typeof flowsData];
-    // Properly set nodes and edges using the setNodes and setEdges functions
     setNodes(flowData.nodes);
     setEdges(flowData.edges);
   };
@@ -220,6 +222,20 @@ const JobsFlowPage = () => {
     }
   };
 
+  const getJobTableData = () => {
+    if (!selectedFlow) return [];
+    const flowData = flowsData[selectedFlow as keyof typeof flowsData];
+    return flowData.nodes.map(node => ({
+      id: node.id,
+      name: node.data.name,
+      status: node.data.status,
+      lastExecution: node.data.lastExecutionTime,
+      nextExecution: node.data.nextExecutionTime,
+      recordsProcessed: node.data.recordsProcessed,
+      pendingRecords: node.data.pendingRecords,
+    }));
+  };
+
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-50">
       <header className="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-10">
@@ -232,9 +248,9 @@ const JobsFlowPage = () => {
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Flows
             </Button>
           )}
-          <Link to="/">
+          <Link to="/jobs">
             <Button variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Dashboard
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Jobs Execution
             </Button>
           </Link>
           <Link to="/" aria-label="Go to Dashboard">
@@ -274,24 +290,92 @@ const JobsFlowPage = () => {
                       <span className="text-gray-500">Total Jobs:</span>
                       <span className="font-semibold">{flow.totalJobs}</span>
                     </div>
+                    <div className="mt-3 flex justify-end">
+                      <Button variant="outline" size="sm">
+                        <Eye className="mr-2 h-4 w-4" /> View Details
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
         ) : (
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <Controls />
-            <MiniMap />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-          </ReactFlow>
+          <ResizablePanelGroup direction="vertical" className="h-full">
+            <ResizablePanel defaultSize={isTableMinimized ? 90 : 60} minSize={30}>
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                nodeTypes={nodeTypes}
+                fitView
+              >
+                <Controls />
+                <MiniMap />
+                <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+              </ReactFlow>
+            </ResizablePanel>
+            
+            <ResizableHandle withHandle />
+            
+            <ResizablePanel defaultSize={isTableMinimized ? 10 : 40} minSize={10}>
+              <div className="h-full bg-white border-t">
+                <div className="p-4 border-b flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Job Details</h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsTableMinimized(!isTableMinimized)}
+                  >
+                    {isTableMinimized ? (
+                      <Maximize className="h-4 w-4" />
+                    ) : (
+                      <Minimize className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                
+                {!isTableMinimized && (
+                  <div className="p-4 overflow-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Job Name</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Last Execution</TableHead>
+                          <TableHead>Next Execution</TableHead>
+                          <TableHead>Records Processed</TableHead>
+                          <TableHead>Pending Records</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {getJobTableData().map((job) => (
+                          <TableRow key={job.id}>
+                            <TableCell className="font-medium">{job.name}</TableCell>
+                            <TableCell>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                job.status === 'success' ? 'bg-green-100 text-green-800' :
+                                job.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                job.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {job.status}
+                              </span>
+                            </TableCell>
+                            <TableCell>{job.lastExecution}</TableCell>
+                            <TableCell>{job.nextExecution}</TableCell>
+                            <TableCell>{job.recordsProcessed.toLocaleString()}</TableCell>
+                            <TableCell>{job.pendingRecords.toLocaleString()}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         )}
       </main>
     </div>
