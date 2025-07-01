@@ -1,12 +1,17 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
 import { DashboardForm } from '@/components/dashboard/DashboardForm';
+import { PaymentAnalytics } from '@/components/dashboard/PaymentAnalytics';
+import { PaymentDetailsTable } from '@/components/dashboard/PaymentDetailsTable';
+import { PaymentFilterSidebar } from '@/components/dashboard/PaymentFilterSidebar';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { TrendingUp, Home } from 'lucide-react';
+import { TrendingUp, Home, CreditCard } from 'lucide-react';
 import MerchantInfoTable from '@/components/dashboard/MerchantInfoTable';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export interface DashboardFilters {
   countries: string[];
@@ -19,6 +24,14 @@ export interface DashboardFormData {
   fromDate: string;
   toDate: string;
   merchantId: string;
+}
+
+interface PaymentFilters {
+  category: string;
+  subcategory: string;
+  viewType: 'charts' | 'table' | 'both';
+  statuses: string[];
+  dateRange: string;
 }
 
 const Dashboard = () => {
@@ -35,6 +48,14 @@ const Dashboard = () => {
     merchantId: ''
   });
   
+  const [paymentFilters, setPaymentFilters] = useState<PaymentFilters>({
+    category: 'Payments',
+    subcategory: '',
+    viewType: 'both',
+    statuses: [],
+    dateRange: '30days'
+  });
+  
   const [showCharts, setShowCharts] = useState(false);
   const navigate = useNavigate();
   
@@ -47,6 +68,10 @@ const Dashboard = () => {
 
   const handleFilterSubmit = (newFilters: DashboardFilters) => {
     setFilters(newFilters);
+  };
+
+  const handlePaymentFiltersChange = (newPaymentFilters: PaymentFilters) => {
+    setPaymentFilters(newPaymentFilters);
   };
 
   const handleChartClick = (chartType: string, data: any) => {
@@ -68,18 +93,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Left Sidebar with Dynamic Filters */}
-      <div className="w-80 p-4 bg-white border-r">
-        <DashboardSidebar 
-          onSubmit={handleFilterSubmit} 
-          availableFilters={availableFilters}
-          disabled={!showCharts}
-        />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-6">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
           <div className="flex gap-4">
@@ -108,31 +123,92 @@ const Dashboard = () => {
           </div>
         )}
 
-        {showCharts ? (
-          <div className="mt-8">
-            {isLoading ? (
-              <div className="text-center text-blue-600 p-10">
-                Loading charts...
+        {/* Dashboard Tabs */}
+        <div className="mt-8">
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Overview Analytics
+              </TabsTrigger>
+              <TabsTrigger value="payments" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Payment Analytics
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6">
+              <div className="flex gap-6">
+                {/* Left Sidebar with Dynamic Filters */}
+                <div className="w-80">
+                  <DashboardSidebar 
+                    onSubmit={handleFilterSubmit} 
+                    availableFilters={availableFilters}
+                    disabled={!showCharts}
+                  />
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1">
+                  {showCharts ? (
+                    <div>
+                      {isLoading ? (
+                        <div className="text-center text-blue-600 p-10">
+                          Loading charts...
+                        </div>
+                      ) : (
+                        <DashboardCharts 
+                          data={dashboardData} 
+                          onChartClick={handleChartClick}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-96 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                      <div className="text-center">
+                        <h2 className="text-xl font-semibold text-gray-600 mb-2">
+                          Select date range and merchant to view dashboard
+                        </h2>
+                        <p className="text-gray-500">
+                          Use the form above to configure your dashboard view
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            ) : (
-              <DashboardCharts 
-                data={dashboardData} 
-                onChartClick={handleChartClick}
-              />
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-96 bg-white rounded-lg border-2 border-dashed border-gray-300">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-600 mb-2">
-                Select date range and merchant to view dashboard
-              </h2>
-              <p className="text-gray-500">
-                Use the form above to configure your dashboard view
-              </p>
-            </div>
-          </div>
-        )}
+            </TabsContent>
+
+            {/* Payment Analytics Tab */}
+            <TabsContent value="payments" className="space-y-6">
+              <div className="flex gap-6">
+                {/* Payment Filter Sidebar */}
+                <div className="w-80">
+                  <PaymentFilterSidebar onFiltersChange={handlePaymentFiltersChange} />
+                </div>
+
+                {/* Payment Analytics Content */}
+                <div className="flex-1 space-y-8">
+                  {/* Charts Section */}
+                  {(paymentFilters.viewType === 'charts' || paymentFilters.viewType === 'both') && (
+                    <PaymentAnalytics onChartClick={handleChartClick} />
+                  )}
+
+                  {/* Table Section */}
+                  {(paymentFilters.viewType === 'table' || paymentFilters.viewType === 'both') && (
+                    <PaymentDetailsTable 
+                      selectedFilters={{
+                        category: paymentFilters.category,
+                        subcategory: paymentFilters.subcategory
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
