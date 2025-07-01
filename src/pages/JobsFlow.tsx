@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -194,20 +193,15 @@ const flowsData = {
 
 const JobsFlowPage = () => {
   const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
-  const [nodes, , onNodesChange] = useNodesState([]);
-  const [edges, , onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const handleFlowSelect = (flowKey: string) => {
     setSelectedFlow(flowKey);
     const flowData = flowsData[flowKey as keyof typeof flowsData];
-    // Update nodes and edges for the selected flow
-    onNodesChange([]);
-    onEdgesChange([]);
-    // Set new nodes and edges
-    setTimeout(() => {
-      onNodesChange(flowData.nodes.map(node => ({ ...node, selected: false })));
-      onEdgesChange(flowData.edges);
-    }, 0);
+    // Properly set nodes and edges using the setNodes and setEdges functions
+    setNodes(flowData.nodes);
+    setEdges(flowData.edges);
   };
 
   const getStatusColor = (status: string) => {
