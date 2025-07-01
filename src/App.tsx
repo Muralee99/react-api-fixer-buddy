@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import DataPipelineDesigner from "./components/DataPipelineDesigner";
 import PipelineDataPage from "./pages/PipelineData";
 import JobsPage from "./pages/Jobs";
+import JobsFlowPage from "./pages/JobsFlow";
 import TransactionFlowPage from "./pages/TransactionFlowPage";
 import TransactionFlowDetailPage from "./pages/TransactionFlowDetailPage";
 import Dashboard from "./pages/Dashboard";
@@ -26,6 +28,7 @@ const App = () => (
           <Route path="/pipeline-designer" element={<DataPipelineDesigner />} />
           <Route path="/pipeline-data" element={<PipelineDataPage />} />
           <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/jobs-flow" element={<JobsFlowPage />} />
           <Route path="/transaction-flow" element={<TransactionFlowPage />} />
           <Route path="/transaction-flow/detail" element={<TransactionFlowDetailPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

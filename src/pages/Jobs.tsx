@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home } from 'lucide-react';
+import { ArrowLeft, Home, Eye } from 'lucide-react';
 import {
   ReactFlow,
   Controls,
@@ -30,6 +30,11 @@ const JobsPage = () => {
       <header className="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-10">
         <h1 className="text-xl font-semibold">Jobs Execution Flow</h1>
         <div className="flex items-center gap-2">
+            <Link to="/jobs-flow">
+                <Button variant="default">
+                    <Eye className="mr-2 h-4 w-4" /> View Jobs
+                </Button>
+            </Link>
             <Link to="/">
                 <Button variant="outline">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Dashboard
