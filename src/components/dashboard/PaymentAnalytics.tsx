@@ -104,7 +104,7 @@ export const PaymentAnalytics: React.FC<PaymentAnalyticsProps> = ({ onChartClick
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar 
                   dataKey="value" 
-                  fill={(entry) => entry.color}
+                  fill="#8884d8"
                   onClick={selectedCategory ? handleDrillDownClick : handleMainChartClick}
                 />
               </BarChart>
