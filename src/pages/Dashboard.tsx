@@ -6,6 +6,7 @@ import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
 import { DashboardForm } from '@/components/dashboard/DashboardForm';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { TrendingUp, Home } from 'lucide-react';
+import MerchantInfoTable from '@/components/dashboard/MerchantInfoTable';
 
 export interface DashboardFilters {
   countries: string[];
@@ -99,6 +100,13 @@ const Dashboard = () => {
 
         {/* Dashboard Form */}
         <DashboardForm onSubmit={handleFormSubmit} />
+
+        {/* Merchant Information Table */}
+        {formData.merchantId && (
+          <div className="mt-8">
+            <MerchantInfoTable merchantId={formData.merchantId} />
+          </div>
+        )}
 
         {showCharts ? (
           <div className="mt-8">
