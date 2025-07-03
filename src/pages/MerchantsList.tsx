@@ -180,7 +180,7 @@ const MerchantsList = () => {
             <CardTitle className="text-2xl font-bold">Merchants List</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12"></TableHead>
