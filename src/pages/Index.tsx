@@ -78,6 +78,23 @@ const Index = () => {
               </Link>
             </CardFooter>
           </Card>
+
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xl font-semibold">Merchants List</CardTitle>
+              <DollarSign className="h-6 w-6 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                View and manage merchant details and information.
+              </CardDescription>
+            </CardContent>
+            <CardFooter>
+              <Link to="/merchants" className="w-full">
+                <Button className="w-full">View Merchants</Button>
+              </Link>
+            </CardFooter>
+          </Card>
         </div>
       </div>
     </div>

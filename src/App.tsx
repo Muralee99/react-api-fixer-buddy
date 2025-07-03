@@ -13,6 +13,7 @@ import JobsFlowPage from "./pages/JobsFlow";
 import TransactionFlowPage from "./pages/TransactionFlowPage";
 import TransactionFlowDetailPage from "./pages/TransactionFlowDetailPage";
 import Dashboard from "./pages/Dashboard";
+import MerchantsList from "./pages/MerchantsList";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/jobs-flow" element={<JobsFlowPage />} />
           <Route path="/transaction-flow" element={<TransactionFlowPage />} />
           <Route path="/transaction-flow/detail" element={<TransactionFlowDetailPage />} />
+          <Route path="/merchants" element={<MerchantsList />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
