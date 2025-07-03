@@ -102,26 +102,26 @@ const MerchantRow: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
         <TableRow className="cursor-pointer hover:bg-muted/50">
-          <TableCell className="w-12">
+          <TableCell className="w-12 p-2">
             {isOpen ? (
               <ChevronDown className="h-4 w-4" />
             ) : (
               <ChevronRight className="h-4 w-4" />
             )}
           </TableCell>
-          <TableCell>{merchant.id}</TableCell>
-          <TableCell className="font-medium">{merchant.name}</TableCell>
-          <TableCell>{merchant.email}</TableCell>
-          <TableCell>
+          <TableCell className="w-20 p-2">{merchant.id}</TableCell>
+          <TableCell className="w-48 p-2 font-medium">{merchant.name}</TableCell>
+          <TableCell className="w-56 p-2">{merchant.email}</TableCell>
+          <TableCell className="w-24 p-2">
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(merchant.status)}`}>
               {merchant.status}
             </span>
           </TableCell>
-          <TableCell>{merchant.category}</TableCell>
-          <TableCell>{merchant.joinDate}</TableCell>
-          <TableCell className="text-right">{merchant.totalTransactions.toLocaleString()}</TableCell>
-          <TableCell className="text-right">${merchant.revenue.toLocaleString()}</TableCell>
-          <TableCell>
+          <TableCell className="w-32 p-2">{merchant.category}</TableCell>
+          <TableCell className="w-28 p-2">{merchant.joinDate}</TableCell>
+          <TableCell className="w-28 p-2 text-right">{merchant.totalTransactions.toLocaleString()}</TableCell>
+          <TableCell className="w-28 p-2 text-right">${merchant.revenue.toLocaleString()}</TableCell>
+          <TableCell className="w-32 p-2">
             <Button 
               size="sm" 
               variant="outline"
@@ -136,7 +136,7 @@ const MerchantRow: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
       </CollapsibleTrigger>
       <CollapsibleContent asChild>
         <TableRow>
-          <TableCell colSpan={10} className="bg-muted/30">
+          <TableCell colSpan={10} className="bg-muted/30 p-0">
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
@@ -184,15 +184,15 @@ const MerchantsList = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12"></TableHead>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Join Date</TableHead>
-                  <TableHead className="text-right">Transactions</TableHead>
-                  <TableHead className="text-right">Revenue</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="w-20">ID</TableHead>
+                  <TableHead className="w-48">Name</TableHead>
+                  <TableHead className="w-56">Email</TableHead>
+                  <TableHead className="w-24">Status</TableHead>
+                  <TableHead className="w-32">Category</TableHead>
+                  <TableHead className="w-28">Join Date</TableHead>
+                  <TableHead className="w-28 text-right">Transactions</TableHead>
+                  <TableHead className="w-28 text-right">Revenue</TableHead>
+                  <TableHead className="w-32">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
