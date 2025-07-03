@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
@@ -35,6 +35,7 @@ interface PaymentFilters {
 }
 
 const Dashboard = () => {
+  const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState<DashboardFilters>({
     countries: [],
     paymentMethods: [],
@@ -59,7 +60,23 @@ const Dashboard = () => {
   const [showCharts, setShowCharts] = useState(false);
   const navigate = useNavigate();
   
+  // Check if we're coming from merchant analytics
+  const merchantId = searchParams.get('merchant');
+  
   const { dashboardData, isLoading, availableFilters } = useDashboardData(filters, showCharts, formData);
+
+  // Auto-populate form when coming from merchant page
+  useEffect(() => {
+    if (merchantId) {
+      const newFormData = {
+        fromDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        toDate: new Date().toISOString().split('T')[0],
+        merchantId: merchantId
+      };
+      setFormData(newFormData);
+      setShowCharts(true);
+    }
+  }, [merchantId]);
 
   const handleFormSubmit = (newFormData: DashboardFormData) => {
     setFormData(newFormData);
@@ -96,7 +113,12 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="p-6">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
+          <div>
+            <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
+            {merchantId && (
+              <p className="text-lg text-gray-600 mt-2">Analytics for Merchant: {merchantId}</p>
+            )}
+          </div>
           <div className="flex gap-4">
             <Link to="/old-index">
               <Button variant="outline" className="flex items-center gap-2">

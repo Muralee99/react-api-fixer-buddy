@@ -2,8 +2,9 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface Merchant {
   id: string;
@@ -81,6 +82,7 @@ const mockMerchants: Merchant[] = [
 
 const MerchantRow: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const navigate = useNavigate();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -91,20 +93,23 @@ const MerchantRow: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
     }
   };
 
+  const handleViewAnalytics = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/?merchant=${merchant.id}`);
+  };
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
         <TableRow className="cursor-pointer hover:bg-muted/50">
-          <TableCell>
-            <div className="flex items-center gap-2">
-              {isOpen ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-              {merchant.id}
-            </div>
+          <TableCell className="w-12">
+            {isOpen ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </TableCell>
+          <TableCell>{merchant.id}</TableCell>
           <TableCell className="font-medium">{merchant.name}</TableCell>
           <TableCell>{merchant.email}</TableCell>
           <TableCell>
@@ -116,11 +121,22 @@ const MerchantRow: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
           <TableCell>{merchant.joinDate}</TableCell>
           <TableCell className="text-right">{merchant.totalTransactions.toLocaleString()}</TableCell>
           <TableCell className="text-right">${merchant.revenue.toLocaleString()}</TableCell>
+          <TableCell>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={handleViewAnalytics}
+              className="flex items-center gap-1"
+            >
+              <BarChart3 className="h-3 w-3" />
+              Analytics
+            </Button>
+          </TableCell>
         </TableRow>
       </CollapsibleTrigger>
       <CollapsibleContent asChild>
         <TableRow>
-          <TableCell colSpan={8} className="bg-muted/30">
+          <TableCell colSpan={10} className="bg-muted/30">
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
@@ -167,6 +183,7 @@ const MerchantsList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12"></TableHead>
                   <TableHead>ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
@@ -175,6 +192,7 @@ const MerchantsList = () => {
                   <TableHead>Join Date</TableHead>
                   <TableHead className="text-right">Transactions</TableHead>
                   <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
