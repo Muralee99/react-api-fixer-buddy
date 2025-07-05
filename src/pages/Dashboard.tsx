@@ -9,7 +9,7 @@ import { PaymentAnalytics } from '@/components/dashboard/PaymentAnalytics';
 import { PaymentDetailsTable } from '@/components/dashboard/PaymentDetailsTable';
 import { PaymentFilterSidebar } from '@/components/dashboard/PaymentFilterSidebar';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { TrendingUp, Home, CreditCard } from 'lucide-react';
+import { TrendingUp, Home, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 import MerchantInfoTable from '@/components/dashboard/MerchantInfoTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -58,6 +58,8 @@ const Dashboard = () => {
   });
   
   const [showCharts, setShowCharts] = useState(false);
+  const [isOverviewSidebarCollapsed, setIsOverviewSidebarCollapsed] = useState(false);
+  const [isPaymentSidebarCollapsed, setIsPaymentSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   
   // Check if we're coming from merchant analytics
@@ -161,18 +163,46 @@ const Dashboard = () => {
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
-              <div className="flex gap-6">
+              <div className="flex gap-6 relative">
+                {/* Sidebar Toggle Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsOverviewSidebarCollapsed(!isOverviewSidebarCollapsed)}
+                  className="absolute top-4 left-4 z-10 flex items-center gap-2"
+                >
+                  {isOverviewSidebarCollapsed ? (
+                    <>
+                      <ChevronRight className="h-4 w-4" />
+                      Show Filters
+                    </>
+                  ) : (
+                    <>
+                      <ChevronLeft className="h-4 w-4" />
+                      Hide Filters
+                    </>
+                  )}
+                </Button>
+
                 {/* Left Sidebar with Dynamic Filters */}
-                <div className="w-80">
-                  <DashboardSidebar 
-                    onSubmit={handleFilterSubmit} 
-                    availableFilters={availableFilters}
-                    disabled={!showCharts}
-                  />
+                <div className={`transition-all duration-300 ease-in-out ${
+                  isOverviewSidebarCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'w-80 opacity-100'
+                }`}>
+                  {!isOverviewSidebarCollapsed && (
+                    <div className="pt-12">
+                      <DashboardSidebar 
+                        onSubmit={handleFilterSubmit} 
+                        availableFilters={availableFilters}
+                        disabled={!showCharts}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1">
+                <div className={`flex-1 transition-all duration-300 ease-in-out ${
+                  isOverviewSidebarCollapsed ? 'ml-0' : 'ml-0'
+                }`}>
                   {showCharts ? (
                     <div>
                       {isLoading ? (
@@ -204,14 +234,42 @@ const Dashboard = () => {
 
             {/* Payment Analytics Tab */}
             <TabsContent value="payments" className="space-y-6">
-              <div className="flex gap-6">
+              <div className="flex gap-6 relative">
+                {/* Sidebar Toggle Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsPaymentSidebarCollapsed(!isPaymentSidebarCollapsed)}
+                  className="absolute top-4 left-4 z-10 flex items-center gap-2"
+                >
+                  {isPaymentSidebarCollapsed ? (
+                    <>
+                      <ChevronRight className="h-4 w-4" />
+                      Show Filters
+                    </>
+                  ) : (
+                    <>
+                      <ChevronLeft className="h-4 w-4" />
+                      Hide Filters
+                    </>
+                  )}
+                </Button>
+
                 {/* Payment Filter Sidebar */}
-                <div className="w-80">
-                  <PaymentFilterSidebar onFiltersChange={handlePaymentFiltersChange} />
+                <div className={`transition-all duration-300 ease-in-out ${
+                  isPaymentSidebarCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'w-80 opacity-100'
+                }`}>
+                  {!isPaymentSidebarCollapsed && (
+                    <div className="pt-12">
+                      <PaymentFilterSidebar onFiltersChange={handlePaymentFiltersChange} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Payment Analytics Content */}
-                <div className="flex-1 space-y-8">
+                <div className={`flex-1 space-y-8 transition-all duration-300 ease-in-out ${
+                  isPaymentSidebarCollapsed ? 'ml-0' : 'ml-0'
+                }`}>
                   {/* Charts Section */}
                   {(paymentFilters.viewType === 'charts' || paymentFilters.viewType === 'both') && (
                     <PaymentAnalytics onChartClick={handleChartClick} />
