@@ -14,6 +14,7 @@ import TransactionFlowPage from "./pages/TransactionFlowPage";
 import TransactionFlowDetailPage from "./pages/TransactionFlowDetailPage";
 import Dashboard from "./pages/Dashboard";
 import MerchantsList from "./pages/MerchantsList";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/transaction-flow" element={<TransactionFlowPage />} />
           <Route path="/transaction-flow/detail" element={<TransactionFlowDetailPage />} />
           <Route path="/merchants" element={<MerchantsList />} />
+          <Route path="/login" element={<Login />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
