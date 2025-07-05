@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, BarChart3 } from 'lucide-react';
+import { BarChart3, Home, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface Merchant {
   id: string;
@@ -80,129 +79,169 @@ const mockMerchants: Merchant[] = [
   }
 ];
 
-const MerchantRow: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const navigate = useNavigate();
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'text-green-600 bg-green-100';
-      case 'inactive': return 'text-red-600 bg-red-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  const handleViewAnalytics = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigate(`/?merchant=${merchant.id}`);
-  };
-
+const MerchantDetailCard: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger asChild>
-        <TableRow className="cursor-pointer hover:bg-muted/50">
-          <TableCell className="w-12 p-2">
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </TableCell>
-          <TableCell className="w-20 p-2">{merchant.id}</TableCell>
-          <TableCell className="w-48 p-2 font-medium">{merchant.name}</TableCell>
-          <TableCell className="w-56 p-2">{merchant.email}</TableCell>
-          <TableCell className="w-24 p-2">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(merchant.status)}`}>
-              {merchant.status}
-            </span>
-          </TableCell>
-          <TableCell className="w-32 p-2">{merchant.category}</TableCell>
-          <TableCell className="w-28 p-2">{merchant.joinDate}</TableCell>
-          <TableCell className="w-28 p-2 text-right">{merchant.totalTransactions.toLocaleString()}</TableCell>
-          <TableCell className="w-28 p-2 text-right">${merchant.revenue.toLocaleString()}</TableCell>
-          <TableCell className="w-32 p-2">
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={handleViewAnalytics}
-              className="flex items-center gap-1"
-            >
-              <BarChart3 className="h-3 w-3" />
-              Analytics
-            </Button>
-          </TableCell>
-        </TableRow>
-      </CollapsibleTrigger>
-      <CollapsibleContent asChild>
-        <TableRow>
-          <TableCell colSpan={10} className="bg-muted/30 p-0">
-            <div className="p-4 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-1">Contact Information</h4>
-                  <p className="text-sm">Phone: {merchant.phone}</p>
-                  <p className="text-sm">Email: {merchant.email}</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-1">Business Details</h4>
-                  <p className="text-sm">Type: {merchant.businessType}</p>
-                  <p className="text-sm">Category: {merchant.category}</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-1">Performance</h4>
-                  <p className="text-sm">Transactions: {merchant.totalTransactions.toLocaleString()}</p>
-                  <p className="text-sm">Revenue: ${merchant.revenue.toLocaleString()}</p>
-                </div>
-              </div>
-              <div>
-                <h4 className="font-semibold text-sm text-muted-foreground mb-1">Address</h4>
-                <p className="text-sm">{merchant.address}</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-sm text-muted-foreground mb-1">Description</h4>
-                <p className="text-sm text-muted-foreground">{merchant.description}</p>
-              </div>
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="text-xl">Merchant Details - {merchant.name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-3">
+            <h4 className="font-semibold text-sm text-muted-foreground border-b pb-1">Contact Information</h4>
+            <div className="space-y-1">
+              <p className="text-sm"><span className="font-medium">Phone:</span> {merchant.phone}</p>
+              <p className="text-sm"><span className="font-medium">Email:</span> {merchant.email}</p>
             </div>
-          </TableCell>
-        </TableRow>
-      </CollapsibleContent>
-    </Collapsible>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-semibold text-sm text-muted-foreground border-b pb-1">Business Details</h4>
+            <div className="space-y-1">
+              <p className="text-sm"><span className="font-medium">Type:</span> {merchant.businessType}</p>
+              <p className="text-sm"><span className="font-medium">Category:</span> {merchant.category}</p>
+              <p className="text-sm"><span className="font-medium">Status:</span> 
+                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(merchant.status)}`}>
+                  {merchant.status}
+                </span>
+              </p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-semibold text-sm text-muted-foreground border-b pb-1">Performance Metrics</h4>
+            <div className="space-y-1">
+              <p className="text-sm"><span className="font-medium">Transactions:</span> {merchant.totalTransactions.toLocaleString()}</p>
+              <p className="text-sm"><span className="font-medium">Revenue:</span> ${merchant.revenue.toLocaleString()}</p>
+              <p className="text-sm"><span className="font-medium">Join Date:</span> {merchant.joinDate}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-6 space-y-3">
+          <h4 className="font-semibold text-sm text-muted-foreground border-b pb-1">Business Address</h4>
+          <p className="text-sm">{merchant.address}</p>
+        </div>
+        
+        <div className="mt-6 space-y-3">
+          <h4 className="font-semibold text-sm text-muted-foreground border-b pb-1">Business Description</h4>
+          <p className="text-sm text-muted-foreground">{merchant.description}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active': return 'text-green-600 bg-green-100';
+    case 'inactive': return 'text-red-600 bg-red-100';
+    case 'pending': return 'text-yellow-600 bg-yellow-100';
+    default: return 'text-gray-600 bg-gray-100';
+  }
+};
+
 const MerchantsList = () => {
+  const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
+  const navigate = useNavigate();
+
+  const handleRowClick = (merchant: Merchant) => {
+    setSelectedMerchant(selectedMerchant?.id === merchant.id ? null : merchant);
+  };
+
+  const handleViewAnalytics = (e: React.MouseEvent, merchantId: string) => {
+    e.stopPropagation();
+    navigate(`/?merchant=${merchantId}`);
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="container mx-auto">
+        {/* Navigation Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground">Merchants List</h1>
+            <p className="text-lg text-muted-foreground mt-2">View and manage merchant information</p>
+          </div>
+          <div className="flex gap-4">
+            <Link to="/old-index">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+            </Link>
+            <Link to="/">
+              <Button variant="outline" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Main Merchants Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">Merchants List</CardTitle>
+            <CardTitle className="text-2xl font-bold">All Merchants</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table className="table-fixed">
+            <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12"></TableHead>
-                  <TableHead className="w-20">ID</TableHead>
-                  <TableHead className="w-48">Name</TableHead>
-                  <TableHead className="w-56">Email</TableHead>
-                  <TableHead className="w-24">Status</TableHead>
-                  <TableHead className="w-32">Category</TableHead>
-                  <TableHead className="w-28">Join Date</TableHead>
-                  <TableHead className="w-28 text-right">Transactions</TableHead>
-                  <TableHead className="w-28 text-right">Revenue</TableHead>
-                  <TableHead className="w-32">Actions</TableHead>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Join Date</TableHead>
+                  <TableHead className="text-right">Transactions</TableHead>
+                  <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {mockMerchants.map((merchant) => (
-                  <MerchantRow key={merchant.id} merchant={merchant} />
+                  <TableRow 
+                    key={merchant.id} 
+                    className={`cursor-pointer hover:bg-muted/50 transition-colors ${
+                      selectedMerchant?.id === merchant.id ? 'bg-muted/30 border-l-4 border-primary' : ''
+                    }`}
+                    onClick={() => handleRowClick(merchant)}
+                  >
+                    <TableCell className="font-medium">{merchant.id}</TableCell>
+                    <TableCell className="font-medium">{merchant.name}</TableCell>
+                    <TableCell>{merchant.email}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(merchant.status)}`}>
+                        {merchant.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>{merchant.category}</TableCell>
+                    <TableCell>{merchant.joinDate}</TableCell>
+                    <TableCell className="text-right">{merchant.totalTransactions.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">${merchant.revenue.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={(e) => handleViewAnalytics(e, merchant.id)}
+                        className="flex items-center gap-1"
+                      >
+                        <BarChart3 className="h-3 w-3" />
+                        Analytics
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ))}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
+
+        {/* Detailed Merchant Information */}
+        {selectedMerchant && (
+          <MerchantDetailCard merchant={selectedMerchant} />
+        )}
       </div>
     </div>
   );
