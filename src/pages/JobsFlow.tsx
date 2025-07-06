@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { ArrowLeft, Home, Play, Clock, CheckCircle, Eye, Minimize, Maximize } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Home, Play, Clock, CheckCircle, Eye, Minimize, Maximize, History } from 'lucide-react';
 import {
   ReactFlow,
   Controls,
@@ -19,6 +20,23 @@ import { JobNode } from '@/components/jobs/JobNode';
 
 const nodeTypes = {
   jobNode: JobNode,
+};
+
+// Mock job history data
+const jobHistoryData = {
+  'job-1': [
+    { id: 'h1', executionTime: '2025-07-01 08:00', status: 'success', duration: '2.5 min', recordsProcessed: 1500, logs: 'Payment validation completed successfully' },
+    { id: 'h2', executionTime: '2025-07-01 07:00', status: 'success', duration: '2.3 min', recordsProcessed: 1480, logs: 'Payment validation completed successfully' },
+    { id: 'h3', executionTime: '2025-07-01 06:00', status: 'failure', duration: '1.2 min', recordsProcessed: 0, logs: 'Database connection timeout' },
+  ],
+  'job-2': [
+    { id: 'h4', executionTime: '2025-07-01 08:15', status: 'running', duration: 'In progress', recordsProcessed: 1200, logs: 'Processing payments...' },
+    { id: 'h5', executionTime: '2025-07-01 07:15', status: 'success', duration: '5.1 min', recordsProcessed: 1300, logs: 'Payment processing completed' },
+    { id: 'h6', executionTime: '2025-07-01 06:15', status: 'success', duration: '4.8 min', recordsProcessed: 1250, logs: 'Payment processing completed' },
+  ],
+  'job-3': [
+    { id: 'h7', executionTime: 'N/A', status: 'pending', duration: 'N/A', recordsProcessed: 0, logs: 'Waiting for dependencies' },
+  ],
 };
 
 // Mock data for different flows
@@ -195,15 +213,26 @@ const flowsData = {
 
 const JobsFlowPage = () => {
   const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
+  const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isTableMinimized, setIsTableMinimized] = useState(false);
 
   const handleFlowSelect = (flowKey: string) => {
     setSelectedFlow(flowKey);
+    setSelectedJob(null); // Reset selected job when changing flows
     const flowData = flowsData[flowKey as keyof typeof flowsData];
     setNodes(flowData.nodes);
     setEdges(flowData.edges);
+  };
+
+  const handleNodeClick = (event: any, node: any) => {
+    setSelectedJob(node.id);
+  };
+
+  const getJobHistoryData = () => {
+    if (!selectedJob) return [];
+    return jobHistoryData[selectedJob as keyof typeof jobHistoryData] || [];
   };
 
   const getStatusColor = (status: string) => {
@@ -308,6 +337,7 @@ const JobsFlowPage = () => {
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                onNodeClick={handleNodeClick}
                 nodeTypes={nodeTypes}
                 fitView
               >
@@ -322,57 +352,117 @@ const JobsFlowPage = () => {
             <ResizablePanel defaultSize={isTableMinimized ? 10 : 40} minSize={10}>
               <div className="h-full bg-white border-t">
                 <div className="p-4 border-b flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Job Details</h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsTableMinimized(!isTableMinimized)}
-                  >
-                    {isTableMinimized ? (
-                      <Maximize className="h-4 w-4" />
-                    ) : (
-                      <Minimize className="h-4 w-4" />
+                  <Tabs defaultValue="details" className="w-full">
+                    <div className="flex items-center justify-between">
+                      <TabsList>
+                        <TabsTrigger value="details">Job Details</TabsTrigger>
+                        <TabsTrigger value="history">
+                          <History className="mr-2 h-4 w-4" />
+                          Job History
+                        </TabsTrigger>
+                      </TabsList>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsTableMinimized(!isTableMinimized)}
+                      >
+                        {isTableMinimized ? (
+                          <Maximize className="h-4 w-4" />
+                        ) : (
+                          <Minimize className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {!isTableMinimized && (
+                      <>
+                        <TabsContent value="details" className="p-4 overflow-auto max-h-64">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Job Name</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Last Execution</TableHead>
+                                <TableHead>Next Execution</TableHead>
+                                <TableHead>Records Processed</TableHead>
+                                <TableHead>Pending Records</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {getJobTableData().map((job) => (
+                                <TableRow key={job.id}>
+                                  <TableCell className="font-medium">{job.name}</TableCell>
+                                  <TableCell>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                      job.status === 'success' ? 'bg-green-100 text-green-800' :
+                                      job.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                      job.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                      'bg-yellow-100 text-yellow-800'
+                                    }`}>
+                                      {job.status}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell>{job.lastExecution}</TableCell>
+                                  <TableCell>{job.nextExecution}</TableCell>
+                                  <TableCell>{job.recordsProcessed.toLocaleString()}</TableCell>
+                                  <TableCell>{job.pendingRecords.toLocaleString()}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TabsContent>
+                        
+                        <TabsContent value="history" className="p-4 overflow-auto max-h-64">
+                          {selectedJob ? (
+                            <>
+                              <div className="mb-4">
+                                <h4 className="text-sm font-medium text-gray-700">
+                                  History for: {nodes.find(n => n.id === selectedJob)?.data.name || selectedJob}
+                                </h4>
+                              </div>
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Execution Time</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Duration</TableHead>
+                                    <TableHead>Records Processed</TableHead>
+                                    <TableHead>Logs</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {getJobHistoryData().map((history) => (
+                                    <TableRow key={history.id}>
+                                      <TableCell>{history.executionTime}</TableCell>
+                                      <TableCell>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                          history.status === 'success' ? 'bg-green-100 text-green-800' :
+                                          history.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                          history.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                          'bg-yellow-100 text-yellow-800'
+                                        }`}>
+                                          {history.status}
+                                        </span>
+                                      </TableCell>
+                                      <TableCell>{history.duration}</TableCell>
+                                      <TableCell>{history.recordsProcessed.toLocaleString()}</TableCell>
+                                      <TableCell className="max-w-xs truncate">{history.logs}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </>
+                          ) : (
+                            <div className="text-center text-gray-500 py-8">
+                              <History className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                              <p>Click on a job node to view its execution history</p>
+                            </div>
+                          )}
+                        </TabsContent>
+                      </>
                     )}
-                  </Button>
+                  </Tabs>
                 </div>
-                
-                {!isTableMinimized && (
-                  <div className="p-4 overflow-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Job Name</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Last Execution</TableHead>
-                          <TableHead>Next Execution</TableHead>
-                          <TableHead>Records Processed</TableHead>
-                          <TableHead>Pending Records</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {getJobTableData().map((job) => (
-                          <TableRow key={job.id}>
-                            <TableCell className="font-medium">{job.name}</TableCell>
-                            <TableCell>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                job.status === 'success' ? 'bg-green-100 text-green-800' :
-                                job.status === 'failure' ? 'bg-red-100 text-red-800' :
-                                job.status === 'running' ? 'bg-blue-100 text-blue-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {job.status}
-                              </span>
-                            </TableCell>
-                            <TableCell>{job.lastExecution}</TableCell>
-                            <TableCell>{job.nextExecution}</TableCell>
-                            <TableCell>{job.recordsProcessed.toLocaleString()}</TableCell>
-                            <TableCell>{job.pendingRecords.toLocaleString()}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
