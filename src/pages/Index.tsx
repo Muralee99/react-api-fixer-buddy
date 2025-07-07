@@ -56,7 +56,7 @@ const Index = () => {
               </CardDescription>
             </CardContent>
             <CardFooter>
-              <Link to="/jobs-flow" className="w-full">
+              <Link to="/jobs" className="w-full">
                 <Button className="w-full">View Jobs</Button>
               </Link>
             </CardFooter>
