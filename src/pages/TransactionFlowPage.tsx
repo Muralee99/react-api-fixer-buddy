@@ -66,20 +66,36 @@ const TransactionFlowPage = () => {
         </div>
       </header>
       
-      <main className="flex-1 p-4 md:p-6 space-y-6">
-        <div>Transaction Flow Page is working!</div>
-        <TransactionFilterForm onSearch={handleSearch} isLoading={isLoading} />
-        {searched && (
-          <div>
-            {transactions.length > 0 ? (
-              <TransactionsTable transactions={transactions} />
-            ) : (
-              <div className="text-center py-10">
-                <p>No transactions found for the selected criteria.</p>
-              </div>
-            )}
-          </div>
-        )}
+      <main className="flex-1">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {!isSidebarCollapsed && (
+            <>
+              <ResizablePanel defaultSize={25} minSize={20} maxSize={35}>
+                <div className="h-full p-4">
+                  <TransactionFilterSidebar onFiltersChange={handleFiltersChange} />
+                </div>
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+            </>
+          )}
+          
+          <ResizablePanel defaultSize={isSidebarCollapsed ? 100 : 75}>
+            <div className="h-full p-4 md:p-6 space-y-6 overflow-auto">
+              <TransactionFilterForm onSearch={handleSearch} isLoading={isLoading} />
+              {searched && (
+                <div>
+                  {transactions.length > 0 ? (
+                    <TransactionsTable transactions={transactions} />
+                  ) : (
+                    <div className="text-center py-10">
+                      <p>No transactions found for the selected criteria.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </main>
     </div>
   );
