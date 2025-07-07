@@ -88,12 +88,12 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
         <CollapsibleTrigger asChild>
           <Button 
             variant="ghost" 
-            className="flex w-full items-center justify-between p-0 font-semibold text-base hover:bg-transparent"
+            className="flex w-full items-center justify-start gap-2 p-0 font-semibold text-base hover:bg-transparent"
           >
-            <Label className="text-base font-semibold cursor-pointer">{title}</Label>
             <ChevronDown 
               className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
             />
+            <Label className="text-base font-semibold cursor-pointer">{title}</Label>
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-2 mt-3">
