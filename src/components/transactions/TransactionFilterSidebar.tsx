@@ -87,7 +87,7 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
               <SelectValue placeholder="Select country" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Countries</SelectItem>
+              <SelectItem value="all">All Countries</SelectItem>
               {countries.map((country) => (
                 <SelectItem key={country} value={country}>{country}</SelectItem>
               ))}
@@ -105,7 +105,7 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
               {types.map((type) => (
                 <SelectItem key={type} value={type}>{type}</SelectItem>
               ))}
@@ -123,7 +123,7 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Currencies</SelectItem>
+              <SelectItem value="all">All Currencies</SelectItem>
               {currencies.map((currency) => (
                 <SelectItem key={currency} value={currency}>{currency}</SelectItem>
               ))}
@@ -141,7 +141,7 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
               <SelectValue placeholder="Select payment type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Payment Types</SelectItem>
+              <SelectItem value="all">All Payment Types</SelectItem>
               {paymentTypes.map((paymentType) => (
                 <SelectItem key={paymentType} value={paymentType}>{paymentType}</SelectItem>
               ))}
@@ -159,7 +159,7 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
               <SelectValue placeholder="Select transaction type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Transaction Types</SelectItem>
+              <SelectItem value="all">All Transaction Types</SelectItem>
               {transactionTypes.map((transactionType) => (
                 <SelectItem key={transactionType} value={transactionType}>{transactionType}</SelectItem>
               ))}
