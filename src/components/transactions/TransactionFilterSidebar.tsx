@@ -1,31 +1,40 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Filter, RotateCcw } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Filter, RotateCcw, ChevronDown } from 'lucide-react';
 
 interface TransactionFilterSidebarProps {
   onFiltersChange: (filters: {
-    country: string;
-    type: string;
-    currency: string;
-    paymentType: string;
-    transactionType: string;
+    country: string[];
+    type: string[];
+    currency: string[];
+    paymentType: string[];
+    transactionType: string[];
     transactionStatus: string[];
   }) => void;
 }
 
 export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> = ({ onFiltersChange }) => {
   const [filters, setFilters] = React.useState({
-    country: '',
-    type: '',
-    currency: '',
-    paymentType: '',
-    transactionType: '',
+    country: [] as string[],
+    type: [] as string[],
+    currency: [] as string[],
+    paymentType: [] as string[],
+    transactionType: [] as string[],
     transactionStatus: [] as string[],
+  });
+
+  const [openSections, setOpenSections] = React.useState({
+    country: false,
+    type: false,
+    currency: false,
+    paymentType: false,
+    transactionType: false,
+    transactionStatus: false,
   });
 
   const countries = ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Japan'];
@@ -35,34 +44,73 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
   const transactionTypes = ['Purchase', 'Refund', 'Chargeback', 'Fee', 'Adjustment'];
   const transactionStatuses = ['Completed', 'Pending', 'Processing', 'Failed', 'Cancelled', 'Declined'];
 
-  const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...filters, [key]: value };
+  const handleFilterChange = (key: string, value: string, checked: boolean) => {
+    const currentArray = filters[key as keyof typeof filters] as string[];
+    const newArray = checked 
+      ? [...currentArray, value]
+      : currentArray.filter(item => item !== value);
+    
+    const newFilters = { ...filters, [key]: newArray };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
 
-  const handleStatusChange = (status: string, checked: boolean) => {
-    const newStatuses = checked 
-      ? [...filters.transactionStatus, status]
-      : filters.transactionStatus.filter(s => s !== status);
-    
-    const newFilters = { ...filters, transactionStatus: newStatuses };
-    setFilters(newFilters);
-    onFiltersChange(newFilters);
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   const handleReset = () => {
     const resetFilters = {
-      country: '',
-      type: '',
-      currency: '',
-      paymentType: '',
-      transactionType: '',
+      country: [],
+      type: [],
+      currency: [],
+      paymentType: [],
+      transactionType: [],
       transactionStatus: [],
     };
     setFilters(resetFilters);
     onFiltersChange(resetFilters);
   };
+
+  const FilterSection = ({ 
+    title, 
+    items, 
+    filterKey, 
+    isOpen 
+  }: { 
+    title: string; 
+    items: string[]; 
+    filterKey: keyof typeof filters;
+    isOpen: boolean;
+  }) => (
+    <div>
+      <Collapsible open={isOpen} onOpenChange={() => toggleSection(filterKey)}>
+        <CollapsibleTrigger asChild>
+          <Button 
+            variant="ghost" 
+            className="flex w-full items-center justify-between p-0 font-semibold text-base hover:bg-transparent"
+          >
+            <Label className="text-base font-semibold cursor-pointer">{title}</Label>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+            />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-2 mt-3">
+          {items.map((item) => (
+            <div key={item} className="flex items-center space-x-2">
+              <Checkbox
+                id={`${filterKey}-${item}`}
+                checked={filters[filterKey].includes(item)}
+                onCheckedChange={(checked) => handleFilterChange(filterKey, item, checked as boolean)}
+              />
+              <Label htmlFor={`${filterKey}-${item}`} className="text-sm cursor-pointer">{item}</Label>
+            </div>
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
 
   return (
     <Card className="h-full">
@@ -79,112 +127,57 @@ export const TransactionFilterSidebar: React.FC<TransactionFilterSidebarProps> =
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Country Filter */}
-        <div>
-          <Label className="text-base font-semibold mb-3 block">Country</Label>
-          <Select value={filters.country} onValueChange={(value) => handleFilterChange('country', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select country" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Countries</SelectItem>
-              {countries.map((country) => (
-                <SelectItem key={country} value={country}>{country}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+        <FilterSection 
+          title="Country" 
+          items={countries} 
+          filterKey="country" 
+          isOpen={openSections.country}
+        />
+        
         <Separator />
-
-        {/* Type Filter */}
-        <div>
-          <Label className="text-base font-semibold mb-3 block">Type</Label>
-          <Select value={filters.type} onValueChange={(value) => handleFilterChange('type', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {types.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+        
+        <FilterSection 
+          title="Type" 
+          items={types} 
+          filterKey="type" 
+          isOpen={openSections.type}
+        />
+        
         <Separator />
-
-        {/* Currency Filter */}
-        <div>
-          <Label className="text-base font-semibold mb-3 block">Currency</Label>
-          <Select value={filters.currency} onValueChange={(value) => handleFilterChange('currency', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Currencies</SelectItem>
-              {currencies.map((currency) => (
-                <SelectItem key={currency} value={currency}>{currency}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+        
+        <FilterSection 
+          title="Currency" 
+          items={currencies} 
+          filterKey="currency" 
+          isOpen={openSections.currency}
+        />
+        
         <Separator />
-
-        {/* Payment Type Filter */}
-        <div>
-          <Label className="text-base font-semibold mb-3 block">Payment Type</Label>
-          <Select value={filters.paymentType} onValueChange={(value) => handleFilterChange('paymentType', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select payment type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Payment Types</SelectItem>
-              {paymentTypes.map((paymentType) => (
-                <SelectItem key={paymentType} value={paymentType}>{paymentType}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+        
+        <FilterSection 
+          title="Payment Type" 
+          items={paymentTypes} 
+          filterKey="paymentType" 
+          isOpen={openSections.paymentType}
+        />
+        
         <Separator />
-
-        {/* Transaction Type Filter */}
-        <div>
-          <Label className="text-base font-semibold mb-3 block">Transaction Type</Label>
-          <Select value={filters.transactionType} onValueChange={(value) => handleFilterChange('transactionType', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select transaction type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Transaction Types</SelectItem>
-              {transactionTypes.map((transactionType) => (
-                <SelectItem key={transactionType} value={transactionType}>{transactionType}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+        
+        <FilterSection 
+          title="Transaction Type" 
+          items={transactionTypes} 
+          filterKey="transactionType" 
+          isOpen={openSections.transactionType}
+        />
+        
         <Separator />
-
-        {/* Transaction Status Filter */}
-        <div>
-          <Label className="text-base font-semibold mb-3 block">Transaction Status</Label>
-          <div className="space-y-2">
-            {transactionStatuses.map((status) => (
-              <div key={status} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`status-${status}`}
-                  checked={filters.transactionStatus.includes(status)}
-                  onCheckedChange={(checked) => handleStatusChange(status, checked as boolean)}
-                />
-                <Label htmlFor={`status-${status}`} className="text-sm">{status}</Label>
-              </div>
-            ))}
-          </div>
-        </div>
+        
+        <FilterSection 
+          title="Transaction Status" 
+          items={transactionStatuses} 
+          filterKey="transactionStatus" 
+          isOpen={openSections.transactionStatus}
+        />
       </CardContent>
     </Card>
   );
