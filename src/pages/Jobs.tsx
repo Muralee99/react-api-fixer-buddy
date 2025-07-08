@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { ArrowLeft, Home, Play, Clock, CheckCircle, Eye, Minimize, Maximize } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ReactFlow,
   Controls,
@@ -204,12 +205,35 @@ const flowsData = {
   },
 };
 
+// Mock job history data
+const mockJobHistory = {
+  'job-1': [
+    { id: 1, timestamp: '2025-07-01 08:00:00', status: 'success', duration: '2m 15s', recordsProcessed: 1500, errors: 0 },
+    { id: 2, timestamp: '2025-07-01 07:00:00', status: 'success', duration: '2m 08s', recordsProcessed: 1450, errors: 0 },
+    { id: 3, timestamp: '2025-07-01 06:00:00', status: 'success', duration: '2m 22s', recordsProcessed: 1380, errors: 0 },
+    { id: 4, timestamp: '2025-07-01 05:00:00', status: 'failure', duration: '45s', recordsProcessed: 120, errors: 15 },
+    { id: 5, timestamp: '2025-07-01 04:00:00', status: 'success', duration: '2m 18s', recordsProcessed: 1420, errors: 0 },
+  ],
+  'job-2': [
+    { id: 1, timestamp: '2025-07-01 08:15:00', status: 'running', duration: '1m 30s', recordsProcessed: 1200, errors: 0 },
+    { id: 2, timestamp: '2025-07-01 07:15:00', status: 'success', duration: '3m 45s', recordsProcessed: 1600, errors: 2 },
+    { id: 3, timestamp: '2025-07-01 06:15:00', status: 'success', duration: '3m 20s', recordsProcessed: 1580, errors: 0 },
+    { id: 4, timestamp: '2025-07-01 05:15:00', status: 'success', duration: '3m 55s', recordsProcessed: 1650, errors: 1 },
+  ],
+  'job-3': [
+    { id: 1, timestamp: '2025-06-30 23:45:00', status: 'success', duration: '5m 20s', recordsProcessed: 1500, errors: 0 },
+    { id: 2, timestamp: '2025-06-30 22:45:00', status: 'success', duration: '4m 58s', recordsProcessed: 1480, errors: 0 },
+    { id: 3, timestamp: '2025-06-30 21:45:00', status: 'failure', duration: '2m 10s', recordsProcessed: 450, errors: 25 },
+  ],
+};
+
 const JobsPage = () => {
   const [showFlowSelection, setShowFlowSelection] = useState(true);
   const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
   const [flowNodes, setFlowNodes, onFlowNodesChange] = useNodesState([]);
   const [flowEdges, setFlowEdges, onFlowEdgesChange] = useEdgesState([]);
   const [isTableMinimized, setIsTableMinimized] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<string | null>(null);
 
   const handleViewJobs = () => {
     // Show flow selection screen
@@ -225,6 +249,15 @@ const JobsPage = () => {
 
   const handleBackToFlows = () => {
     setSelectedFlow(null);
+    setSelectedJob(null);
+  };
+
+  const handleNodeClick = (event: any, node: any) => {
+    setSelectedJob(node.id);
+  };
+
+  const handleJobRowClick = (jobId: string) => {
+    setSelectedJob(jobId);
   };
 
 
@@ -333,6 +366,7 @@ const JobsPage = () => {
                 edges={flowEdges}
                 onNodesChange={onFlowNodesChange}
                 onEdgesChange={onFlowEdgesChange}
+                onNodeClick={handleNodeClick}
                 nodeTypes={nodeTypes}
                 fitView
               >
@@ -347,7 +381,7 @@ const JobsPage = () => {
             <ResizablePanel defaultSize={isTableMinimized ? 10 : 40} minSize={10}>
               <div className="h-full bg-white border-t">
                 <div className="p-4 border-b flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Job Details</h3>
+                  <h3 className="text-lg font-semibold">Job Information</h3>
                   <Button
                     variant="outline"
                     size="sm"
@@ -362,40 +396,98 @@ const JobsPage = () => {
                 </div>
                 
                 {!isTableMinimized && (
-                  <div className="p-4 overflow-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Job Name</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Last Execution</TableHead>
-                          <TableHead>Next Execution</TableHead>
-                          <TableHead>Records Processed</TableHead>
-                          <TableHead>Pending Records</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {getJobTableData().map((job) => (
-                          <TableRow key={job.id}>
-                            <TableCell className="font-medium">{job.name}</TableCell>
-                            <TableCell>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                job.status === 'success' ? 'bg-green-100 text-green-800' :
-                                job.status === 'failure' ? 'bg-red-100 text-red-800' :
-                                job.status === 'running' ? 'bg-blue-100 text-blue-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {job.status}
-                              </span>
-                            </TableCell>
-                            <TableCell>{job.lastExecution}</TableCell>
-                            <TableCell>{job.nextExecution}</TableCell>
-                            <TableCell>{job.recordsProcessed.toLocaleString()}</TableCell>
-                            <TableCell>{job.pendingRecords.toLocaleString()}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                  <div className="p-4 overflow-auto h-full">
+                    <Tabs defaultValue="details" className="w-full h-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="details">Job Details</TabsTrigger>
+                        <TabsTrigger value="history">Job History</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="details" className="mt-4">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Job Name</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Last Execution</TableHead>
+                              <TableHead>Next Execution</TableHead>
+                              <TableHead>Records Processed</TableHead>
+                              <TableHead>Pending Records</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {getJobTableData().map((job) => (
+                              <TableRow 
+                                key={job.id} 
+                                className="cursor-pointer hover:bg-gray-50"
+                                onClick={() => handleJobRowClick(job.id)}
+                              >
+                                <TableCell className="font-medium">{job.name}</TableCell>
+                                <TableCell>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    job.status === 'success' ? 'bg-green-100 text-green-800' :
+                                    job.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                    job.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                    {job.status}
+                                  </span>
+                                </TableCell>
+                                <TableCell>{job.lastExecution}</TableCell>
+                                <TableCell>{job.nextExecution}</TableCell>
+                                <TableCell>{job.recordsProcessed.toLocaleString()}</TableCell>
+                                <TableCell>{job.pendingRecords.toLocaleString()}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TabsContent>
+                      
+                      <TabsContent value="history" className="mt-4">
+                        {selectedJob ? (
+                          <div>
+                            <h4 className="text-sm font-semibold mb-3">
+                              Execution History for: {flowNodes.find(n => n.id === selectedJob)?.data.name || selectedJob}
+                            </h4>
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Timestamp</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Duration</TableHead>
+                                  <TableHead>Records Processed</TableHead>
+                                  <TableHead>Errors</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {(mockJobHistory[selectedJob as keyof typeof mockJobHistory] || []).map((execution) => (
+                                  <TableRow key={execution.id}>
+                                    <TableCell className="font-medium">{execution.timestamp}</TableCell>
+                                    <TableCell>
+                                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        execution.status === 'success' ? 'bg-green-100 text-green-800' :
+                                        execution.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                        execution.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                        'bg-yellow-100 text-yellow-800'
+                                      }`}>
+                                        {execution.status}
+                                      </span>
+                                    </TableCell>
+                                    <TableCell>{execution.duration}</TableCell>
+                                    <TableCell>{execution.recordsProcessed.toLocaleString()}</TableCell>
+                                    <TableCell>{execution.errors}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        ) : (
+                          <div className="text-center text-gray-500 py-8">
+                            <p>Select a job node or job row to view its execution history</p>
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 )}
               </div>
