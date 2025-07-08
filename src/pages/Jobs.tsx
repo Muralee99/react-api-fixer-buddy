@@ -26,6 +26,14 @@ const nodeTypes = {
 
 // Mock data for different flows
 const flowsData = {
+  ExecutionFlow: {
+    name: 'Jobs Execution Flow',
+    description: 'Main jobs execution workflow and monitoring',
+    status: 'active',
+    totalJobs: 3,
+    nodes: initialNodes,
+    edges: initialEdges,
+  },
   Flow1: {
     name: 'Payment Processing Flow',
     description: 'Handles payment transactions and validations',
@@ -197,9 +205,7 @@ const flowsData = {
 };
 
 const JobsPage = () => {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
-  const [showFlowSelection, setShowFlowSelection] = useState(false);
+  const [showFlowSelection, setShowFlowSelection] = useState(true);
   const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
   const [flowNodes, setFlowNodes, onFlowNodesChange] = useNodesState([]);
   const [flowEdges, setFlowEdges, onFlowEdgesChange] = useEdgesState([]);
@@ -221,10 +227,6 @@ const JobsPage = () => {
     setSelectedFlow(null);
   };
 
-  const handleBackToExecution = () => {
-    setShowFlowSelection(false);
-    setSelectedFlow(null);
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -271,16 +273,6 @@ const JobsPage = () => {
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Flows
             </Button>
           )}
-          {showFlowSelection && !selectedFlow && (
-            <Button variant="outline" onClick={handleBackToExecution}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Execution
-            </Button>
-          )}
-          {!showFlowSelection && (
-            <Button variant="default" onClick={handleViewJobs}>
-              <Eye className="mr-2 h-4 w-4" /> View Jobs
-            </Button>
-          )}
           <Link to="/">
             <Button variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Dashboard
@@ -295,20 +287,7 @@ const JobsPage = () => {
       </header>
 
       <main className="flex-1">
-        {!showFlowSelection ? (
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <Controls />
-            <MiniMap />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-          </ReactFlow>
-        ) : !selectedFlow ? (
+        {!selectedFlow ? (
           <div className="p-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2">Available Job Flows</h2>
