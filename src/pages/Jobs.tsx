@@ -206,8 +206,8 @@ const JobsPage = () => {
   const [isTableMinimized, setIsTableMinimized] = useState(false);
 
   const handleViewJobs = () => {
-    // Navigate to jobs flow page
-    window.location.href = '/jobs-flow';
+    // Show flow selection screen
+    setShowFlowSelection(true);
   };
 
   const handleFlowSelect = (flowKey: string) => {
