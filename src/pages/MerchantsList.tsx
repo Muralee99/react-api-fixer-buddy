@@ -7,7 +7,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { toast } from '@/components/ui/use-toast';
 
 interface Merchant {
   id: string;
@@ -148,11 +147,11 @@ const getStatusColor = (status: string) => {
 const MerchantsList = () => {
   const [merchants, setMerchants] = useState<Merchant[]>(mockMerchants);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
-  const [form, setForm] = useState<{ id: string; name: string; country: string; status: 'active' | 'inactive' }>({
+  const [filters, setFilters] = useState<{ id: string; name: string; country: string; status: 'all' | 'active' | 'inactive' }>({
     id: '',
     name: '',
     country: '',
-    status: 'active',
+    status: 'all',
   });
   const navigate = useNavigate();
 
@@ -165,36 +164,28 @@ const MerchantsList = () => {
     navigate(`/?merchant=${merchantId}`);
   };
 
-  const handleAddMerchant = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!form.id.trim() || !form.name.trim()) {
-      toast({ title: 'Missing fields', description: 'Merchant ID and Name are required.' });
-      return;
+    const id = filters.id.trim().toLowerCase();
+    const name = filters.name.trim().toLowerCase();
+    const country = filters.country.trim().toLowerCase();
+    const filtered = mockMerchants.filter((m) => {
+      const matchId = !id || m.id.toLowerCase().includes(id);
+      const matchName = !name || m.name.toLowerCase().includes(name);
+      const matchCountry = !country || m.address.toLowerCase().includes(country);
+      const matchStatus = filters.status === 'all' ? true : m.status === filters.status;
+      return matchId && matchName && matchCountry && matchStatus;
+    });
+    setMerchants(filtered);
+    if (selectedMerchant && !filtered.find((m) => m.id === selectedMerchant.id)) {
+      setSelectedMerchant(null);
     }
-    if (merchants.some((m) => m.id === form.id.trim())) {
-      toast({ title: 'Duplicate ID', description: `Merchant ID ${form.id} already exists.` });
-      return;
-    }
+  };
 
-    const newMerchant: Merchant = {
-      id: form.id.trim(),
-      name: form.name.trim(),
-      email: `${form.name.toLowerCase().replace(/\s+/g, '')}@example.com`,
-      status: form.status,
-      category: 'General',
-      joinDate: new Date().toISOString().slice(0, 10),
-      totalTransactions: 0,
-      revenue: 0,
-      phone: 'N/A',
-      address: form.country ? form.country : 'N/A',
-      businessType: 'Unknown',
-      description: 'Newly added merchant.',
-    };
-
-    setMerchants((prev) => [newMerchant, ...prev]);
-    setSelectedMerchant(newMerchant);
-    setForm({ id: '', name: '', country: '', status: 'active' });
-    toast({ title: 'Merchant added', description: `${newMerchant.id} - ${newMerchant.name} added.` });
+  const handleReset = () => {
+    setFilters({ id: '', name: '', country: '', status: 'all' });
+    setMerchants(mockMerchants);
+    setSelectedMerchant(null);
   };
 
   return (
@@ -222,53 +213,53 @@ const MerchantsList = () => {
           </div>
         </div>
 
-        {/* Quick Add Merchant Form */}
+        {/* Search Merchants */}
         <Card className="mb-6">
           <CardContent>
-            <form onSubmit={handleAddMerchant} className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-6">
+            <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-6">
               <div className="space-y-2">
                 <Label htmlFor="merchantId">Merchant ID</Label>
                 <Input
                   id="merchantId"
-                  placeholder="M005"
-                  value={form.id}
-                  onChange={(e) => setForm({ ...form, id: e.target.value })}
-                  required
+                  placeholder="Search by ID"
+                  value={filters.id}
+                  onChange={(e) => setFilters({ ...filters, id: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="merchantName">Name</Label>
                 <Input
                   id="merchantName"
-                  placeholder="New Merchant"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
+                  placeholder="Search by name"
+                  value={filters.name}
+                  onChange={(e) => setFilters({ ...filters, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">Country</Label>
                 <Input
                   id="country"
-                  placeholder="United States"
-                  value={form.country}
-                  onChange={(e) => setForm({ ...form, country: e.target.value })}
+                  placeholder="Search by country"
+                  value={filters.country}
+                  onChange={(e) => setFilters({ ...filters, country: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={form.status} onValueChange={(val) => setForm({ ...form, status: val as 'active' | 'inactive' })}>
+                <Select value={filters.status} onValueChange={(val) => setFilters({ ...filters, status: val as 'all' | 'active' | 'inactive' })}>
                   <SelectTrigger id="status">
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder="All" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Not Active</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-end">
-                <Button type="submit" className="w-full">Add Merchant</Button>
+              <div className="flex items-end gap-2">
+                <Button type="submit" className="w-full">Search</Button>
+                <Button type="button" variant="outline" onClick={handleReset} className="w-full">Reset</Button>
               </div>
             </form>
           </CardContent>
