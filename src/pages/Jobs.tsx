@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -20,6 +20,7 @@ import '@xyflow/react/dist/style.css';
 
 import { initialNodes, initialEdges } from '@/components/jobs/jobs-initial-elements';
 import { JobNode } from '@/components/jobs/JobNode';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 const nodeTypes = {
   jobNode: JobNode,
@@ -234,9 +235,13 @@ const JobsPage = () => {
   const [flowEdges, setFlowEdges, onFlowEdgesChange] = useEdgesState([]);
   const [isTableMinimized, setIsTableMinimized] = useState(false);
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
+  const [showAllJobs, setShowAllJobs] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [funcFilter, setFuncFilter] = useState<string>('all');
+  const navigate = useNavigate();
 
   const handleViewJobs = () => {
-    // Show flow selection screen
     setShowFlowSelection(true);
   };
 
@@ -259,6 +264,70 @@ const JobsPage = () => {
   const handleJobRowClick = (jobId: string) => {
     setSelectedJob(jobId);
   };
+
+  // Build "All Jobs" list by aggregating nodes from all flows and enriching with type/function
+  const allJobs = useMemo(() => {
+    const typeMap: Record<string, string> = {
+      Payment: 'Sync',
+      Settlement: 'Report',
+      Data: 'ETL',
+      Fraud: 'ETL',
+      Alert: 'Report',
+    };
+    const funcMap: Record<string, string> = {
+      Validation: 'Validation',
+      Processing: 'Ingestion',
+      Settlement: 'Settlement',
+      Matching: 'Reconciliation',
+      Reconciliation: 'Reconciliation',
+      Pattern: 'Fraud',
+      Risk: 'Fraud',
+      Alert: 'Fraud',
+      Case: 'Validation',
+      Collection: 'Ingestion',
+      Report: 'Reporting',
+    };
+
+    const items: Array<{
+      id: string;
+      name: string;
+      status: 'success' | 'failure' | 'running' | 'pending';
+      lastExecutionTime: string;
+      recordsProcessed: number;
+      pendingRecords: number;
+      type: string;
+      func: string;
+    }> = [];
+
+    Object.entries(flowsData).forEach(([flowKey, flow]) => {
+      flow.nodes.forEach((n: any, idx: number) => {
+        const name: string = n.data.name as string;
+        const firstWord = name.split(' ')[0];
+        const detectedType = Object.keys(typeMap).find(k => name.includes(k)) || 'Cleanup';
+        const detectedFunc = Object.keys(funcMap).find(k => name.includes(k)) || 'Transformation';
+        items.push({
+          id: `${flowKey}-${n.id}`,
+          name,
+          status: n.data.status,
+          lastExecutionTime: n.data.lastExecutionTime,
+          recordsProcessed: n.data.recordsProcessed,
+          pendingRecords: n.data.pendingRecords,
+          type: typeMap[detectedType] || 'Cleanup',
+          func: funcMap[detectedFunc] || 'Transformation',
+        });
+      });
+    });
+
+    return items;
+  }, []);
+
+  const filteredJobs = useMemo(() => {
+    return allJobs.filter(j =>
+      (statusFilter === 'all' || j.status === statusFilter) &&
+      (typeFilter === 'all' || j.type === typeFilter) &&
+      (funcFilter === 'all' || j.func === funcFilter)
+    );
+  }, [allJobs, statusFilter, typeFilter, funcFilter]);
 
 
   const getStatusColor = (status: string) => {
@@ -295,16 +364,25 @@ const JobsPage = () => {
     <div className="h-screen w-screen flex flex-col bg-gray-50">
       <header className="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-10">
         <h1 className="text-xl font-semibold">
-          {selectedFlow ? 
-            `${flowsData[selectedFlow as keyof typeof flowsData].name}` : 
-            showFlowSelection ? 'Job Flows' : 'Jobs Execution Flow'
-          }
+          {showAllJobs
+            ? 'All Jobs'
+            : selectedFlow
+              ? `${flowsData[selectedFlow as keyof typeof flowsData].name}`
+              : showFlowSelection
+                ? 'Job Flows'
+                : 'Jobs Execution Flow'}
         </h1>
         <div className="flex items-center gap-2">
-          {selectedFlow && (
+          {showAllJobs ? (
+            <Button variant="outline" onClick={() => setShowAllJobs(false)}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Flows
+            </Button>
+          ) : selectedFlow ? (
             <Button variant="outline" onClick={handleBackToFlows}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Flows
             </Button>
+          ) : (
+            <Button onClick={() => setShowAllJobs(true)}>View All Jobs</Button>
           )}
           <Link to="/">
             <Button variant="outline">
@@ -320,179 +398,267 @@ const JobsPage = () => {
       </header>
 
       <main className="flex-1">
-        {!selectedFlow ? (
-          <div className="p-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Available Job Flows</h2>
-              <p className="text-gray-600">Select a flow to view its jobs and execution details</p>
+        {showAllJobs ? (
+          <div className="p-6 space-y-4">
+            <div className="flex flex-wrap gap-4 items-end bg-white p-4 rounded-md border">
+              <div className="w-48">
+                <label className="block text-sm font-medium mb-1">Job Status</label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="success">Success</SelectItem>
+                    <SelectItem value="failure">Failure</SelectItem>
+                    <SelectItem value="running">Running</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-48">
+                <label className="block text-sm font-medium mb-1">Job Type</label>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="ETL">ETL</SelectItem>
+                    <SelectItem value="Sync">Sync</SelectItem>
+                    <SelectItem value="Report">Report</SelectItem>
+                    <SelectItem value="Cleanup">Cleanup</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-56">
+                <label className="block text-sm font-medium mb-1">Function</label>
+                <Select value={funcFilter} onValueChange={setFuncFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="Ingestion">Ingestion</SelectItem>
+                    <SelectItem value="Validation">Validation</SelectItem>
+                    <SelectItem value="Transformation">Transformation</SelectItem>
+                    <SelectItem value="Settlement">Settlement</SelectItem>
+                    <SelectItem value="Reconciliation">Reconciliation</SelectItem>
+                    <SelectItem value="Fraud">Fraud</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(flowsData).map(([key, flow]) => (
-                <Card 
-                  key={key} 
-                  className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-                  onClick={() => handleFlowSelect(key)}
+
+            {/* Jobs Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredJobs.map((job) => (
+                <Card
+                  key={job.id}
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate(`/jobs/${encodeURIComponent(job.id)}`)}
                 >
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{flow.name}</CardTitle>
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(flow.status)}`}>
-                        {getStatusIcon(flow.status)}
-                        {flow.status}
-                      </div>
+                      <CardTitle className="text-lg">{job.name}</CardTitle>
+                      <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                        {job.status}
+                      </span>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 text-sm mb-4">{flow.description}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Total Jobs:</span>
-                      <span className="font-semibold">{flow.totalJobs}</span>
-                    </div>
-                    <div className="mt-3 flex justify-end">
-                      <Button variant="outline" size="sm">
-                        <Eye className="mr-2 h-4 w-4" /> View Details
-                      </Button>
-                    </div>
+                  <CardContent className="text-sm text-muted-foreground space-y-1">
+                    <div className="flex justify-between"><span>Type:</span><span>{job.type}</span></div>
+                    <div className="flex justify-between"><span>Function:</span><span>{job.func}</span></div>
+                    <div className="flex justify-between"><span>Last run:</span><span>{job.lastExecutionTime}</span></div>
+                    <div className="flex justify-between"><span>Processed:</span><span>{job.recordsProcessed.toLocaleString()}</span></div>
+                    <div className="flex justify-between"><span>Pending:</span><span>{job.pendingRecords.toLocaleString()}</span></div>
                   </CardContent>
                 </Card>
               ))}
+              {filteredJobs.length === 0 && (
+                <div className="col-span-full text-center text-muted-foreground py-10">
+                  No jobs found. Adjust filters.
+                </div>
+              )}
             </div>
           </div>
         ) : (
-          <ResizablePanelGroup direction="vertical" className="h-full">
-            <ResizablePanel defaultSize={isTableMinimized ? 90 : 60} minSize={30}>
-              <ReactFlow
-                nodes={flowNodes}
-                edges={flowEdges}
-                onNodesChange={onFlowNodesChange}
-                onEdgesChange={onFlowEdgesChange}
-                onNodeClick={handleNodeClick}
-                nodeTypes={nodeTypes}
-                fitView
-              >
-                <Controls />
-                <MiniMap />
-                <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-              </ReactFlow>
-            </ResizablePanel>
-            
-            <ResizableHandle withHandle />
-            
-            <ResizablePanel defaultSize={isTableMinimized ? 10 : 40} minSize={10}>
-              <div className="h-full bg-white border-t">
-                <div className="p-4 border-b flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Job Information</h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsTableMinimized(!isTableMinimized)}
-                  >
-                    {isTableMinimized ? (
-                      <Maximize className="h-4 w-4" />
-                    ) : (
-                      <Minimize className="h-4 w-4" />
-                    )}
-                  </Button>
+          <> 
+            {!selectedFlow ? (
+              <div className="p-6">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-2">Available Job Flows</h2>
+                  <p className="text-gray-600">Select a flow to view its jobs and execution details</p>
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Object.entries(flowsData).map(([key, flow]) => (
+                    <Card 
+                      key={key} 
+                      className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                      onClick={() => handleFlowSelect(key)}
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{flow.name}</CardTitle>
+                          <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(flow.status)}`}>
+                            {getStatusIcon(flow.status)}
+                            {flow.status}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 text-sm mb-4">{flow.description}</p>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Total Jobs:</span>
+                          <span className="font-semibold">{flow.totalJobs}</span>
+                        </div>
+                        <div className="mt-3 flex justify-end">
+                          <Button variant="outline" size="sm">
+                            <Eye className="mr-2 h-4 w-4" /> View Details
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <ResizablePanelGroup direction="vertical" className="h-full">
+                <ResizablePanel defaultSize={isTableMinimized ? 90 : 60} minSize={30}>
+                  <ReactFlow
+                    nodes={flowNodes}
+                    edges={flowEdges}
+                    onNodesChange={onFlowNodesChange}
+                    onEdgesChange={onFlowEdgesChange}
+                    onNodeClick={handleNodeClick}
+                    nodeTypes={nodeTypes}
+                    fitView
+                  >
+                    <Controls />
+                    <MiniMap />
+                    <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+                  </ReactFlow>
+                </ResizablePanel>
                 
-                {!isTableMinimized && (
-                  <div className="p-4 overflow-auto h-full">
-                    <Tabs defaultValue="details" className="w-full h-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="details">Job Details</TabsTrigger>
-                        <TabsTrigger value="history">Job History</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="details" className="mt-4">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Job Name</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Last Execution</TableHead>
-                              <TableHead>Next Execution</TableHead>
-                              <TableHead>Records Processed</TableHead>
-                              <TableHead>Pending Records</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {getJobTableData().map((job) => (
-                              <TableRow 
-                                key={job.id} 
-                                className="cursor-pointer hover:bg-gray-50"
-                                onClick={() => handleJobRowClick(job.id)}
-                              >
-                                <TableCell className="font-medium">{job.name}</TableCell>
-                                <TableCell>
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                    job.status === 'success' ? 'bg-green-100 text-green-800' :
-                                    job.status === 'failure' ? 'bg-red-100 text-red-800' :
-                                    job.status === 'running' ? 'bg-blue-100 text-blue-800' :
-                                    'bg-yellow-100 text-yellow-800'
-                                  }`}>
-                                    {job.status}
-                                  </span>
-                                </TableCell>
-                                <TableCell>{job.lastExecution}</TableCell>
-                                <TableCell>{job.nextExecution}</TableCell>
-                                <TableCell>{job.recordsProcessed.toLocaleString()}</TableCell>
-                                <TableCell>{job.pendingRecords.toLocaleString()}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TabsContent>
-                      
-                      <TabsContent value="history" className="mt-4">
-                        {selectedJob ? (
-                          <div>
-                            <h4 className="text-sm font-semibold mb-3">
-                              Execution History for: {flowNodes.find(n => n.id === selectedJob)?.data.name || selectedJob}
-                            </h4>
+                <ResizableHandle withHandle />
+                
+                <ResizablePanel defaultSize={isTableMinimized ? 10 : 40} minSize={10}>
+                  <div className="h-full bg-white border-t">
+                    <div className="p-4 border-b flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Job Information</h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsTableMinimized(!isTableMinimized)}
+                      >
+                        {isTableMinimized ? (
+                          <Maximize className="h-4 w-4" />
+                        ) : (
+                          <Minimize className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {!isTableMinimized && (
+                      <div className="p-4 overflow-auto h-full">
+                        <Tabs defaultValue="details" className="w-full h-full">
+                          <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="details">Job Details</TabsTrigger>
+                            <TabsTrigger value="history">Job History</TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="details" className="mt-4">
                             <Table>
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead>Timestamp</TableHead>
+                                  <TableHead>Job Name</TableHead>
                                   <TableHead>Status</TableHead>
-                                  <TableHead>Duration</TableHead>
+                                  <TableHead>Last Execution</TableHead>
+                                  <TableHead>Next Execution</TableHead>
                                   <TableHead>Records Processed</TableHead>
-                                  <TableHead>Errors</TableHead>
+                                  <TableHead>Pending Records</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {(mockJobHistory[selectedJob as keyof typeof mockJobHistory] || []).map((execution) => (
-                                  <TableRow key={execution.id}>
-                                    <TableCell className="font-medium">{execution.timestamp}</TableCell>
+                                {getJobTableData().map((job) => (
+                                  <TableRow 
+                                    key={job.id} 
+                                    className="cursor-pointer hover:bg-gray-50"
+                                    onClick={() => handleJobRowClick(job.id)}
+                                  >
+                                    <TableCell className="font-medium">{job.name}</TableCell>
                                     <TableCell>
                                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                        execution.status === 'success' ? 'bg-green-100 text-green-800' :
-                                        execution.status === 'failure' ? 'bg-red-100 text-red-800' :
-                                        execution.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                        job.status === 'success' ? 'bg-green-100 text-green-800' :
+                                        job.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                        job.status === 'running' ? 'bg-blue-100 text-blue-800' :
                                         'bg-yellow-100 text-yellow-800'
                                       }`}>
-                                        {execution.status}
+                                        {job.status}
                                       </span>
                                     </TableCell>
-                                    <TableCell>{execution.duration}</TableCell>
-                                    <TableCell>{execution.recordsProcessed.toLocaleString()}</TableCell>
-                                    <TableCell>{execution.errors}</TableCell>
+                                    <TableCell>{job.lastExecution}</TableCell>
+                                    <TableCell>{job.nextExecution}</TableCell>
+                                    <TableCell>{job.recordsProcessed.toLocaleString()}</TableCell>
+                                    <TableCell>{job.pendingRecords.toLocaleString()}</TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
                             </Table>
-                          </div>
-                        ) : (
-                          <div className="text-center text-gray-500 py-8">
-                            <p>Select a job node or job row to view its execution history</p>
-                          </div>
-                        )}
-                      </TabsContent>
-                    </Tabs>
+                          </TabsContent>
+                          
+                          <TabsContent value="history" className="mt-4">
+                            {selectedJob ? (
+                              <div>
+                                <h4 className="text-sm font-semibold mb-3">
+                                  Execution History for: {flowNodes.find(n => n.id === selectedJob)?.data.name || selectedJob}
+                                </h4>
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead>Timestamp</TableHead>
+                                      <TableHead>Status</TableHead>
+                                      <TableHead>Duration</TableHead>
+                                      <TableHead>Records Processed</TableHead>
+                                      <TableHead>Errors</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {(mockJobHistory[selectedJob as keyof typeof mockJobHistory] || []).map((execution) => (
+                                      <TableRow key={execution.id}>
+                                        <TableCell className="font-medium">{execution.timestamp}</TableCell>
+                                        <TableCell>
+                                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            execution.status === 'success' ? 'bg-green-100 text-green-800' :
+                                            execution.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                            execution.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                            'bg-yellow-100 text-yellow-800'
+                                          }`}>
+                                            {execution.status}
+                                          </span>
+                                        </TableCell>
+                                        <TableCell>{execution.duration}</TableCell>
+                                        <TableCell>{execution.recordsProcessed.toLocaleString()}</TableCell>
+                                        <TableCell>{execution.errors}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            ) : (
+                              <div className="text-center text-gray-500 py-8">
+                                <p>Select a job node or job row to view its execution history</p>
+                              </div>
+                            )}
+                          </TabsContent>
+                        </Tabs>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            )}
+          </>
         )}
       </main>
     </div>
