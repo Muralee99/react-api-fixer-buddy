@@ -4,6 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { BarChart3, Home, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, Link } from 'react-router-dom';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { toast } from '@/components/ui/use-toast';
 
 interface Merchant {
   id: string;
@@ -142,7 +146,14 @@ const getStatusColor = (status: string) => {
 };
 
 const MerchantsList = () => {
+  const [merchants, setMerchants] = useState<Merchant[]>(mockMerchants);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
+  const [form, setForm] = useState<{ id: string; name: string; country: string; status: 'active' | 'inactive' }>({
+    id: '',
+    name: '',
+    country: '',
+    status: 'active',
+  });
   const navigate = useNavigate();
 
   const handleRowClick = (merchant: Merchant) => {
@@ -152,6 +163,38 @@ const MerchantsList = () => {
   const handleViewAnalytics = (e: React.MouseEvent, merchantId: string) => {
     e.stopPropagation();
     navigate(`/?merchant=${merchantId}`);
+  };
+
+  const handleAddMerchant = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!form.id.trim() || !form.name.trim()) {
+      toast({ title: 'Missing fields', description: 'Merchant ID and Name are required.' });
+      return;
+    }
+    if (merchants.some((m) => m.id === form.id.trim())) {
+      toast({ title: 'Duplicate ID', description: `Merchant ID ${form.id} already exists.` });
+      return;
+    }
+
+    const newMerchant: Merchant = {
+      id: form.id.trim(),
+      name: form.name.trim(),
+      email: `${form.name.toLowerCase().replace(/\s+/g, '')}@example.com`,
+      status: form.status,
+      category: 'General',
+      joinDate: new Date().toISOString().slice(0, 10),
+      totalTransactions: 0,
+      revenue: 0,
+      phone: 'N/A',
+      address: form.country ? form.country : 'N/A',
+      businessType: 'Unknown',
+      description: 'Newly added merchant.',
+    };
+
+    setMerchants((prev) => [newMerchant, ...prev]);
+    setSelectedMerchant(newMerchant);
+    setForm({ id: '', name: '', country: '', status: 'active' });
+    toast({ title: 'Merchant added', description: `${newMerchant.id} - ${newMerchant.name} added.` });
   };
 
   return (
@@ -179,6 +222,58 @@ const MerchantsList = () => {
           </div>
         </div>
 
+        {/* Quick Add Merchant Form */}
+        <Card className="mb-6">
+          <CardContent>
+            <form onSubmit={handleAddMerchant} className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-6">
+              <div className="space-y-2">
+                <Label htmlFor="merchantId">Merchant ID</Label>
+                <Input
+                  id="merchantId"
+                  placeholder="M005"
+                  value={form.id}
+                  onChange={(e) => setForm({ ...form, id: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="merchantName">Name</Label>
+                <Input
+                  id="merchantName"
+                  placeholder="New Merchant"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="country">Country</Label>
+                <Input
+                  id="country"
+                  placeholder="United States"
+                  value={form.country}
+                  onChange={(e) => setForm({ ...form, country: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={form.status} onValueChange={(val) => setForm({ ...form, status: val as 'active' | 'inactive' })}>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Not Active</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end">
+                <Button type="submit" className="w-full">Add Merchant</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
         {/* Main Merchants Table */}
         <Card>
           <CardHeader>
@@ -200,9 +295,9 @@ const MerchantsList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockMerchants.map((merchant) => (
-                  <TableRow 
-                    key={merchant.id} 
+                {merchants.map((merchant) => (
+                  <TableRow
+                    key={merchant.id}
                     className={`cursor-pointer hover:bg-muted/50 transition-colors ${
                       selectedMerchant?.id === merchant.id ? 'bg-muted/30 border-l-4 border-primary' : ''
                     }`}
@@ -221,8 +316,8 @@ const MerchantsList = () => {
                     <TableCell className="text-right">{merchant.totalTransactions.toLocaleString()}</TableCell>
                     <TableCell className="text-right">${merchant.revenue.toLocaleString()}</TableCell>
                     <TableCell>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={(e) => handleViewAnalytics(e, merchant.id)}
                         className="flex items-center gap-1"
