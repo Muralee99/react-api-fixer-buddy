@@ -112,56 +112,98 @@ const JobRelations: React.FC = () => {
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Job Information</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Property</TableHead>
-                          <TableHead>Value</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell className="font-medium">Job Name</TableCell>
-                          <TableCell>{selectedJob.name}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium">Status</TableCell>
-                          <TableCell>
-                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                              selectedJob.status === 'success' ? 'bg-green-100 text-green-800' :
-                              selectedJob.status === 'failure' ? 'bg-red-100 text-red-800' :
-                              selectedJob.status === 'running' ? 'bg-blue-100 text-blue-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {selectedJob.status}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium">Last Execution</TableCell>
-                          <TableCell>{selectedJob.lastExecutionTime}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium">Next Execution</TableCell>
-                          <TableCell>{selectedJob.nextExecutionTime}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium">Records Processed</TableCell>
-                          <TableCell>{selectedJob.recordsProcessed?.toLocaleString()}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium">Pending Records</TableCell>
-                          <TableCell>{selectedJob.pendingRecords?.toLocaleString()}</TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
+                <div className="space-y-4">
+                  {/* Job Data Section */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Job Data Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="font-medium">Job Name</TableCell>
+                            <TableCell>{selectedJob.name}</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Status</TableCell>
+                            <TableCell>
+                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                selectedJob.status === 'success' ? 'bg-green-100 text-green-800' :
+                                selectedJob.status === 'failure' ? 'bg-red-100 text-red-800' :
+                                selectedJob.status === 'running' ? 'bg-blue-100 text-blue-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {selectedJob.status}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Last Execution</TableCell>
+                            <TableCell>{selectedJob.lastExecutionTime}</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Next Execution</TableCell>
+                            <TableCell>{selectedJob.nextExecutionTime}</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Records Processed</TableCell>
+                            <TableCell>{selectedJob.recordsProcessed?.toLocaleString()}</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Pending Records</TableCell>
+                            <TableCell>{selectedJob.pendingRecords?.toLocaleString()}</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+
+                  {/* Business Data Section */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Business Data Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="font-medium">Transaction Volume</TableCell>
+                            <TableCell>$2,485,320.00</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Processing Rate</TableCell>
+                            <TableCell>98.5%</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Error Rate</TableCell>
+                            <TableCell>1.5%</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Average Processing Time</TableCell>
+                            <TableCell>2.3 seconds</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Business Unit</TableCell>
+                            <TableCell>Payment Processing</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">Priority Level</TableCell>
+                            <TableCell>
+                              <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+                                High
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">SLA Compliance</TableCell>
+                            <TableCell>99.2%</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
               </CollapsibleContent>
             </Collapsible>
           </div>
