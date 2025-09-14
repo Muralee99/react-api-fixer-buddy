@@ -15,6 +15,7 @@ import TransactionFlowDetailPage from "./pages/TransactionFlowDetailPage";
 import Dashboard from "./pages/Dashboard";
 import MerchantsList from "./pages/MerchantsList";
 import Login from "./pages/Login";
+import JobDetailsPage from "./pages/JobDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/pipeline-data" element={<PipelineDataPage />} />
           <Route path="/jobs" element={<JobsPage />} />
           <Route path="/jobs/:jobId" element={<JobRelations />} />
+          <Route path="/job-details/:jobId" element={<JobDetailsPage />} />
           <Route path="/transaction-flow" element={<TransactionFlowPage />} />
           <Route path="/merchants" element={<MerchantsList />} />
           <Route path="/login" element={<Login />} />

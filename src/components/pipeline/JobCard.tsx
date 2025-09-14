@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, FileText, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, FileText, AlertCircle, CheckCircle, Loader, Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { Job } from '@/services/mockDataService';
 
 interface JobCardProps {
@@ -15,12 +17,28 @@ const statusIcons = {
 };
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/job-details/${job.id}`);
+  };
+
   return (
     <Card className="mb-4 shadow-md bg-white">
       <CardHeader className="p-4">
         <CardTitle className="text-base font-semibold text-gray-800 flex items-center justify-between">
           <span>{job.name}</span>
-          {job.status && statusIcons[job.status]}
+          <div className="flex items-center gap-2">
+            {job.status && statusIcons[job.status]}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewDetails}
+              className="h-6 w-6 p-0 hover:bg-gray-100"
+            >
+              <Info size={14} />
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-0 text-xs text-gray-600 space-y-2">

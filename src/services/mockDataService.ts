@@ -95,6 +95,37 @@ export interface Job {
   exception?: string;
 }
 
+export interface JobStep {
+  id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  duration: string;
+  status: 'success' | 'failure' | 'running';
+  recordsProcessed: number;
+  recordsFailed: number;
+}
+
+export interface JobHistory {
+  id: string;
+  startTime: string;
+  endTime: string;
+  duration: string;
+  status: 'success' | 'failure' | 'running';
+  totalRecords: number;
+  successRecords: number;
+  failedRecords: number;
+  steps: JobStep[];
+}
+
+export interface JobDetails {
+  id: string;
+  name: string;
+  description: string;
+  type: 'spring-batch';
+  currentStatus: 'success' | 'failure' | 'running';
+}
+
 export const fetchPipelineData = async (filters: {
   fromDate: string;
   toDate: string;
@@ -250,4 +281,79 @@ export const fetchJobsForPipeline = async (
     }
   }
   return jobs;
+};
+
+export const fetchJobDetails = async (jobId: string): Promise<JobDetails> => {
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  return {
+    id: jobId,
+    name: `Payment Processing Job ${jobId}`,
+    description: 'Spring Batch job for processing payment transactions',
+    type: 'spring-batch',
+    currentStatus: 'success'
+  };
+};
+
+export const fetchJobHistory = async (jobId: string): Promise<JobHistory[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  const history: JobHistory[] = [];
+  
+  for (let i = 0; i < 10; i++) {
+    const startTime = new Date(Date.now() - (i * 24 * 60 * 60 * 1000) - (i * 2 * 60 * 60 * 1000));
+    const endTime = new Date(startTime.getTime() + (45 + Math.random() * 30) * 60 * 1000);
+    const totalRecords = 1000 + Math.floor(Math.random() * 5000);
+    const failedRecords = Math.floor(Math.random() * 50);
+    const successRecords = totalRecords - failedRecords;
+    
+    const steps: JobStep[] = [
+      {
+        id: `step-1-${i}`,
+        name: 'Data Validation',
+        startTime: startTime.toISOString(),
+        endTime: new Date(startTime.getTime() + 10 * 60 * 1000).toISOString(),
+        duration: '10m 0s',
+        status: 'success',
+        recordsProcessed: totalRecords,
+        recordsFailed: Math.floor(Math.random() * 10)
+      },
+      {
+        id: `step-2-${i}`,
+        name: 'Payment Processing',
+        startTime: new Date(startTime.getTime() + 10 * 60 * 1000).toISOString(),
+        endTime: new Date(startTime.getTime() + 35 * 60 * 1000).toISOString(),
+        duration: '25m 0s',
+        status: 'success',
+        recordsProcessed: totalRecords - Math.floor(Math.random() * 10),
+        recordsFailed: Math.floor(Math.random() * 20)
+      },
+      {
+        id: `step-3-${i}`,
+        name: 'Reconciliation',
+        startTime: new Date(startTime.getTime() + 35 * 60 * 1000).toISOString(),
+        endTime: endTime.toISOString(),
+        duration: '10m 0s',
+        status: i > 7 ? 'success' : Math.random() > 0.8 ? 'failure' : 'success',
+        recordsProcessed: totalRecords - failedRecords,
+        recordsFailed: Math.floor(Math.random() * 20)
+      }
+    ];
+    
+    history.push({
+      id: `history-${i}`,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      duration: `${Math.floor((endTime.getTime() - startTime.getTime()) / 60000)}m ${
+        Math.floor(((endTime.getTime() - startTime.getTime()) % 60000) / 1000)
+      }s`,
+      status: i > 7 ? 'success' : Math.random() > 0.8 ? 'failure' : 'success',
+      totalRecords,
+      successRecords,
+      failedRecords,
+      steps
+    });
+  }
+  
+  return history;
 };
