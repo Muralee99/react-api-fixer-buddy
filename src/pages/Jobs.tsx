@@ -455,15 +455,24 @@ const JobsPage = () => {
               {filteredJobs.map((job) => (
                 <Card
                   key={job.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => navigate(`/jobs/${encodeURIComponent(job.id)}`)}
+                  className="hover:shadow-lg transition-shadow"
                 >
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{job.name}</CardTitle>
-                      <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                        {job.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                          {job.status}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/job-details/${job.id}`)}
+                          className="h-6 w-6 p-0 hover:bg-accent"
+                        >
+                          <Eye size={14} />
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground space-y-1">
