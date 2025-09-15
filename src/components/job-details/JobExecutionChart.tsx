@@ -9,125 +9,122 @@ interface JobExecutionChartProps {
 }
 
 export const JobExecutionChart: React.FC<JobExecutionChartProps> = ({ jobHistory }) => {
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'success':
-        return <CheckCircle className="text-green-500" size={16} />;
-      case 'failure':
-        return <XCircle className="text-red-500" size={16} />;
-      default:
-        return <Clock className="text-blue-500" size={16} />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'success':
-        return 'bg-green-500';
-      case 'failure':
-        return 'bg-red-500';
-      default:
-        return 'bg-blue-500';
-    }
-  };
-
   return (
-    <div className="h-full flex flex-col justify-center">
-      {/* Job Timeline */}
-      <div className="space-y-8">
-        {/* Job Start */}
-        <div className="flex items-center justify-between">
-          <Card className="w-48 bg-primary/5 border-primary/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 bg-primary rounded-full"></div>
-                <span className="font-semibold text-sm">Job Start</span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {jobHistory.startTime}
+    <div className="h-full p-4 bg-background">
+      <h3 className="text-lg font-semibold mb-4">Job Execution Timeline</h3>
+      
+      {/* Horizontal Timeline */}
+      <div className="space-y-6">
+        {/* Row 1: Job Start */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 min-w-[120px]">
+            <div className="w-3 h-3 bg-primary rounded-full"></div>
+            <span className="font-semibold text-sm">Job Start</span>
+          </div>
+          <ArrowRight className="text-muted-foreground" size={16} />
+          <Card className="flex-1 bg-primary/5 border-primary/20">
+            <CardContent className="p-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="text-sm font-medium">Start Time</div>
+                  <div className="text-xs text-muted-foreground">{jobHistory.startTime}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Records to Process</div>
+                  <div className="text-xs text-primary font-semibold">{jobHistory.totalRecords.toLocaleString()}</div>
+                </div>
               </div>
             </CardContent>
           </Card>
-          <div className="text-sm text-muted-foreground">
-            Records to Process: {jobHistory.totalRecords}
-          </div>
         </div>
 
-        {/* Steps Flow */}
-        <div className="relative">
-          <div className="flex items-center justify-between space-x-4">
-            {jobHistory.steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                {index > 0 && (
-                  <ArrowRight className="text-muted-foreground mx-2" size={16} />
-                )}
-                <Card className="w-48 bg-card border">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      {getStatusIcon(step.status)}
-                      <span className="font-semibold text-sm">{step.name}</span>
-                    </div>
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <div>Duration: {step.duration}</div>
-                      <div>Processed: {step.recordsProcessed}</div>
-                      {step.recordsFailed > 0 && (
-                        <div className="text-red-500">Failed: {step.recordsFailed}</div>
-                      )}
-                    </div>
-                    <Badge 
-                      variant={step.status === 'success' ? 'default' : 'destructive'}
-                      className="mt-2"
-                    >
-                      {step.status}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+        {/* Row 2: Steps */}
+        {jobHistory.steps.map((step, index) => (
+          <div key={step.id} className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 min-w-[120px]">
+              {step.status === 'success' ? (
+                <CheckCircle className="text-green-500" size={16} />
+              ) : (
+                <XCircle className="text-red-500" size={16} />
+              )}
+              <span className="font-semibold text-sm">{step.name}</span>
+            </div>
+            <ArrowRight className="text-muted-foreground" size={16} />
+            <Card className={`flex-1 ${
+              step.status === 'success' 
+                ? 'bg-green-50 border-green-200' 
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <CardContent className="p-3">
+                <div className="grid grid-cols-4 gap-4 text-xs">
+                  <div>
+                    <div className="font-medium">Start Time</div>
+                    <div className="text-muted-foreground">{step.startTime}</div>
+                  </div>
+                  <div>
+                    <div className="font-medium">Records Processed</div>
+                    <div className="text-blue-600 font-semibold">{step.recordsProcessed.toLocaleString()}</div>
+                  </div>
+                  <div>
+                    <div className="font-medium">Success</div>
+                    <div className="text-green-600 font-semibold">{(step.recordsProcessed - step.recordsFailed).toLocaleString()}</div>
+                  </div>
+                  <div>
+                    <div className="font-medium">Failed</div>
+                    <div className="text-red-600 font-semibold">{step.recordsFailed.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="flex justify-between mt-2 text-xs">
+                  <div>
+                    <span className="font-medium">Duration: </span>
+                    <span className="text-muted-foreground">{step.duration}</span>
+                  </div>
+                  <Badge variant={step.status === 'success' ? 'default' : 'destructive'} className="text-xs">
+                    {step.status}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          
-          {/* Progress Bar */}
-          <div className="mt-4 w-full bg-muted rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(jobHistory.status)}`}
-              style={{ 
-                width: `${(jobHistory.successRecords / jobHistory.totalRecords) * 100}%` 
-              }}
-            ></div>
-          </div>
-        </div>
+        ))}
 
-        {/* Job End */}
-        <div className="flex items-center justify-between">
-          <Card className={`w-48 ${
+        {/* Row 3: Job End */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 min-w-[120px]">
+            {jobHistory.status === 'success' ? (
+              <CheckCircle className="text-green-500" size={16} />
+            ) : (
+              <XCircle className="text-red-500" size={16} />
+            )}
+            <span className="font-semibold text-sm">Job End</span>
+          </div>
+          <ArrowRight className="text-muted-foreground" size={16} />
+          <Card className={`flex-1 ${
             jobHistory.status === 'success' 
               ? 'bg-green-50 border-green-200' 
               : 'bg-red-50 border-red-200'
           }`}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                {getStatusIcon(jobHistory.status)}
-                <span className="font-semibold text-sm">Job End</span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {jobHistory.endTime}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Total Duration: {jobHistory.duration}
+            <CardContent className="p-3">
+              <div className="grid grid-cols-4 gap-4 text-xs">
+                <div>
+                  <div className="font-medium">End Time</div>
+                  <div className="text-muted-foreground">{jobHistory.endTime}</div>
+                </div>
+                <div>
+                  <div className="font-medium">Total Success</div>
+                  <div className="text-green-600 font-semibold">{jobHistory.successRecords.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div className="font-medium">Total Failed</div>
+                  <div className="text-red-600 font-semibold">{jobHistory.failedRecords.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div className="font-medium">Total Duration</div>
+                  <div className="text-primary font-semibold">{jobHistory.duration}</div>
+                </div>
               </div>
             </CardContent>
           </Card>
-          <div className="text-sm space-y-1">
-            <div className="text-green-600">
-              Success: {jobHistory.successRecords}
-            </div>
-            <div className="text-red-600">
-              Failed: {jobHistory.failedRecords}
-            </div>
-            <div className="text-muted-foreground">
-              Total: {jobHistory.totalRecords}
-            </div>
-          </div>
         </div>
       </div>
     </div>
