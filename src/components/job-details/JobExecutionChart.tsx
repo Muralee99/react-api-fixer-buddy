@@ -10,11 +10,11 @@ interface JobExecutionChartProps {
 
 export const JobExecutionChart: React.FC<JobExecutionChartProps> = ({ jobHistory }) => {
   return (
-    <div className="h-full p-4 bg-background">
+    <div className="h-full overflow-y-auto p-4 bg-background">
       <h3 className="text-lg font-semibold mb-4">Job Execution Timeline</h3>
       
       {/* Horizontal Timeline */}
-      <div className="space-y-6">
+      <div className="space-y-6 min-h-fit">
         {/* Row 1: Job Start */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 min-w-[120px]">
@@ -27,7 +27,7 @@ export const JobExecutionChart: React.FC<JobExecutionChartProps> = ({ jobHistory
               <div className="flex justify-between items-center">
                 <div>
                   <div className="text-sm font-medium">Start Time</div>
-                  <div className="text-xs text-muted-foreground">{jobHistory.startTime}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(jobHistory.startTime).toLocaleString()}</div>
                 </div>
                 <div>
                   <div className="text-sm font-medium">Records to Process</div>
@@ -59,7 +59,7 @@ export const JobExecutionChart: React.FC<JobExecutionChartProps> = ({ jobHistory
                 <div className="grid grid-cols-4 gap-4 text-xs">
                   <div>
                     <div className="font-medium">Start Time</div>
-                    <div className="text-muted-foreground">{step.startTime}</div>
+                    <div className="text-muted-foreground">{new Date(step.startTime).toLocaleString()}</div>
                   </div>
                   <div>
                     <div className="font-medium">Records Processed</div>
@@ -108,7 +108,7 @@ export const JobExecutionChart: React.FC<JobExecutionChartProps> = ({ jobHistory
               <div className="grid grid-cols-4 gap-4 text-xs">
                 <div>
                   <div className="font-medium">End Time</div>
-                  <div className="text-muted-foreground">{jobHistory.endTime}</div>
+                  <div className="text-muted-foreground">{new Date(jobHistory.endTime).toLocaleString()}</div>
                 </div>
                 <div>
                   <div className="font-medium">Total Success</div>

@@ -140,7 +140,7 @@ const JobDetailsPage: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="text-foreground">Job Execution Flow</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[calc(100%-80px)]">
+                <CardContent className="h-[calc(100%-80px)] overflow-y-auto">
                   {selectedHistory && (
                     <JobExecutionChart jobHistory={selectedHistory} />
                   )}
