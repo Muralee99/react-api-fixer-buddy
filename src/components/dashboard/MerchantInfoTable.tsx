@@ -27,7 +27,8 @@ interface MerchantInfoTableProps {
 const MerchantInfoTable: React.FC<MerchantInfoTableProps> = ({ merchantId }) => {
   // Generate mock merchant data based on merchant ID
   const generateMerchantInfo = (id: string): MerchantInfo => {
-    const merchantVariant = parseInt(id.replace(/\D/g, '')) % 3;
+    const numericPart = id.replace(/\D/g, '');
+    const merchantVariant = numericPart ? parseInt(numericPart) % 3 : 0;
     
     const merchantNames = ['TechCorp Solutions', 'Global Trade Ltd', 'Innovation Hub Inc'];
     const businessTypes = ['Technology', 'Retail', 'Manufacturing'];
