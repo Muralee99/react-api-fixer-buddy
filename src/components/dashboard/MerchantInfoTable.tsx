@@ -36,19 +36,22 @@ const MerchantInfoTable: React.FC<MerchantInfoTableProps> = ({ merchantId }) => 
     const statuses: ('Active' | 'Inactive' | 'Pending')[] = ['Active', 'Active', 'Pending'];
     const riskLevels: ('Low' | 'Medium' | 'High')[] = ['Low', 'Medium', 'High'];
     
+    // Ensure merchantVariant is within bounds and all arrays have the same length
+    const safeVariant = Math.max(0, Math.min(merchantVariant, merchantNames.length - 1));
+    
     return {
       merchantId: id,
-      merchantName: merchantNames[merchantVariant],
-      businessType: businessTypes[merchantVariant],
-      status: statuses[merchantVariant],
-      location: locations[merchantVariant],
-      phoneNumber: `+${merchantVariant + 1}-555-${String(1000 + merchantVariant * 111).padStart(4, '0')}`,
-      email: `contact@${merchantNames[merchantVariant].toLowerCase().replace(/[^a-z]/g, '')}.com`,
-      registrationDate: `2023-0${merchantVariant + 1}-15`,
-      lastTransaction: new Date(Date.now() - merchantVariant * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      totalTransactions: 1250 + merchantVariant * 500,
-      monthlyVolume: `$${(50000 + merchantVariant * 25000).toLocaleString()}`,
-      riskLevel: riskLevels[merchantVariant]
+      merchantName: merchantNames[safeVariant] || 'Unknown Merchant',
+      businessType: businessTypes[safeVariant] || 'Unknown',
+      status: statuses[safeVariant] || 'Pending',
+      location: locations[safeVariant] || 'Unknown Location',
+      phoneNumber: `+${safeVariant + 1}-555-${String(1000 + safeVariant * 111).padStart(4, '0')}`,
+      email: `contact@${(merchantNames[safeVariant] || 'unknown').toLowerCase().replace(/[^a-z]/g, '')}.com`,
+      registrationDate: `2023-0${safeVariant + 1}-15`,
+      lastTransaction: new Date(Date.now() - safeVariant * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      totalTransactions: 1250 + safeVariant * 500,
+      monthlyVolume: `$${(50000 + safeVariant * 25000).toLocaleString()}`,
+      riskLevel: riskLevels[safeVariant] || 'Low'
     };
   };
 
