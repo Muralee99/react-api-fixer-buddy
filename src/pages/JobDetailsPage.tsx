@@ -20,7 +20,7 @@ const JobHistorySidebar: React.FC<{
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar collapsible="icon">
+    <div className={`h-full border-r bg-card transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-80'}`}>
       <SidebarContent>
         <div className="p-4">
           {!isCollapsed && (
@@ -77,7 +77,7 @@ const JobHistorySidebar: React.FC<{
           </div>
         </div>
       </SidebarContent>
-    </Sidebar>
+    </div>
   );
 };
 
@@ -133,7 +133,7 @@ const JobDetailsPage: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex h-[calc(100vh-80px)] w-full">
+        <div className="flex h-[calc(100vh-80px)]">
           <JobHistorySidebar 
             jobHistory={jobHistory}
             selectedHistoryId={selectedHistoryId}
