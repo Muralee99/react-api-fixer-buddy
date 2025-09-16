@@ -18,7 +18,6 @@ import { initialNodes, initialEdges } from './pipeline/initialElements';
 import { nodeTypes } from './pipeline/nodeTypes';
 import { Sidebar } from './pipeline/Sidebar';
 import StagesSidebar, { PipelineStage } from './pipeline/StagesSidebar';
-import JobsSidebar from './pipeline/JobsSidebar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, ChevronDown, Database, Shield, CreditCard, Layers } from 'lucide-react';
 import type { Job, PipelineData } from '@/services/mockDataService';
@@ -38,11 +37,9 @@ import {
 const DataPipelineDesigner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [jobs, setJobs] = useState<Job[] | null>(null);
   const [pipelineInfo, setPipelineInfo] = useState<PipelineData | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(true);
   const [currentFilters, setCurrentFilters] = useState<any>(null);
-  const [showStages, setShowStages] = useState(false);
   const [activeStageId, setActiveStageId] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -112,20 +109,11 @@ const DataPipelineDesigner = () => {
     setActiveStageId(null);
   };
 
-  const toggleStagesView = () => {
-    setShowStages(!showStages);
-    setActiveStageId(null);
-  };
   useEffect(() => {
     if (location.state?.pipelineData) {
       const pipelineData = location.state.pipelineData as PipelineData;
       updateNodesWithData(pipelineData);
       setPipelineInfo(pipelineData);
-    }
-    if (location.state?.jobs) {
-      setJobs(location.state.jobs);
-    } else {
-      setJobs(null);
     }
     if (location.state?.filters) {
       setCurrentFilters(location.state.filters);
@@ -268,14 +256,6 @@ const DataPipelineDesigner = () => {
             <ArrowLeft size={16} />
             Back to Data Table
           </Button>
-          <Button
-            variant={showStages ? "default" : "outline"}
-            onClick={toggleStagesView}
-            className="flex items-center gap-2"
-          >
-            <Layers size={16} />
-            {showStages ? 'Hide Stages' : 'Show Stages'}
-          </Button>
         </div>
         <h1 className="text-xl font-semibold">Pipeline Designer</h1>
         <Link to="/" aria-label="Go to Dashboard">
@@ -285,18 +265,12 @@ const DataPipelineDesigner = () => {
         </Link>
       </div>
       <div className="flex-1 flex overflow-hidden">
-        {jobs ? (
-          <JobsSidebar jobs={jobs} />
-        ) : showStages ? (
-          <StagesSidebar
-            stages={pipelineStages}
-            activeStageId={activeStageId}
-            onStageSelect={handleStageSelect}
-            onShowAll={handleShowAllStages}
-          />
-        ) : (
-          <Sidebar />
-        )}
+        <StagesSidebar
+          stages={pipelineStages}
+          activeStageId={activeStageId}
+          onStageSelect={handleStageSelect}
+          onShowAll={handleShowAllStages}
+        />
         <div className="flex-1 flex flex-col">
           <ResizablePanelGroup direction="vertical">
             <ResizablePanel>
@@ -306,8 +280,8 @@ const DataPipelineDesigner = () => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
-                onDrop={jobs ? undefined : onDrop}
-                onDragOver={jobs ? undefined : onDragOver}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
                 nodeTypes={nodeTypes}
                 fitView
                 className="bg-gray-50 h-full"
