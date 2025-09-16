@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Sidebar, SidebarContent, SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
-import { ArrowLeft, ChevronDown, ChevronRight, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Home, ChevronDown, ChevronRight, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { JobExecutionChart } from '@/components/job-details/JobExecutionChart';
 import { JobStepsTable } from '@/components/job-details/JobStepsTable';
 import { JobRecordsTable } from '@/components/job-details/JobRecordsTable';
@@ -120,6 +120,14 @@ const JobDetailsPage: React.FC = () => {
             >
               <ArrowLeft size={16} />
               Back
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2"
+            >
+              <Home size={16} />
+              Home
             </Button>
             <h1 className="text-2xl font-bold text-foreground">Job Details: {jobDetails.name}</h1>
           </div>
