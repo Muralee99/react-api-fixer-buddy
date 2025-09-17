@@ -72,6 +72,7 @@ const TransactionFlowDetailPage = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(allStagesEdges);
   const [isStagesOpen, setIsStagesOpen] = useState(true);
   const [activeStageId, setActiveStageId] = useState<string | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   
   const transactionStages: TransactionStage[] = [
     {
@@ -183,6 +184,26 @@ const TransactionFlowDetailPage = () => {
     setEdges(newEdges);
   }, [activeStageId, setNodes, setEdges]);
 
+  const onNodeClick = (event: React.MouseEvent, node: Node<TransactionNodeData>) => {
+    setSelectedNodeId(node.id);
+  };
+
+  const getSelectedNodeData = () => {
+    if (!selectedNodeId) return null;
+    const selectedNode = filteredNodes.find(node => node.id === selectedNodeId);
+    return selectedNode?.data || null;
+  };
+
+  const getPipelineData = () => {
+    return filteredNodes.map(node => ({
+      id: node.id,
+      name: node.data.name,
+      status: 'Completed',
+      duration: `${Math.floor(Math.random() * 5) + 1}s`,
+      processedAt: node.data.time
+    }));
+  };
+
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-50">
       <header className="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-10">
@@ -284,6 +305,7 @@ const TransactionFlowDetailPage = () => {
                   edges={filteredEdges}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
+                  onNodeClick={onNodeClick}
                   nodeTypes={nodeTypes}
                   fitView
                   fitViewOptions={{ padding: 0.1 }}
@@ -295,44 +317,99 @@ const TransactionFlowDetailPage = () => {
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel defaultSize={30}>
-                <div className="h-full overflow-y-auto">
-                  <Accordion type="single" collapsible defaultValue="item-1">
-                    <AccordionItem value="item-1" className="border-b-0">
-                      <AccordionTrigger className="px-6 py-4 font-semibold text-base sticky top-0 bg-white z-10 border-b">
-                        {activeStageId 
-                          ? `${transactionStages.find(s => s.id === activeStageId)?.name || 'Stage'} Details`
-                          : 'All Transaction Details'
-                        }
-                      </AccordionTrigger>
-                      <AccordionContent>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Time</TableHead>
-                                <TableHead>State</TableHead>
-                                <TableHead>Amount</TableHead>
-                                <TableHead>Currency</TableHead>
-                                <TableHead>Country</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {getCurrentDisplayData().map((transaction, index) => (
-                                <TableRow key={index}>
-                                  <TableCell className="font-medium">{transaction.name}</TableCell>
-                                  <TableCell>{transaction.time}</TableCell>
-                                  <TableCell>{transaction.state}</TableCell>
-                                  <TableCell>{transaction.amount}</TableCell>
-                                  <TableCell>{transaction.currency}</TableCell>
-                                  <TableCell>{transaction.country}</TableCell>
+                <ResizablePanelGroup direction="horizontal">
+                  <ResizablePanel defaultSize={50}>
+                    <div className="h-full overflow-y-auto">
+                      <Accordion type="single" collapsible defaultValue="item-1">
+                        <AccordionItem value="item-1" className="border-b-0">
+                          <AccordionTrigger className="px-4 py-3 font-semibold text-sm sticky top-0 bg-white z-10 border-b">
+                            Pipeline Details
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Node ID</TableHead>
+                                  <TableHead>Name</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Duration</TableHead>
                                 </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
+                              </TableHeader>
+                              <TableBody>
+                                {getPipelineData().map((pipeline, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell className="font-medium">{pipeline.id}</TableCell>
+                                    <TableCell>{pipeline.name}</TableCell>
+                                    <TableCell>
+                                      <Badge variant="secondary" className="text-green-600 bg-green-100">
+                                        {pipeline.status}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell>{pipeline.duration}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel defaultSize={50}>
+                    <div className="h-full overflow-y-auto">
+                      <Accordion type="single" collapsible defaultValue="item-2">
+                        <AccordionItem value="item-2" className="border-b-0">
+                          <AccordionTrigger className="px-4 py-3 font-semibold text-sm sticky top-0 bg-white z-10 border-b">
+                            {selectedNodeId ? `Node ${selectedNodeId} Details` : 'Select a Node'}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {getSelectedNodeData() ? (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Property</TableHead>
+                                    <TableHead>Value</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow>
+                                    <TableCell className="font-medium">Name</TableCell>
+                                    <TableCell>{getSelectedNodeData()?.name}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="font-medium">Time</TableCell>
+                                    <TableCell>{getSelectedNodeData()?.time}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="font-medium">State</TableCell>
+                                    <TableCell>{getSelectedNodeData()?.state}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="font-medium">Amount</TableCell>
+                                    <TableCell>{getSelectedNodeData()?.amount}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="font-medium">Currency</TableCell>
+                                    <TableCell>{getSelectedNodeData()?.currency}</TableCell>
+                                  </TableRow>
+                                  <TableRow>
+                                    <TableCell className="font-medium">Country</TableCell>
+                                    <TableCell>{getSelectedNodeData()?.country}</TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            ) : (
+                              <div className="p-4 text-center text-muted-foreground">
+                                Click on a node in the flow diagram to view its details
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>
