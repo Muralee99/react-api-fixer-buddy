@@ -41,7 +41,16 @@ import {
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 
-import { initialNodes, initialEdges } from '@/components/transactions/transaction-flow-initial-elements';
+import { 
+  initiationNodes, 
+  initiationEdges, 
+  paymentNodes, 
+  paymentEdges, 
+  refundNodes, 
+  refundEdges, 
+  allStagesNodes, 
+  allStagesEdges 
+} from '@/components/transactions/transaction-stage-data';
 import { TransactionNode } from '@/components/transactions/TransactionNode';
 import { TransactionNodeData } from '@/components/transactions/TransactionNode';
 
@@ -59,8 +68,8 @@ const nodeTypes = {
 };
 
 const TransactionFlowDetailPage = () => {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(allStagesNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(allStagesEdges);
   const [isStagesOpen, setIsStagesOpen] = useState(true);
   const [activeStageId, setActiveStageId] = useState<string | null>(null);
   
@@ -68,25 +77,25 @@ const TransactionFlowDetailPage = () => {
     {
       id: 'initiation',
       name: 'Transaction Initiation',
-      description: 'Initial transaction creation and setup',
+      description: 'Initial transaction creation, validation and authorization',
       icon: FilePlus,
-      nodeIds: ['1'],
+      nodeIds: ['1', '1a', '1b'],
       status: 'completed'
     },
     {
       id: 'payment',
       name: 'Payment Processing',
-      description: 'Processing the main payment transaction',
+      description: 'Payment processing, bank authorization and settlement',
       icon: CreditCard,
-      nodeIds: ['2'],
+      nodeIds: ['2', '2a', '2b', '2c'],
       status: 'completed'
     },
     {
       id: 'refund',
       name: 'Refund Processing',
-      description: 'Processing refund transactions',
+      description: 'Processing multiple refund transactions',
       icon: Undo2,
-      nodeIds: ['3', '4'],
+      nodeIds: ['3', '4', '3a', '4a', '3b', '4b'],
       status: 'completed'
     }
   ];
@@ -118,40 +127,61 @@ const TransactionFlowDetailPage = () => {
 
   const getFilteredNodesAndEdges = () => {
     if (!activeStageId) {
-      return { filteredNodes: nodes, filteredEdges: edges };
+      return { filteredNodes: allStagesNodes, filteredEdges: allStagesEdges };
     }
 
-    const stage = transactionStages.find(s => s.id === activeStageId);
-    if (!stage) {
-      return { filteredNodes: nodes, filteredEdges: edges };
+    let stageNodes: Node<TransactionNodeData>[] = [];
+    let stageEdges: Edge[] = [];
+
+    switch (activeStageId) {
+      case 'initiation':
+        stageNodes = initiationNodes;
+        stageEdges = initiationEdges;
+        break;
+      case 'payment':
+        stageNodes = paymentNodes;
+        stageEdges = paymentEdges;
+        break;
+      case 'refund':
+        stageNodes = refundNodes;
+        stageEdges = refundEdges;
+        break;
+      default:
+        stageNodes = allStagesNodes;
+        stageEdges = allStagesEdges;
     }
 
-    const filteredNodes = nodes.filter(node => stage.nodeIds.includes(node.id));
-    const filteredNodeIds = new Set(filteredNodes.map(node => node.id));
-    const filteredEdges = edges.filter(edge => 
-      filteredNodeIds.has(edge.source) && filteredNodeIds.has(edge.target)
-    );
-
-    return { filteredNodes, filteredEdges };
+    return { filteredNodes: stageNodes, filteredEdges: stageEdges };
   };
 
   const { filteredNodes, filteredEdges } = getFilteredNodesAndEdges();
   
   const getStageData = (stageId: string) => {
-    const stage = transactionStages.find(s => s.id === stageId);
-    if (!stage) return [];
-    
-    return initialNodes
-      .filter(node => stage.nodeIds.includes(node.id))
-      .map(node => node.data);
+    switch (stageId) {
+      case 'initiation':
+        return initiationNodes.map(node => node.data);
+      case 'payment':
+        return paymentNodes.map(node => node.data);
+      case 'refund':
+        return refundNodes.map(node => node.data);
+      default:
+        return allStagesNodes.map(node => node.data);
+    }
   };
 
   const getCurrentDisplayData = () => {
     if (activeStageId) {
       return getStageData(activeStageId);
     }
-    return initialNodes.map(node => node.data);
+    return allStagesNodes.map(node => node.data);
   };
+
+  // Update nodes and edges when stage changes
+  React.useEffect(() => {
+    const { filteredNodes: newNodes, filteredEdges: newEdges } = getFilteredNodesAndEdges();
+    setNodes(newNodes);
+    setEdges(newEdges);
+  }, [activeStageId, setNodes, setEdges]);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-50">
@@ -256,7 +286,7 @@ const TransactionFlowDetailPage = () => {
                   onEdgesChange={onEdgesChange}
                   nodeTypes={nodeTypes}
                   fitView
-                  key={activeStageId || 'all'}
+                  fitViewOptions={{ padding: 0.1 }}
                 >
                   <Controls />
                   <MiniMap />
