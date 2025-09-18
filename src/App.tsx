@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import MerchantsList from "./pages/MerchantsList";
 import Login from "./pages/Login";
 import JobDetailsPage from "./pages/JobDetailsPage";
+import { AppLayout } from "./components/layout/AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -28,15 +29,15 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/old-index" element={<Index />} />
-          <Route path="/pipeline-designer" element={<DataPipelineDesigner />} />
-          <Route path="/pipeline-data" element={<PipelineDataPage />} />
-          <Route path="/jobs" element={<JobsPage />} />
-          <Route path="/jobs/:jobId" element={<JobRelations />} />
-          <Route path="/job-details/:jobId" element={<JobDetailsPage />} />
-          <Route path="/transaction-flow" element={<TransactionFlowPage />} />
-          <Route path="/transaction-flow/detail" element={<TransactionFlowDetailPage />} />
-          <Route path="/merchants" element={<MerchantsList />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/pipeline-designer" element={<AppLayout><DataPipelineDesigner /></AppLayout>} />
+          <Route path="/pipeline-data" element={<AppLayout><PipelineDataPage /></AppLayout>} />
+          <Route path="/jobs" element={<AppLayout><JobsPage /></AppLayout>} />
+          <Route path="/jobs/:jobId" element={<AppLayout><JobRelations /></AppLayout>} />
+          <Route path="/job-details/:jobId" element={<AppLayout><JobDetailsPage /></AppLayout>} />
+          <Route path="/transaction-flow" element={<AppLayout><TransactionFlowPage /></AppLayout>} />
+          <Route path="/transaction-flow/detail" element={<AppLayout><TransactionFlowDetailPage /></AppLayout>} />
+          <Route path="/merchants" element={<AppLayout><MerchantsList /></AppLayout>} />
+          <Route path="/login" element={<AppLayout><Login /></AppLayout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
