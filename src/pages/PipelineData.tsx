@@ -17,7 +17,7 @@ import { type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityCo
 import { usePipelineData } from '@/hooks/usePipelineData';
 import { type PipelineRow } from '@/services/mockDataService';
 import { type ChartConfig } from '@/components/ui/chart';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { PipelineSidebar } from '@/components/pipeline/PipelineSidebar';
 import { Button } from '@/components/ui/button';
 import { Home } from 'lucide-react';
@@ -125,7 +125,6 @@ const PipelineDataPage = () => {
         <main className="flex-1 bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
-            <SidebarTrigger />
             <Link to="/old-index" aria-label="Go to Home">
                 <Button variant="ghost" size="icon">
                     <Home className="h-5 w-5" />
