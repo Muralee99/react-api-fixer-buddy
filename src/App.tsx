@@ -28,7 +28,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/old-index" element={<Index />} />
+          <Route path="/old-index" element={<AppLayout><Index /></AppLayout>} />
           <Route path="/pipeline-designer" element={<AppLayout><DataPipelineDesigner /></AppLayout>} />
           <Route path="/pipeline-data" element={<AppLayout><PipelineDataPage /></AppLayout>} />
           <Route path="/jobs" element={<AppLayout><JobsPage /></AppLayout>} />
@@ -39,7 +39,7 @@ const App = () => (
           <Route path="/merchants" element={<AppLayout><MerchantsList /></AppLayout>} />
           <Route path="/login" element={<AppLayout><Login /></AppLayout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<AppLayout><NotFound /></AppLayout>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
