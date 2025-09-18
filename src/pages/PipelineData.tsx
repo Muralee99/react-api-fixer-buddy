@@ -115,13 +115,14 @@ const PipelineDataPage = () => {
   );
 
   return (
-    <SidebarProvider>
-      <PipelineSidebar
-        selected={selectedTable}
-        onSelect={setSelectedTable}
-        disabled={pipelineRows.length === 0 && transactionRows.length === 0}
-      />
-      <main className="flex-1 bg-gray-50 p-6">
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full">
+        <PipelineSidebar
+          selected={selectedTable}
+          onSelect={setSelectedTable}
+          disabled={pipelineRows.length === 0 && transactionRows.length === 0}
+        />
+        <main className="flex-1 bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <SidebarTrigger />
@@ -262,7 +263,8 @@ const PipelineDataPage = () => {
             )}
           </div>
         </div>
-      </main>
+        </main>
+      </div>
     </SidebarProvider>
   );
 };
