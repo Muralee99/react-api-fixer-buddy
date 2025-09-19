@@ -17,7 +17,6 @@ import { type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityCo
 import { usePipelineData } from '@/hooks/usePipelineData';
 import { type PipelineRow } from '@/services/mockDataService';
 import { type ChartConfig } from '@/components/ui/chart';
-import { SidebarProvider } from '@/components/ui/sidebar';
 import { PipelineSidebar } from '@/components/pipeline/PipelineSidebar';
 import { Button } from '@/components/ui/button';
 import { Home } from 'lucide-react';
@@ -115,14 +114,13 @@ const PipelineDataPage = () => {
   );
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full">
-        <PipelineSidebar
-          selected={selectedTable}
-          onSelect={setSelectedTable}
-          disabled={pipelineRows.length === 0 && transactionRows.length === 0}
-        />
-        <main className="flex-1 bg-gray-50 p-6">
+    <div className="flex min-h-screen w-full">
+      <PipelineSidebar
+        selected={selectedTable}
+        onSelect={setSelectedTable}
+        disabled={pipelineRows.length === 0 && transactionRows.length === 0}
+      />
+      <main className="flex-1 bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <Link to="/old-index" aria-label="Go to Home">
@@ -264,7 +262,6 @@ const PipelineDataPage = () => {
         </div>
         </main>
       </div>
-    </SidebarProvider>
   );
 };
 
