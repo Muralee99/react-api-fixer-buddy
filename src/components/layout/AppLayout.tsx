@@ -14,10 +14,10 @@ export function AppLayout({ children, showSidebar = true, title }: AppLayoutProp
   if (!showSidebar) {
     return (
       <div className="min-h-screen flex flex-col">
-        <div className="h-[5vh]">
+        <div className="h-[15vh]">
           <Header title={title} />
         </div>
-        <main className="h-[90vh] overflow-auto">
+        <main className="h-[80vh] overflow-auto">
           {children}
         </main>
         <div className="h-[5vh]">
@@ -32,10 +32,10 @@ export function AppLayout({ children, showSidebar = true, title }: AppLayoutProp
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <div className="h-[5vh]">
+          <div className="h-[15vh]">
             <Header title={title} />
           </div>
-          <main className="h-[90vh] overflow-auto">
+          <main className="h-[80vh] overflow-auto">
             {children}
           </main>
           <div className="h-[5vh]">
