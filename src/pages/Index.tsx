@@ -9,8 +9,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header title="Home" />
-      <div className="w-full p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="w-full px-4 py-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-xl font-semibold">Dashboard</CardTitle>
