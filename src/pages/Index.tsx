@@ -5,14 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Header } from '@/components/ui/Header';
 import { DollarSign, Briefcase, TrendingUp, BarChart3 } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
-
 const Index = () => {
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-gray-50">
-        <Header title="Home" />
-        <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gray-50">
+      <Header title="Home" />
+      <div className="w-full p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -101,7 +98,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 };
 
