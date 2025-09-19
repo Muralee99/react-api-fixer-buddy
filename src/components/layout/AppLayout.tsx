@@ -1,24 +1,47 @@
 import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/ui/AppSidebar';
+import { Header } from '@/components/ui/Header';
+import { Footer } from '@/components/ui/Footer';
 
 interface AppLayoutProps {
   children: React.ReactNode;
   showSidebar?: boolean;
+  title?: string;
 }
 
-export function AppLayout({ children, showSidebar = true }: AppLayoutProps) {
+export function AppLayout({ children, showSidebar = true, title }: AppLayoutProps) {
   if (!showSidebar) {
-    return <>{children}</>;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <div className="h-[5vh]">
+          <Header title={title} />
+        </div>
+        <main className="h-[90vh] overflow-auto">
+          {children}
+        </main>
+        <div className="h-[5vh]">
+          <Footer />
+        </div>
+      </div>
+    );
   }
 
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <main className="flex-1">
-          {children}
-        </main>
+        <div className="flex-1 flex flex-col">
+          <div className="h-[5vh]">
+            <Header title={title} />
+          </div>
+          <main className="h-[90vh] overflow-auto">
+            {children}
+          </main>
+          <div className="h-[5vh]">
+            <Footer />
+          </div>
+        </div>
       </div>
     </SidebarProvider>
   );
