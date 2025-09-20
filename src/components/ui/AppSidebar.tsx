@@ -7,7 +7,8 @@ import {
   ArrowRightLeft, 
   Building2, 
   LogIn,
-  Home
+  Home,
+  FileText
 } from 'lucide-react';
 import {
   Sidebar,
@@ -26,6 +27,7 @@ const navigationItems = [
   { title: 'Pipeline Data', url: '/pipeline-data', icon: BarChart3 },
   { title: 'Jobs', url: '/jobs', icon: Briefcase },
   { title: 'Transaction Flow', url: '/transaction-flow', icon: ArrowRightLeft },
+  { title: 'Reports', url: '/reports', icon: FileText },
   { title: 'Merchants', url: '/merchants', icon: Building2 },
   { title: 'Login', url: '/login', icon: LogIn },
 ];
