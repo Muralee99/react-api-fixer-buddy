@@ -13,11 +13,10 @@ import PipelineTableRow from "@/components/pipeline/PipelineTableRow";
 import TransactionTableRow from "@/components/pipeline/TransactionTableRow";
 import AggregateTable from "@/components/pipeline/AggregateTable";
 import SmartAggregateChart from "@/components/pipeline/SmartAggregateChart";
-import { type SelectedTable, SECTIONS } from '@/components/pipeline/VisibilityControl';
+import { type SelectedTable, SECTIONS, VisibilityControl } from '@/components/pipeline/VisibilityControl';
 import { usePipelineData } from '@/hooks/usePipelineData';
 import { type PipelineRow } from '@/services/mockDataService';
 import { type ChartConfig } from '@/components/ui/chart';
-import { PipelineSidebar } from '@/components/pipeline/PipelineSidebar';
 import { Button } from '@/components/ui/button';
 import { Home } from 'lucide-react';
 
@@ -115,11 +114,13 @@ const PipelineDataPage = () => {
 
   return (
     <div className="flex min-h-screen w-full">
-      <PipelineSidebar
-        selected={selectedTable}
-        onSelect={setSelectedTable}
-        disabled={pipelineRows.length === 0 && transactionRows.length === 0}
-      />
+      <aside className="w-64 border-r bg-card p-4">
+        <VisibilityControl
+          selected={selectedTable}
+          onSelect={setSelectedTable}
+          disabled={pipelineRows.length === 0 && transactionRows.length === 0}
+        />
+      </aside>
       <main className="flex-1 bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
