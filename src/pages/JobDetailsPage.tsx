@@ -146,7 +146,7 @@ const JobDetailsPage: React.FC = () => {
           {/* Main Content */}
           <div className="flex-1 flex flex-col">
             {/* Upper Panel - Job Execution Chart */}
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-2">
               <Card className="h-full">
                 <CardHeader>
                   <CardTitle className="text-foreground">Job Execution Flow</CardTitle>

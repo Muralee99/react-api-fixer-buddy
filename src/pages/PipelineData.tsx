@@ -121,8 +121,8 @@ const PipelineDataPage = () => {
           disabled={pipelineRows.length === 0 && transactionRows.length === 0}
         />
       </aside>
-      <main className="flex-1 bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 bg-gray-50 p-2">
+        <div className="w-full">
           <div className="flex items-center gap-4 mb-6">
             <Link to="/old-index" aria-label="Go to Home">
                 <Button variant="ghost" size="icon">
