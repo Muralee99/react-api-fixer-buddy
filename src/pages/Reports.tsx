@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { 
   TrendingUp, 
   BarChart3, 
@@ -12,7 +14,9 @@ import {
   Download, 
   Calendar,
   Filter,
-  RefreshCw
+  RefreshCw,
+  FileDown,
+  GitCompare
 } from 'lucide-react';
 import { PaymentAnalytics } from '@/components/dashboard/PaymentAnalytics';
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts';
@@ -26,6 +30,10 @@ export default function Reports() {
   const [reportType, setReportType] = useState('overview');
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [showExportOptions, setShowExportOptions] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dataTab, setDataTab] = useState('transactions');
+  const itemsPerPage = 10;
   
   // Mock filters for dashboard data
   const dashboardFilters: DashboardFilters = {
@@ -49,6 +57,8 @@ export default function Reports() {
     { value: 'payments', label: 'Payment Analytics', icon: BarChart3 },
     { value: 'pipeline', label: 'Pipeline Performance', icon: FileText },
     { value: 'operational', label: 'Operational Metrics', icon: RefreshCw },
+    { value: 'download', label: 'Download Report', icon: FileDown },
+    { value: 'reconciliation', label: 'Reconciliation', icon: GitCompare },
   ];
 
   const timePeriods = [
@@ -60,15 +70,45 @@ export default function Reports() {
     { value: 'custom', label: 'Custom Range' },
   ];
 
-  const handleExportReport = () => {
-    // Export functionality placeholder
-    console.log('Exporting report...');
+  const handleExportReport = (format: 'excel' | 'pdf') => {
+    console.log(`Exporting report as ${format}...`);
+    // Mock export functionality
+    const filename = `report_${reportType}_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+    alert(`Downloading ${filename}`);
+    setShowExportOptions(false);
   };
 
   const handleRefreshData = () => {
-    // Refresh data functionality placeholder
     console.log('Refreshing data...');
   };
+
+  // Mock data for download and reconciliation reports
+  const mockTransactionData = Array.from({ length: 50 }, (_, i) => ({
+    id: `TXN${1000 + i}`,
+    date: new Date(2024, 0, 1 + i).toLocaleDateString(),
+    merchant: `Merchant ${i % 5 + 1}`,
+    amount: `$${(Math.random() * 1000).toFixed(2)}`,
+    status: ['Completed', 'Pending', 'Failed'][i % 3],
+    type: ['Credit', 'Debit'][i % 2]
+  }));
+
+  const mockReconciliationData = Array.from({ length: 50 }, (_, i) => ({
+    id: `REC${2000 + i}`,
+    date: new Date(2024, 0, 1 + i).toLocaleDateString(),
+    merchant: `Merchant ${i % 5 + 1}`,
+    expected: `$${(Math.random() * 1000).toFixed(2)}`,
+    actual: `$${(Math.random() * 1000).toFixed(2)}`,
+    difference: `$${(Math.random() * 10).toFixed(2)}`,
+    status: ['Matched', 'Unmatched', 'Pending'][i % 3]
+  }));
+
+  const getCurrentPageData = (data: any[]) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  };
+
+  const totalPages = Math.ceil(mockTransactionData.length / itemsPerPage);
 
   return (
     <div className="flex-1 space-y-6 p-6">
@@ -85,10 +125,30 @@ export default function Reports() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button onClick={handleExportReport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          {(reportType === 'download' || reportType === 'reconciliation') && (
+            <div className="relative">
+              <Button onClick={() => setShowExportOptions(!showExportOptions)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+              {showExportOptions && (
+                <div className="absolute right-0 mt-2 w-32 bg-background border rounded-md shadow-lg z-50">
+                  <button
+                    onClick={() => handleExportReport('excel')}
+                    className="w-full px-4 py-2 text-left hover:bg-muted transition-colors"
+                  >
+                    Excel
+                  </button>
+                  <button
+                    onClick={() => handleExportReport('pdf')}
+                    className="w-full px-4 py-2 text-left hover:bg-muted transition-colors"
+                  >
+                    PDF
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -155,11 +215,11 @@ export default function Reports() {
 
       {/* Report Content */}
       <Tabs value={reportType} onValueChange={setReportType} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           {reportTypes.map((type) => (
             <TabsTrigger key={type.value} value={type.value} className="flex items-center gap-2">
               <type.icon className="h-4 w-4" />
-              {type.label}
+              <span className="hidden md:inline">{type.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -371,6 +431,302 @@ export default function Reports() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Download Report */}
+        <TabsContent value="download" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Download Report</CardTitle>
+              <CardDescription>
+                Select date range and download detailed report data
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium">From Date</label>
+                  <DatePicker date={startDate} setDate={setStartDate} />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium">To Date</label>
+                  <DatePicker date={endDate} setDate={setEndDate} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Tabs value={dataTab} onValueChange={setDataTab}>
+            <TabsList>
+              <TabsTrigger value="transactions">Transactions</TabsTrigger>
+              <TabsTrigger value="payments">Payments</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="transactions" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Transaction Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Transaction ID</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Merchant</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {getCurrentPageData(mockTransactionData).map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-medium">{row.id}</TableCell>
+                          <TableCell>{row.date}</TableCell>
+                          <TableCell>{row.merchant}</TableCell>
+                          <TableCell>{row.amount}</TableCell>
+                          <TableCell>{row.type}</TableCell>
+                          <TableCell>
+                            <Badge variant={row.status === 'Completed' ? 'default' : row.status === 'Pending' ? 'secondary' : 'destructive'}>
+                              {row.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  
+                  <div className="mt-4">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        {totalPages > 5 && <PaginationEllipsis />}
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="payments" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PaymentAnalytics />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Analytics Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DashboardCharts data={dashboardData} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
+
+        {/* Reconciliation */}
+        <TabsContent value="reconciliation" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Reconciliation Report</CardTitle>
+              <CardDescription>
+                Compare expected vs actual transactions for reconciliation
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium">From Date</label>
+                  <DatePicker date={startDate} setDate={setStartDate} />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium">To Date</label>
+                  <DatePicker date={endDate} setDate={setEndDate} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Tabs value={dataTab} onValueChange={setDataTab}>
+            <TabsList>
+              <TabsTrigger value="matched">Matched</TabsTrigger>
+              <TabsTrigger value="unmatched">Unmatched</TabsTrigger>
+              <TabsTrigger value="all">All Records</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Reconciliation Records</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Record ID</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Merchant</TableHead>
+                        <TableHead>Expected</TableHead>
+                        <TableHead>Actual</TableHead>
+                        <TableHead>Difference</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {getCurrentPageData(mockReconciliationData).map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-medium">{row.id}</TableCell>
+                          <TableCell>{row.date}</TableCell>
+                          <TableCell>{row.merchant}</TableCell>
+                          <TableCell>{row.expected}</TableCell>
+                          <TableCell>{row.actual}</TableCell>
+                          <TableCell className={row.difference !== '$0.00' ? 'text-red-600 font-semibold' : ''}>
+                            {row.difference}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={row.status === 'Matched' ? 'default' : row.status === 'Pending' ? 'secondary' : 'destructive'}>
+                              {row.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  
+                  <div className="mt-4">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        {totalPages > 5 && <PaginationEllipsis />}
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="matched" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Matched Records</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Record ID</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Merchant</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {getCurrentPageData(mockReconciliationData.filter(r => r.status === 'Matched')).map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-medium">{row.id}</TableCell>
+                          <TableCell>{row.date}</TableCell>
+                          <TableCell>{row.merchant}</TableCell>
+                          <TableCell>{row.expected}</TableCell>
+                          <TableCell>
+                            <Badge variant="default">Matched</Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="unmatched" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Unmatched Records</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Record ID</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Merchant</TableHead>
+                        <TableHead>Expected</TableHead>
+                        <TableHead>Actual</TableHead>
+                        <TableHead>Difference</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {getCurrentPageData(mockReconciliationData.filter(r => r.status === 'Unmatched')).map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-medium">{row.id}</TableCell>
+                          <TableCell>{row.date}</TableCell>
+                          <TableCell>{row.merchant}</TableCell>
+                          <TableCell>{row.expected}</TableCell>
+                          <TableCell>{row.actual}</TableCell>
+                          <TableCell className="text-red-600 font-semibold">{row.difference}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>
