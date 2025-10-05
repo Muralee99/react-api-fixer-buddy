@@ -50,7 +50,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="w-[5%] min-w-[60px] border-r bg-background">
+    <Sidebar className="w-[5%] min-w-[60px] border-r bg-background mr-[10px]">
       <SidebarContent className="flex-1 py-4">
         <SidebarGroup>
           <SidebarGroupContent>
