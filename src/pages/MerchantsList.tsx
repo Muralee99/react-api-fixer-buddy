@@ -189,7 +189,7 @@ const MerchantsList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-2">
+    <div className="min-h-screen bg-background p-6">
       <div className="container mx-auto">
         {/* Navigation Header */}
         <div className="flex items-center justify-between mb-8">
