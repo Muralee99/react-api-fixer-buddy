@@ -29,7 +29,7 @@ export function AppLayout({ children, showSidebar = true, title }: AppLayoutProp
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full gap-[10px]">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           <div className="h-[15vh]">
