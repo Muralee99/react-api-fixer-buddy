@@ -17,6 +17,7 @@ import MerchantsList from "./pages/MerchantsList";
 import Login from "./pages/Login";
 import JobDetailsPage from "./pages/JobDetailsPage";
 import Reports from "./pages/Reports";
+import PaymentsOverview from "./pages/PaymentsOverview";
 import { AppLayout } from "./components/layout/AppLayout";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/transaction-flow" element={<AppLayout title="Transaction Flow"><TransactionFlowPage /></AppLayout>} />
           <Route path="/transaction-flow/detail" element={<AppLayout title="Transaction Details"><TransactionFlowDetailPage /></AppLayout>} />
           <Route path="/reports" element={<AppLayout title="Reports"><Reports /></AppLayout>} />
+          <Route path="/payments-overview" element={<AppLayout title="Payments Overview"><PaymentsOverview /></AppLayout>} />
           <Route path="/merchants" element={<AppLayout title="Merchants"><MerchantsList /></AppLayout>} />
           <Route path="/login" element={<AppLayout title="Login" showSidebar={false}><Login /></AppLayout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -8,7 +8,8 @@ import {
   Building2, 
   LogIn,
   Home,
-  FileText
+  FileText,
+  CreditCard
 } from 'lucide-react';
 import {
   Sidebar,
@@ -28,6 +29,7 @@ const navigationItems = [
   { title: 'Jobs', url: '/jobs', icon: Briefcase },
   { title: 'Transaction Flow', url: '/transaction-flow', icon: ArrowRightLeft },
   { title: 'Reports', url: '/reports', icon: FileText },
+  { title: 'Payments Overview', url: '/payments-overview', icon: CreditCard },
   { title: 'Merchants', url: '/merchants', icon: Building2 },
   { title: 'Login', url: '/login', icon: LogIn },
 ];

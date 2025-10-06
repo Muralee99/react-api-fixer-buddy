@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { DollarSign, Briefcase, TrendingUp, BarChart3, FileBarChart } from 'lucide-react';
+import { DollarSign, Briefcase, TrendingUp, BarChart3, FileBarChart, CreditCard } from 'lucide-react';
 const Index = () => {
   return (
     <div className="w-full px-4 py-2 bg-background">
@@ -106,6 +106,23 @@ const Index = () => {
               <CardFooter>
                 <Link to="/reports" className="w-full">
                   <Button className="w-full">View Reports</Button>
+                </Link>
+              </CardFooter>
+            </Card>
+
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl font-semibold">Payments Overview</CardTitle>
+                <CreditCard className="h-6 w-6 text-gray-500" />
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Track payment status across countries and merchants with detailed analytics.
+                </CardDescription>
+              </CardContent>
+              <CardFooter>
+                <Link to="/payments-overview" className="w-full">
+                  <Button className="w-full">View Payments</Button>
                 </Link>
               </CardFooter>
             </Card>
