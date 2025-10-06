@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 interface PaymentData {
   country: string;
   merchantId: string;
+  paymentMethod: string;
   status: 'Completed' | 'In Progress' | 'Exception';
   paymentDate: Date;
   nextPaymentDate: Date;
@@ -26,10 +27,12 @@ interface PaymentData {
 
 const countries = ['USA', 'UK', 'Canada', 'Germany', 'France', 'India', 'Australia'];
 const merchantIds = ['MERCH-001', 'MERCH-002', 'MERCH-003', 'MERCH-004', 'MERCH-005'];
+const paymentMethods = ['Visa', 'Mastercard', 'RuPay', 'American Express', 'Discover'];
 
 const PaymentsOverview = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedMerchants, setSelectedMerchants] = useState<string[]>([]);
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
   const [paymentData, setPaymentData] = useState<PaymentData[]>([]);
@@ -41,38 +44,41 @@ const PaymentsOverview = () => {
     
     selectedCountries.forEach(country => {
       selectedMerchants.forEach(merchantId => {
-        const statuses: ('Completed' | 'In Progress' | 'Exception')[] = ['Completed', 'In Progress', 'Exception'];
-        const status = statuses[Math.floor(Math.random() * statuses.length)];
-        const paymentDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
-        const nextPaymentDate = new Date(paymentDate.getTime() + 24 * 60 * 60 * 1000);
-        
-        const payment: PaymentData = {
-          country,
-          merchantId,
-          status,
-          paymentDate,
-          nextPaymentDate,
-          amount: Math.floor(Math.random() * 4900) + 100,
-          transactionId: `TXN-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-        };
+        selectedPaymentMethods.forEach(paymentMethod => {
+          const statuses: ('Completed' | 'In Progress' | 'Exception')[] = ['Completed', 'In Progress', 'Exception'];
+          const status = statuses[Math.floor(Math.random() * statuses.length)];
+          const paymentDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+          const nextPaymentDate = new Date(paymentDate.getTime() + 24 * 60 * 60 * 1000);
+          
+          const payment: PaymentData = {
+            country,
+            merchantId,
+            paymentMethod,
+            status,
+            paymentDate,
+            nextPaymentDate,
+            amount: Math.floor(Math.random() * 4900) + 100,
+            transactionId: `TXN-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+          };
 
-        if (status === 'In Progress') {
-          const stages: ('Initiated' | 'Authorized' | 'Settled')[] = ['Initiated', 'Authorized', 'Settled'];
-          payment.stage = stages[Math.floor(Math.random() * stages.length)];
-        }
+          if (status === 'In Progress') {
+            const stages: ('Initiated' | 'Authorized' | 'Settled')[] = ['Initiated', 'Authorized', 'Settled'];
+            payment.stage = stages[Math.floor(Math.random() * stages.length)];
+          }
 
-        if (status === 'Exception') {
-          const errors = [
-            'Payment gateway timeout',
-            'Insufficient funds',
-            'Invalid card details',
-            'Network error occurred',
-            'Merchant verification failed'
-          ];
-          payment.errorMessage = errors[Math.floor(Math.random() * errors.length)];
-        }
+          if (status === 'Exception') {
+            const errors = [
+              'Payment gateway timeout',
+              'Insufficient funds',
+              'Invalid card details',
+              'Network error occurred',
+              'Merchant verification failed'
+            ];
+            payment.errorMessage = errors[Math.floor(Math.random() * errors.length)];
+          }
 
-        data.push(payment);
+          data.push(payment);
+        });
       });
     });
 
@@ -81,7 +87,7 @@ const PaymentsOverview = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedCountries.length === 0 || selectedMerchants.length === 0) {
+    if (selectedCountries.length === 0 || selectedMerchants.length === 0 || selectedPaymentMethods.length === 0) {
       return;
     }
     generateRandomData();
@@ -100,6 +106,14 @@ const PaymentsOverview = () => {
       prev.includes(merchant)
         ? prev.filter(m => m !== merchant)
         : [...prev, merchant]
+    );
+  };
+
+  const togglePaymentMethod = (method: string) => {
+    setSelectedPaymentMethods(prev =>
+      prev.includes(method)
+        ? prev.filter(m => m !== method)
+        : [...prev, method]
     );
   };
 
@@ -184,7 +198,7 @@ const PaymentsOverview = () => {
           isFormExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
         )}>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Country Multi-Select */}
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Countries</Label>
@@ -229,6 +243,28 @@ const PaymentsOverview = () => {
                 </div>
               </div>
 
+              {/* Payment Method Multi-Select */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Payment Methods</Label>
+                <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card">
+                  {paymentMethods.map(method => (
+                    <div key={method} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`method-${method}`}
+                        checked={selectedPaymentMethods.includes(method)}
+                        onCheckedChange={() => togglePaymentMethod(method)}
+                      />
+                      <label
+                        htmlFor={`method-${method}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {method}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Date Pickers */}
               <div className="space-y-3">
                 <Label className="text-base font-semibold">From Date & Time</Label>
@@ -244,7 +280,7 @@ const PaymentsOverview = () => {
             <Button 
               type="submit" 
               className="w-full md:w-auto px-8"
-              disabled={selectedCountries.length === 0 || selectedMerchants.length === 0}
+              disabled={selectedCountries.length === 0 || selectedMerchants.length === 0 || selectedPaymentMethods.length === 0}
             >
               Generate Payment Data
             </Button>
@@ -309,6 +345,13 @@ const PaymentsOverview = () => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Payment Method</span>
+                      <Badge variant="outline" className="font-semibold">
+                        {payment.paymentMethod}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Status</span>
                       <Badge className={cn(getStatusColor(payment.status), "text-white")}>
                         {payment.status}
@@ -367,6 +410,7 @@ const PaymentsOverview = () => {
                       <TableRow>
                         <TableHead>Country</TableHead>
                         <TableHead>Merchant ID</TableHead>
+                        <TableHead>Payment Method</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Stage</TableHead>
                         <TableHead>Amount</TableHead>
@@ -381,6 +425,11 @@ const PaymentsOverview = () => {
                         <TableRow key={index}>
                           <TableCell className="font-medium">{payment.country}</TableCell>
                           <TableCell className="font-mono text-sm">{payment.merchantId}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-semibold">
+                              {payment.paymentMethod}
+                            </Badge>
+                          </TableCell>
                           <TableCell>
                             <Badge className={cn(getStatusColor(payment.status), "text-white")}>
                               {payment.status}
