@@ -31,7 +31,7 @@ export function AppLayout({ children, showSidebar = true, title }: AppLayoutProp
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <div className="flex-1 flex flex-col ml-3">
+        <div className="flex-1 flex flex-col ml-1">
           <div className="h-[15vh]">
             <Header title={title} />
           </div>
