@@ -115,37 +115,39 @@ const PipelineDataPage = () => {
   );
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full relative">
       {/* Collapsible Sidebar */}
       <aside 
         className={cn(
-          "border-r bg-card transition-all duration-300 relative",
-          isSidebarCollapsed ? "w-0 overflow-hidden" : "w-64 p-4"
+          "border-r bg-card transition-all duration-300 relative flex-shrink-0",
+          isSidebarCollapsed ? "w-0" : "w-64"
         )}
       >
-        <VisibilityControl
-          selected={selectedTable}
-          onSelect={setSelectedTable}
-          disabled={pipelineRows.length === 0 && transactionRows.length === 0}
-        />
+        <div className={cn(
+          "transition-opacity duration-300",
+          isSidebarCollapsed ? "opacity-0" : "opacity-100 p-4"
+        )}>
+          <VisibilityControl
+            selected={selectedTable}
+            onSelect={setSelectedTable}
+            disabled={pipelineRows.length === 0 && transactionRows.length === 0}
+          />
+        </div>
+        
+        {/* Toggle Button attached to sidebar */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute -right-4 top-24 z-10 rounded-full bg-background shadow-md hover:shadow-lg"
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        >
+          {isSidebarCollapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </Button>
       </aside>
-
-      {/* Toggle Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className={cn(
-          "absolute top-24 z-10 transition-all duration-300",
-          isSidebarCollapsed ? "left-2" : "left-[252px]"
-        )}
-        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-      >
-        {isSidebarCollapsed ? (
-          <ChevronRight className="h-5 w-5" />
-        ) : (
-          <ChevronLeft className="h-5 w-5" />
-        )}
-      </Button>
 
       <main className="flex-1 bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
