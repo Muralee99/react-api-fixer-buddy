@@ -18,10 +18,12 @@ import { usePipelineData } from '@/hooks/usePipelineData';
 import { type PipelineRow } from '@/services/mockDataService';
 import { type ChartConfig } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
-import { Home } from 'lucide-react';
+import { Home, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const PipelineDataPage = () => {
   const [selectedTable, setSelectedTable] = useState<SelectedTable[]>(SECTIONS.map(s => s.id));
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const location = useLocation();
   const hasRestoredData = useRef(false);
 
@@ -114,13 +116,37 @@ const PipelineDataPage = () => {
 
   return (
     <div className="flex min-h-screen w-full">
-      <aside className="w-64 border-r bg-card p-4">
+      {/* Collapsible Sidebar */}
+      <aside 
+        className={cn(
+          "border-r bg-card transition-all duration-300 relative",
+          isSidebarCollapsed ? "w-0 overflow-hidden" : "w-64 p-4"
+        )}
+      >
         <VisibilityControl
           selected={selectedTable}
           onSelect={setSelectedTable}
           disabled={pipelineRows.length === 0 && transactionRows.length === 0}
         />
       </aside>
+
+      {/* Toggle Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn(
+          "absolute top-24 z-10 transition-all duration-300",
+          isSidebarCollapsed ? "left-2" : "left-[252px]"
+        )}
+        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      >
+        {isSidebarCollapsed ? (
+          <ChevronRight className="h-5 w-5" />
+        ) : (
+          <ChevronLeft className="h-5 w-5" />
+        )}
+      </Button>
+
       <main className="flex-1 bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
