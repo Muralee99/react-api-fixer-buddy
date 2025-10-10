@@ -8,8 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { CreditCard, AlertCircle, CheckCircle, Clock, LayoutGrid, Table2, ChevronDown, ChevronUp } from 'lucide-react';
+import { CreditCard, AlertCircle, CheckCircle, Clock, LayoutGrid, Table2, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaymentData {
@@ -29,6 +30,19 @@ const countries = ['USA', 'UK', 'Canada', 'Germany', 'France', 'India', 'Austral
 const merchantIds = ['MERCH-001', 'MERCH-002', 'MERCH-003', 'MERCH-004', 'MERCH-005'];
 const paymentMethods = ['Visa', 'Mastercard', 'RuPay', 'American Express', 'Discover'];
 const paymentStatuses: ('Completed' | 'In Progress' | 'Exception')[] = ['Completed', 'In Progress', 'Exception'];
+
+// Mock payment schedule data
+const paymentSchedules = [
+  { country: 'USA', merchant: 'MERCH-001', scheduledTime: '09:00 AM EST', frequency: 'Daily', nextRun: '2025-10-11 09:00' },
+  { country: 'USA', merchant: 'MERCH-002', scheduledTime: '02:00 PM EST', frequency: 'Twice Daily', nextRun: '2025-10-11 02:00' },
+  { country: 'UK', merchant: 'MERCH-001', scheduledTime: '10:00 AM GMT', frequency: 'Daily', nextRun: '2025-10-11 10:00' },
+  { country: 'UK', merchant: 'MERCH-003', scheduledTime: '04:00 PM GMT', frequency: 'Weekly', nextRun: '2025-10-15 16:00' },
+  { country: 'Canada', merchant: 'MERCH-002', scheduledTime: '08:30 AM PST', frequency: 'Daily', nextRun: '2025-10-11 08:30' },
+  { country: 'Germany', merchant: 'MERCH-004', scheduledTime: '11:00 AM CET', frequency: 'Twice Daily', nextRun: '2025-10-11 11:00' },
+  { country: 'France', merchant: 'MERCH-003', scheduledTime: '03:00 PM CET', frequency: 'Daily', nextRun: '2025-10-11 15:00' },
+  { country: 'India', merchant: 'MERCH-005', scheduledTime: '06:00 PM IST', frequency: 'Daily', nextRun: '2025-10-11 18:00' },
+  { country: 'Australia', merchant: 'MERCH-001', scheduledTime: '07:00 AM AEST', frequency: 'Weekly', nextRun: '2025-10-14 07:00' },
+];
 
 const PaymentsOverview = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -186,6 +200,61 @@ const PaymentsOverview = () => {
 
   return (
     <div className="w-full p-6 space-y-6">
+      <Tabs defaultValue="schedule" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="schedule" className="gap-2">
+            <Calendar className="h-4 w-4" />
+            Payment Schedule
+          </TabsTrigger>
+          <TabsTrigger value="generate" className="gap-2">
+            <CreditCard className="h-4 w-4" />
+            Generate Payment Data
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Payment Schedule Tab */}
+        <TabsContent value="schedule" className="mt-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Calendar className="h-6 w-6" />
+                Payment Schedule Overview
+              </CardTitle>
+              <CardDescription>View all countries, merchants, and their scheduled payment times</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Country</TableHead>
+                      <TableHead>Merchant ID</TableHead>
+                      <TableHead>Scheduled Time</TableHead>
+                      <TableHead>Frequency</TableHead>
+                      <TableHead>Next Run</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paymentSchedules.map((schedule, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{schedule.country}</TableCell>
+                        <TableCell className="font-mono text-sm">{schedule.merchant}</TableCell>
+                        <TableCell>{schedule.scheduledTime}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{schedule.frequency}</Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{schedule.nextRun}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Generate Payment Data Tab */}
+        <TabsContent value="generate" className="mt-6 space-y-6">
       {/* Filter Form */}
       <Card className="shadow-lg animate-fade-in">
         <CardHeader 
@@ -587,6 +656,8 @@ const PaymentsOverview = () => {
           )}
         </>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
