@@ -200,61 +200,6 @@ const PaymentsOverview = () => {
 
   return (
     <div className="w-full p-6 space-y-6">
-      <Tabs defaultValue="schedule" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="schedule" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Payment Schedule
-          </TabsTrigger>
-          <TabsTrigger value="generate" className="gap-2">
-            <CreditCard className="h-4 w-4" />
-            Generate Payment Data
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Payment Schedule Tab */}
-        <TabsContent value="schedule" className="mt-6">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <Calendar className="h-6 w-6" />
-                Payment Schedule Overview
-              </CardTitle>
-              <CardDescription>View all countries, merchants, and their scheduled payment times</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Country</TableHead>
-                      <TableHead>Merchant ID</TableHead>
-                      <TableHead>Scheduled Time</TableHead>
-                      <TableHead>Frequency</TableHead>
-                      <TableHead>Next Run</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paymentSchedules.map((schedule, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{schedule.country}</TableCell>
-                        <TableCell className="font-mono text-sm">{schedule.merchant}</TableCell>
-                        <TableCell>{schedule.scheduledTime}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{schedule.frequency}</Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{schedule.nextRun}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Generate Payment Data Tab */}
-        <TabsContent value="generate" className="mt-6 space-y-6">
       {/* Filter Form */}
       <Card className="shadow-lg animate-fade-in">
         <CardHeader 
@@ -389,49 +334,105 @@ const PaymentsOverview = () => {
         </CardContent>
       </Card>
 
-      {/* View Toggle */}
-      {paymentData.length > 0 && (
-        <div className="flex justify-end gap-2">
-          <Button
-            variant={viewMode === 'cards' ? 'default' : 'outline'}
-            onClick={() => setViewMode('cards')}
-            className="gap-2"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Cards
-          </Button>
-          <Button
-            variant={viewMode === 'table' ? 'default' : 'outline'}
-            onClick={() => setViewMode('table')}
-            className="gap-2"
-          >
-            <Table2 className="h-4 w-4" />
-            Table
-          </Button>
-          <Button
-            variant={viewMode === 'charts' ? 'default' : 'outline'}
-            onClick={() => setViewMode('charts')}
-            className="gap-2"
-          >
-            <BarChart className="h-4 w-4" />
-            Charts
-          </Button>
-        </div>
-      )}
+      {/* Tabs for Schedule and Generated Data */}
+      <Tabs defaultValue="schedule" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="schedule" className="gap-2">
+            <Calendar className="h-4 w-4" />
+            Payment Schedule
+          </TabsTrigger>
+          <TabsTrigger value="generate" className="gap-2">
+            <CreditCard className="h-4 w-4" />
+            Generated Data
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Results Display */}
-      {paymentData.length === 0 ? (
-        <Card className="shadow-md">
-          <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
-            <CreditCard className="h-16 w-16 text-muted-foreground opacity-50" />
-            <p className="text-lg text-muted-foreground">No payment data available</p>
-            <p className="text-sm text-muted-foreground">Select filters and generate data to view results</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          {/* Graphical Cards View */}
-          {viewMode === 'cards' && (
+        {/* Payment Schedule Tab */}
+        <TabsContent value="schedule" className="mt-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Calendar className="h-6 w-6" />
+                Payment Schedule Overview
+              </CardTitle>
+              <CardDescription>View all countries, merchants, and their scheduled payment times</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Country</TableHead>
+                      <TableHead>Merchant ID</TableHead>
+                      <TableHead>Scheduled Time</TableHead>
+                      <TableHead>Frequency</TableHead>
+                      <TableHead>Next Run</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paymentSchedules.map((schedule, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{schedule.country}</TableCell>
+                        <TableCell className="font-mono text-sm">{schedule.merchant}</TableCell>
+                        <TableCell>{schedule.scheduledTime}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{schedule.frequency}</Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{schedule.nextRun}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Generated Payment Data Tab */}
+        <TabsContent value="generate" className="mt-6 space-y-6">
+          {/* View Toggle */}
+          {paymentData.length > 0 && (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant={viewMode === 'cards' ? 'default' : 'outline'}
+                onClick={() => setViewMode('cards')}
+                className="gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Cards
+              </Button>
+              <Button
+                variant={viewMode === 'table' ? 'default' : 'outline'}
+                onClick={() => setViewMode('table')}
+                className="gap-2"
+              >
+                <Table2 className="h-4 w-4" />
+                Table
+              </Button>
+              <Button
+                variant={viewMode === 'charts' ? 'default' : 'outline'}
+                onClick={() => setViewMode('charts')}
+                className="gap-2"
+              >
+                <BarChart className="h-4 w-4" />
+                Charts
+              </Button>
+            </div>
+          )}
+
+          {/* Results Display */}
+          {paymentData.length === 0 ? (
+            <Card className="shadow-md">
+              <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
+                <CreditCard className="h-16 w-16 text-muted-foreground opacity-50" />
+                <p className="text-lg text-muted-foreground">No payment data available</p>
+                <p className="text-sm text-muted-foreground">Select filters and generate data to view results</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {/* Graphical Cards View */}
+              {viewMode === 'cards' && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
               {paymentData.map((payment, index) => (
                 <Card key={index} className="shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -654,8 +655,8 @@ const PaymentsOverview = () => {
               </Card>
             </div>
           )}
-        </>
-      )}
+            </>
+          )}
         </TabsContent>
       </Tabs>
     </div>
