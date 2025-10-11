@@ -54,6 +54,9 @@ const PaymentsOverview = () => {
   const [paymentData, setPaymentData] = useState<PaymentData[]>([]);
   const [viewMode, setViewMode] = useState<'cards' | 'table' | 'charts'>('cards');
   const [isFormExpanded, setIsFormExpanded] = useState(true);
+  const [scheduleCountryFilter, setScheduleCountryFilter] = useState<string>('all');
+  const [scheduleMerchantFilter, setScheduleMerchantFilter] = useState<string>('all');
+  const [scheduleFrequencyFilter, setScheduleFrequencyFilter] = useState<string>('all');
 
   const generateRandomData = (): void => {
     const data: PaymentData[] = [];
@@ -197,6 +200,17 @@ const PaymentsOverview = () => {
     'In Progress': '#3b82f6',
     'Exception': '#ef4444',
   };
+
+  // Filter payment schedules based on selected filters
+  const filteredSchedules = paymentSchedules.filter(schedule => {
+    const matchesCountry = scheduleCountryFilter === 'all' || schedule.country === scheduleCountryFilter;
+    const matchesMerchant = scheduleMerchantFilter === 'all' || schedule.merchant === scheduleMerchantFilter;
+    const matchesFrequency = scheduleFrequencyFilter === 'all' || schedule.frequency === scheduleFrequencyFilter;
+    return matchesCountry && matchesMerchant && matchesFrequency;
+  });
+
+  // Get unique frequencies from payment schedules
+  const uniqueFrequencies = Array.from(new Set(paymentSchedules.map(s => s.frequency)));
 
   return (
     <div className="w-full p-6 space-y-6">
@@ -351,11 +365,63 @@ const PaymentsOverview = () => {
         <TabsContent value="schedule" className="mt-6">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <Calendar className="h-6 w-6" />
-                Payment Schedule Overview
-              </CardTitle>
-              <CardDescription>View all countries, merchants, and their scheduled payment times</CardDescription>
+              <div className="space-y-4">
+                <div>
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <Calendar className="h-6 w-6" />
+                    Payment Schedule Overview
+                  </CardTitle>
+                  <CardDescription>View all countries, merchants, and their scheduled payment times</CardDescription>
+                </div>
+                
+                {/* Filter Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Country</Label>
+                    <Select value={scheduleCountryFilter} onValueChange={setScheduleCountryFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Countries" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Countries</SelectItem>
+                        {countries.map(country => (
+                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Merchant ID</Label>
+                    <Select value={scheduleMerchantFilter} onValueChange={setScheduleMerchantFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Merchants" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Merchants</SelectItem>
+                        {merchantIds.map(merchant => (
+                          <SelectItem key={merchant} value={merchant}>{merchant}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Frequency</Label>
+                    <Select value={scheduleFrequencyFilter} onValueChange={setScheduleFrequencyFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Frequencies" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Frequencies</SelectItem>
+                        {uniqueFrequencies.map(freq => (
+                          <SelectItem key={freq} value={freq}>{freq}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -370,17 +436,25 @@ const PaymentsOverview = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paymentSchedules.map((schedule, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{schedule.country}</TableCell>
-                        <TableCell className="font-mono text-sm">{schedule.merchant}</TableCell>
-                        <TableCell>{schedule.scheduledTime}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{schedule.frequency}</Badge>
+                    {filteredSchedules.length > 0 ? (
+                      filteredSchedules.map((schedule, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{schedule.country}</TableCell>
+                          <TableCell className="font-mono text-sm">{schedule.merchant}</TableCell>
+                          <TableCell>{schedule.scheduledTime}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{schedule.frequency}</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{schedule.nextRun}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                          No schedules match the selected filters
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{schedule.nextRun}</TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </div>
