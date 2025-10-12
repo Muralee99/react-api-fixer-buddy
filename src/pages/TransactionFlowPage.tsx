@@ -66,36 +66,33 @@ const TransactionFlowPage = () => {
         </div>
       </header>
       
-      <main className="flex-1">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
-          {!isSidebarCollapsed && (
-            <>
-              <ResizablePanel defaultSize={25} minSize={20} maxSize={35}>
-                <div className="h-full p-4">
-                  <TransactionFilterSidebar onFiltersChange={handleFiltersChange} />
-                </div>
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-            </>
-          )}
-          
-          <ResizablePanel defaultSize={isSidebarCollapsed ? 100 : 75}>
-            <div className="h-full p-4 md:p-6 space-y-6 overflow-auto">
-              <TransactionFilterForm onSearch={handleSearch} isLoading={isLoading} />
-              {searched && (
-                <div>
-                  {transactions.length > 0 ? (
-                    <TransactionsTable transactions={transactions} />
-                  ) : (
-                    <div className="text-center py-10">
-                      <p>No transactions found for the selected criteria.</p>
-                    </div>
-                  )}
+      <main className="flex-1 flex relative">
+        <aside 
+          className={`h-full transition-all duration-300 ease-in-out bg-background border-r ${
+            isSidebarCollapsed ? 'w-0' : 'w-80'
+          }`}
+        >
+          <div className={`h-full p-4 overflow-hidden transition-opacity duration-300 ${
+            isSidebarCollapsed ? 'opacity-0' : 'opacity-100'
+          }`}>
+            <TransactionFilterSidebar onFiltersChange={handleFiltersChange} />
+          </div>
+        </aside>
+
+        <div className="flex-1 h-full p-4 md:p-6 space-y-6 overflow-auto">
+          <TransactionFilterForm onSearch={handleSearch} isLoading={isLoading} />
+          {searched && (
+            <div>
+              {transactions.length > 0 ? (
+                <TransactionsTable transactions={transactions} />
+              ) : (
+                <div className="text-center py-10">
+                  <p>No transactions found for the selected criteria.</p>
                 </div>
               )}
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          )}
+        </div>
       </main>
     </div>
   );
