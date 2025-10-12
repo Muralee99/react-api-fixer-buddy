@@ -57,6 +57,10 @@ const PaymentsOverview = () => {
   const [scheduleCountryFilter, setScheduleCountryFilter] = useState<string>('all');
   const [scheduleMerchantFilter, setScheduleMerchantFilter] = useState<string>('all');
   const [scheduleFrequencyFilter, setScheduleFrequencyFilter] = useState<string>('all');
+  const [isCountriesExpanded, setIsCountriesExpanded] = useState(true);
+  const [isMerchantsExpanded, setIsMerchantsExpanded] = useState(true);
+  const [isPaymentMethodsExpanded, setIsPaymentMethodsExpanded] = useState(true);
+  const [isStatusesExpanded, setIsStatusesExpanded] = useState(true);
 
   const generateRandomData = (): void => {
     const data: PaymentData[] = [];
@@ -239,8 +243,17 @@ const PaymentsOverview = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Country Multi-Select */}
               <div className="space-y-3">
-                <Label className="text-base font-semibold">Countries</Label>
-                <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card">
+                <div 
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setIsCountriesExpanded(!isCountriesExpanded)}
+                >
+                  <Label className="text-base font-semibold">Countries</Label>
+                  {isCountriesExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+                <div className={cn(
+                  "border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card transition-all duration-300",
+                  isCountriesExpanded ? "opacity-100" : "max-h-0 p-0 border-0 opacity-0 overflow-hidden"
+                )}>
                   {countries.map(country => (
                     <div key={country} className="flex items-center space-x-2">
                       <Checkbox
@@ -261,8 +274,17 @@ const PaymentsOverview = () => {
 
               {/* Merchant Multi-Select */}
               <div className="space-y-3">
-                <Label className="text-base font-semibold">Merchant IDs</Label>
-                <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card">
+                <div 
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setIsMerchantsExpanded(!isMerchantsExpanded)}
+                >
+                  <Label className="text-base font-semibold">Merchant IDs</Label>
+                  {isMerchantsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+                <div className={cn(
+                  "border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card transition-all duration-300",
+                  isMerchantsExpanded ? "opacity-100" : "max-h-0 p-0 border-0 opacity-0 overflow-hidden"
+                )}>
                   {merchantIds.map(merchant => (
                     <div key={merchant} className="flex items-center space-x-2">
                       <Checkbox
@@ -283,8 +305,17 @@ const PaymentsOverview = () => {
 
               {/* Payment Method Multi-Select */}
               <div className="space-y-3">
-                <Label className="text-base font-semibold">Payment Methods</Label>
-                <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card">
+                <div 
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setIsPaymentMethodsExpanded(!isPaymentMethodsExpanded)}
+                >
+                  <Label className="text-base font-semibold">Payment Methods</Label>
+                  {isPaymentMethodsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+                <div className={cn(
+                  "border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card transition-all duration-300",
+                  isPaymentMethodsExpanded ? "opacity-100" : "max-h-0 p-0 border-0 opacity-0 overflow-hidden"
+                )}>
                   {paymentMethods.map(method => (
                     <div key={method} className="flex items-center space-x-2">
                       <Checkbox
@@ -305,8 +336,17 @@ const PaymentsOverview = () => {
 
               {/* Payment Status Multi-Select */}
               <div className="space-y-3">
-                <Label className="text-base font-semibold">Payment Status</Label>
-                <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card">
+                <div 
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setIsStatusesExpanded(!isStatusesExpanded)}
+                >
+                  <Label className="text-base font-semibold">Payment Status</Label>
+                  {isStatusesExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+                <div className={cn(
+                  "border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card transition-all duration-300",
+                  isStatusesExpanded ? "opacity-100" : "max-h-0 p-0 border-0 opacity-0 overflow-hidden"
+                )}>
                   {paymentStatuses.map(status => (
                     <div key={status} className="flex items-center space-x-2">
                       <Checkbox
